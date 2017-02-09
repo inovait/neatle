@@ -30,13 +30,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Created by tomazs on 9/20/2016.
- */
-
 public class OperationResults {
     private final BluetoothDevice device;
-    private Map<UUID, CommandResult> results = new HashMap();
+    private Map<UUID, CommandResult> results = new HashMap<>();
     private boolean success = false;
 
     public OperationResults(BluetoothDevice device) {

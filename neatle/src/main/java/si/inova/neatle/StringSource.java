@@ -26,9 +26,6 @@ package si.inova.neatle;
 
 import java.io.IOException;
 
-/**
- * Created by tomazs on 9/27/2016.
- */
 public class StringSource implements InputSource {
 
     private final String str;

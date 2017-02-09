@@ -31,22 +31,19 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
-/**
- * Created by tomazs on 9/23/2016.
- */
 public class CommandResult {
 
     private final UUID uuid;
     private final byte[] data;
     private final int status;
+    private final long when;
 
-
-    protected CommandResult(UUID uuid, byte[] data, int status) {
+    protected CommandResult(UUID uuid, byte[] data, int status, long when) {
         this.uuid = uuid;
         this.data = data;
         this.status = status;
+        this.when = when;
     }
-
 
     public byte[] getValue() {
         return data;
@@ -74,6 +71,10 @@ public class CommandResult {
         return status;
     }
 
+    public long getWhen() {
+        return when;
+    }
+
     public boolean wasSuccessful() {
         return status == BluetoothGatt.GATT_SUCCESS;
     }
@@ -84,19 +85,23 @@ public class CommandResult {
     }
 
     public static CommandResult onCharacteristicRead(BluetoothGattCharacteristic characteristic, int status) {
-        return new CommandResult(characteristic.getUuid(), characteristic.getValue(), status);
+        long when = System.currentTimeMillis();
+        return new CommandResult(characteristic.getUuid(), characteristic.getValue(), status, when);
     }
 
     public static CommandResult createErrorResult(UUID characteristicUUID, int error) {
-        return new CommandResult(characteristicUUID, null, error);
+        long when = System.currentTimeMillis();
+        return new CommandResult(characteristicUUID, null, error, when);
     }
 
     public static CommandResult createEmptySuccess(UUID characteristicUUID) {
-        return new CommandResult(characteristicUUID, null, BluetoothGatt.GATT_SUCCESS);
+        long when = System.currentTimeMillis();
+        return new CommandResult(characteristicUUID, null, BluetoothGatt.GATT_SUCCESS, when);
     }
 
     public static CommandResult onCharacteristicChanged(BluetoothGattCharacteristic characteristic) {
-        return new CommandResult(characteristic.getUuid(), characteristic.getValue(), BluetoothGatt.GATT_SUCCESS);
+        long when = System.currentTimeMillis();
+        return new CommandResult(characteristic.getUuid(), characteristic.getValue(), BluetoothGatt.GATT_SUCCESS, when);
     }
 
     public int getValueAsInt8() {

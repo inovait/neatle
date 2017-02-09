@@ -32,9 +32,6 @@ import android.bluetooth.BluetoothGattService;
 import java.util.Arrays;
 import java.util.UUID;
 
-/**
- * Created by tomazs on 10/4/2016.
- */
 class SubscribeCommand extends Command {
 
     private static final UUID CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
@@ -42,7 +39,6 @@ class SubscribeCommand extends Command {
     public static final int SUBSCRIBE_NOTIFICATION = 1;
     public static final int SUBSCRIBE_INDICATION = 2;
     public static final int UNSUBSCRIBE = 3;
-
 
     private final UUID serviceUUID;
     private final UUID characteristicsUUID;

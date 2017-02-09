@@ -30,9 +30,6 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import java.util.LinkedList;
 import java.util.UUID;
 
-/**
- * Created by tomazs on 9/20/2016.
- */
 public class OperationBuilder {
     private LinkedList<Command> cmds = new LinkedList<>();
     private OperationObserver masterObserver;
@@ -116,5 +113,4 @@ public class OperationBuilder {
     public Operation build(BluetoothDevice device) {
         return new OperationImpl(device, cmds, masterObserver, retryCount);
     }
-
 }

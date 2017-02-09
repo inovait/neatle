@@ -26,12 +26,13 @@ package si.inova.neatle;
 
 import java.io.IOException;
 
-/**
- * Created by tomazs on 9/26/2016.
- */
 public interface InputSource {
 
-
+    /**
+     * Opens the stream source.
+     *
+     * @throws IOException
+     */
     void open() throws IOException;
 
     /**
@@ -41,6 +42,10 @@ public interface InputSource {
      */
     byte[] nextChunk() throws IOException;
 
-
+    /**
+     * Closes the stream source.
+     *
+     * @throws IOException
+     */
     void close() throws IOException;
 }

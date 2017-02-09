@@ -35,10 +35,6 @@ import android.os.Handler;
 import java.util.Collection;
 import java.util.LinkedList;
 
-/**
- * Created by tomazs on 9/20/2016.
- */
-
 class OperationImpl implements Operation {
     private static Command NO_COMMAND = new NoCommand();
 
@@ -113,20 +109,6 @@ class OperationImpl implements Operation {
     }
 
     @Override
-    public void yieldTo(Operation operation) {
-        if (!(operation instanceof OperationImpl)) {
-            throw new IllegalArgumentException("Cannot yield to an unsupported operation type");
-        }
-        OperationImpl impl = ((OperationImpl) operation);
-        connection.yield(callback, impl.callback);
-        impl.connection = this.connection;
-        synchronized (this) {
-            this.yielded = true;
-        }
-
-    }
-
-    @Override
     public void cancel() {
         synchronized (this) {
             canceled = true;
@@ -169,6 +151,7 @@ class OperationImpl implements Operation {
     }
 
 
+
     private synchronized Command current() {
         return current;
     }
@@ -187,7 +170,7 @@ class OperationImpl implements Operation {
                     retry();
                     return;
                 }
-                NeatleLogger.d("Command failed. Aborting operation. Error: " + lastResult.getStatus());
+                NeatleLogger.i("Command failed. Aborting operation. Error: " + lastResult.getStatus());
                 done(lastResult.getStatus());
                 return;
             }
@@ -196,6 +179,7 @@ class OperationImpl implements Operation {
             current = commandQueue.poll();
             NeatleLogger.d("Continuing with " + current + " after " + old + " with " + lastResult);
             if (current == null) {
+                current = NO_COMMAND;
                 done(BluetoothGatt.GATT_SUCCESS);
                 return;
             }
@@ -243,7 +227,7 @@ class OperationImpl implements Operation {
                 @Override
                 public void run() {
                     OperationObserver opObserver = command.getOperationObserver();
-                    if (opObserver != null) {
+                    if (opObserver  != null) {
                         if (result.wasSuccessful()) {
                             opObserver.onCommandSuccess(OperationImpl.this, result, results);
                         }
@@ -342,7 +326,6 @@ class OperationImpl implements Operation {
         }
 
         @Override
-        protected void onError(int error) {
-        }
+        protected void onError(int error) {}
     }
 }

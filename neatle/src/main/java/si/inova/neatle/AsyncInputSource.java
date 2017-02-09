@@ -27,9 +27,6 @@ package si.inova.neatle;
 /**
  * A marker interface telling neatle to retrieve the data from
  * a non EDT thread, for example from a file
- * <p>
- * Created by tomazs on 9/27/2016.
  */
-
-public interface AsncInputSource extends InputSource {
+public interface AsyncInputSource extends InputSource {
 }

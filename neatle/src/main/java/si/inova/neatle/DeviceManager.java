@@ -29,10 +29,8 @@ import android.content.Context;
 
 import java.util.HashMap;
 
-/**
- * Created by tomazs on 9/20/2016.
- */
 class DeviceManager {
+
     private final Context context;
     private HashMap<String, Device> devices = new HashMap<>();
 

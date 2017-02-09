@@ -28,22 +28,19 @@ package si.inova.neatle;
  * Listener for connection events on a bluetooth LE device.
  *
  * @see Neatle#getConnection
- * Created by tomazs on 9/27/2016.
  */
 public interface ConnectionHandler {
 
     int ON_IDLE_KEEP_ALIVE = 1;
     int ON_IDLE_DISCONNECT = 0;
 
-
     /**
      * Called when there is no active subscription or any pending operations. By default
      * an idle connection will be disconnected. In case of multiple handler, ON_IDLE_KEEP_ALIVE
      * will win over ON_IDLE_DISCONNECT.
      *
-     * @param connection
+     * @param connection the connection of this event
      * @return ON_IDLE_DISCONNECT if
      */
     int onConnectionIdle(Connection connection);
-
 }

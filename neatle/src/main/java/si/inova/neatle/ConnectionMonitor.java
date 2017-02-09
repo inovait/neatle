@@ -34,12 +34,11 @@ import android.os.Handler;
 
 /**
  * Monitors the connection with a bluetooth device.
- * <p>
- * Created by tomazs on 10/3/2016.
  */
 public class ConnectionMonitor {
-    private static long DEFAULT_RECONNECT_TIMEOUT = 2500L;
-    private static long MAX_RECONNECT_TIMEOUT = 60 * 1000L;
+
+    private static final long DEFAULT_RECONNECT_TIMEOUT = 2500L;
+    private static final long MAX_RECONNECT_TIMEOUT = 60 * 1000L;
 
     private final BluetoothDevice device;
     private final Handler handler;
@@ -65,7 +64,6 @@ public class ConnectionMonitor {
             }
         }
     };
-
 
     public ConnectionMonitor(BluetoothDevice device) {
         if (device == null) {

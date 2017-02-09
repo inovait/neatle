@@ -41,10 +41,10 @@ import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * Created by tomazs on 9/20/2016.
- */
 class Device implements Connection {
+
+    private static final long DISCOVER_DEVICE_TIMEOUT = 30 * 1000;
+
     private final BluetoothDevice device;
     private final Handler handler;
 
@@ -57,8 +57,6 @@ class Device implements Connection {
 
     private LinkedList<BluetoothGattCallback> queue = new LinkedList<>();
     private BluetoothGattCallback currentCallback = DO_NOTHING_CALLBACK;
-
-    private static long DISCOVER_DEVICE_TIMEOUT = 30 * 1000;
 
     private final Object lock = new Object();
     private boolean serviceDiscovered;
@@ -114,7 +112,7 @@ class Device implements Connection {
         synchronized (lock) {
             CopyOnWriteArrayList<CharacteristicsChangedListener> list = changeListeners.get(characteristicsUUID);
             if (list == null) {
-                list = new CopyOnWriteArrayList();
+                list = new CopyOnWriteArrayList<>();
                 list.add(listener);
                 changeListeners.put(characteristicsUUID, list);
             } else if (!list.contains(listener)) {
@@ -170,15 +168,22 @@ class Device implements Connection {
     }
 
     public void execute(BluetoothGattCallback callback) {
+        NeatleLogger.d("Execute " + callback);
+        boolean wasIdle;
         synchronized (lock) {
+            wasIdle = currentCallback == DO_NOTHING_CALLBACK;
             if (currentCallback == callback || queue.contains(callback)) {
                 NeatleLogger.d("Restarting " + callback);
             } else {
+                NeatleLogger.d("Queueing up " + callback);
                 queue.add(callback);
             }
         }
-
-        resume();
+        if (wasIdle && areServicesDiscovered()) {
+            resume();
+        } else {
+            connect();
+        }
     }
 
     private void disconnectOnIdle() {
@@ -213,10 +218,14 @@ class Device implements Connection {
         });
     }
 
+    /**
+     *
+     */
     private void resume() {
         BluetoothGattCallback target;
         BluetoothGatt targetGatt;
         boolean doResume;
+
         synchronized (lock) {
             if (currentCallback == DO_NOTHING_CALLBACK) {
                 BluetoothGattCallback newCallback = queue.poll();
@@ -482,7 +491,7 @@ class Device implements Connection {
         }
     }
 
-    public void yield(BluetoothGattCallback from, BluetoothGattCallback to) {
+    /*public void yield(BluetoothGattCallback from, BluetoothGattCallback to) {
         synchronized (lock) {
             if (currentCallback == from) {
                 queue.add(0, currentCallback);
@@ -499,7 +508,7 @@ class Device implements Connection {
             }
         });
 
-    }
+    }*/
 
     public BluetoothDevice getBluetoothDevice() {
         return device;
@@ -548,7 +557,7 @@ class Device implements Connection {
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            NeatleLogger.d("onCharacteristicWrite");
+            NeatleLogger.d("onCharacteristicWrite " + status);
             BluetoothGattCallback target;
             synchronized (lock) {
                 target = currentCallback;

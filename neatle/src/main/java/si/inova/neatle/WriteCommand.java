@@ -32,9 +32,6 @@ import android.os.Handler;
 import java.io.IOException;
 import java.util.UUID;
 
-/**
- * Created by tomazs on 9/26/2016.
- */
 public class WriteCommand extends Command {
 
     private final UUID serviceUUID;
@@ -47,7 +44,7 @@ public class WriteCommand extends Command {
     private BluetoothGatt gatt;
     private int writeType;
 
-    private Object readyToRead = new Object();
+    private final Object readyToRead = new Object();
     private boolean reading = false;
     private final boolean asyncMode;
 
@@ -60,19 +57,21 @@ public class WriteCommand extends Command {
         this.writeType = writeType;
         this.handler = new Handler();
 
-        this.asyncMode = buffer instanceof AsncInputSource;
+        this.asyncMode = buffer instanceof AsyncInputSource;
     }
 
     @Override
     protected void execute(Connection connection, BluetoothGatt gatt, OperationResults results) {
         BluetoothGattService service = gatt.getService(serviceUUID);
         if (service == null) {
+            NeatleLogger.i("Service for write not found " + serviceUUID);
             finish(CommandResult.createErrorResult(characteristicsUUID, BluetoothGatt.GATT_FAILURE));
             return;
         }
 
         writeCharacteristic = service.getCharacteristic(characteristicsUUID);
         if (writeCharacteristic == null) {
+            NeatleLogger.i("Characteristic not found " + characteristicsUUID);
             finish(CommandResult.createErrorResult(characteristicsUUID, BluetoothGatt.GATT_FAILURE));
             return;
         }
@@ -116,14 +115,12 @@ public class WriteCommand extends Command {
             finish(CommandResult.createErrorResult(characteristicsUUID, BluetoothGatt.GATT_FAILURE));
             return;
         }
-
     }
-
 
     @Override
     protected void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         if (status != BluetoothGatt.GATT_SUCCESS) {
-            NeatleLogger.d("Write on " + characteristic.getUuid() + " failed with status " + status);
+            NeatleLogger.i("Write on " + characteristic.getUuid() + " failed with status " + status);
             finish(CommandResult.createErrorResult(characteristicsUUID, status));
             return;
         }
@@ -152,7 +149,7 @@ public class WriteCommand extends Command {
 
     @Override
     protected void onError(int error) {
-        NeatleLogger.d("Unexpected error while writing ");
+        NeatleLogger.e("Unexpected error while writing ");
         finish(CommandResult.createErrorResult(characteristicsUUID, error));
 
         if (asyncMode && readerThread != null) {
@@ -192,10 +189,8 @@ public class WriteCommand extends Command {
                 }
 
 
-            } catch (IOException ex) {
+            } catch (IOException | InterruptedException ex) {
                 fail(ex);
-            } catch (InterruptedException e) {
-                fail(e);
             }
         }
 

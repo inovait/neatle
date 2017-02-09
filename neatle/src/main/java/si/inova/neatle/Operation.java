@@ -26,20 +26,9 @@ package si.inova.neatle;
 
 import android.content.Context;
 
-/**
- * Created by tomazs on 9/20/2016.
- */
 public interface Operation {
 
     void execute(Context context);
-
-    /**
-     * Yields the control to this operation. Once the given operation finishes the
-     * this operation will resume.
-     *
-     * @param operation the operation that will "take" control.
-     */
-    void yieldTo(Operation operation);
 
     void cancel();
 

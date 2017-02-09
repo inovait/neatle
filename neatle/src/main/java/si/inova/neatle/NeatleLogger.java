@@ -26,9 +26,6 @@ package si.inova.neatle;
 
 import android.util.Log;
 
-/**
- * Created by tomazs on 9/26/2016.
- */
 class NeatleLogger {
 
     private static final String LOG_TAG = "Neatle";

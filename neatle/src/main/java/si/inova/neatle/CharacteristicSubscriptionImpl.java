@@ -31,9 +31,6 @@ import android.os.Handler;
 
 import java.util.UUID;
 
-/**
- * Created by tomazs on 10/4/2016.
- */
 class CharacteristicSubscriptionImpl implements CharacteristicSubscription {
 
     private static final long RECONNECT_TIMEOUT = 5000;

@@ -28,11 +28,8 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 
-/**
- * Created by tomazs on 9/20/2016.
- */
-
 abstract class Command {
+
     static final int SERVICE_NOT_FOUND = BluetoothGatt.GATT_FAILURE + 10;
     static final int CHARACTERISTIC_NOT_FOUND = SERVICE_NOT_FOUND + 1;
     static final int DESCRIPTOR_NOT_FOUND = CHARACTERISTIC_NOT_FOUND + 1;
@@ -59,7 +56,6 @@ abstract class Command {
         execute(connection, gatt, results);
     }
 
-
     protected abstract void execute(Connection connection, BluetoothGatt gatt, OperationResults results);
 
     protected abstract void onError(int error);
@@ -72,7 +68,6 @@ abstract class Command {
         oc.finished(this, result);
 
     }
-
 
     protected void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         if (status != BluetoothGatt.GATT_SUCCESS || newState != BluetoothGatt.STATE_CONNECTED) {
@@ -103,6 +98,4 @@ abstract class Command {
 
     protected void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
     }
-
-
 }

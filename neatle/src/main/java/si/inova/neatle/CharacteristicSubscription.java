@@ -33,11 +33,9 @@ import java.util.UUID;
  * A subscription for a GATT notifications/indications.
  *
  * @see Neatle#createSubscription(BluetoothDevice, UUID, UUID)
- * <p>
- * Created by tomazs on 10/4/2016.
  */
-
 public interface CharacteristicSubscription {
+
     /**
      * Sets the listener that will be called on characteristic changes.
      *
@@ -60,6 +58,4 @@ public interface CharacteristicSubscription {
      * is an active connection.
      */
     void stop();
-
-
 }

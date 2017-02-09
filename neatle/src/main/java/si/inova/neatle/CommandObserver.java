@@ -24,9 +24,6 @@
 
 package si.inova.neatle;
 
-/**
- * Created by tomazs on 9/23/2016.
- */
 interface CommandObserver {
 
     void finished(Command command, CommandResult result);

@@ -26,10 +26,6 @@ package si.inova.neatle;
 
 import java.io.IOException;
 
-/**
- * Created by tomazs on 9/27/2016.
- */
-
 public class ByteArrayInputSource implements InputSource {
 
     private final byte[] data;
@@ -52,11 +48,11 @@ public class ByteArrayInputSource implements InputSource {
         if (data == null) {
             return null;
         }
-        int remaning = data.length - offset;
-        if (remaning <= 0) {
+        int remaining = data.length - offset;
+        if (remaining <= 0) {
             return null;
         }
-        int chunkSize = Math.min(20, remaning);
+        int chunkSize = Math.min(20, remaining);
 
         byte[] ret = new byte[chunkSize];
         System.arraycopy(data, offset, ret, 0, chunkSize);

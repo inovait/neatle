@@ -26,11 +26,7 @@ package si.inova.neatle;
 
 /**
  * Listener for characteristics changes.
- * <p>
- * <p>
- * Created by tomazs on 10/4/2016.
  */
-
 public interface CharacteristicsChangedListener {
 
     void onCharacteristicChanged(CommandResult change);

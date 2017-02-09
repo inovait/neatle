@@ -64,9 +64,10 @@ public interface Connection {
      * Disconnects and aborts any pending commends. Generally you don't want to
      * manually disconnect - just make sure all operations are canceled and any
      * persistent subscriptions are stopped.
-     * <p>
+     *
      * Note: If there are any persistant subscriptions they try to re-establish the
      * connection after this disconnect.
+     *
      */
     void disconnect();
 
@@ -78,12 +79,12 @@ public interface Connection {
 
     /**
      * Add a change listener that will be notified when the devices notifies a characteristic change.
-     * <p>
+     *
      * <b>Note:</b> This method by itself won't subscribe to notifcations/indications, to do
      * so use {@link Neatle#createSubscription(BluetoothDevice, UUID, UUID)}
      *
      * @param characteristicsUUID the UUUID of the desired characteristics
-     * @param listener            the listener to add
+     * @param listener the listener to add
      */
     void addCharacteristicsChangedListener(UUID characteristicsUUID, CharacteristicsChangedListener listener);
 
@@ -91,7 +92,7 @@ public interface Connection {
      * Removes the change listener privously added by {@link #addCharacteristicsChangedListener}
      *
      * @param characteristicsUUID characteristics UUID
-     * @param listener            the listener to remove
+     * @param listener the listener to remove
      */
     void removeCharacteristicsChangedListener(UUID characteristicsUUID, CharacteristicsChangedListener listener);
 
@@ -99,6 +100,7 @@ public interface Connection {
      * Gets the number of change listeners on the given characteristic.
      *
      * @param characteristicsUUID
+     *
      * @return the number of listeners or 0 is there are none
      */
     int getCharacteristicsChangedListenerCount(UUID characteristicsUUID);

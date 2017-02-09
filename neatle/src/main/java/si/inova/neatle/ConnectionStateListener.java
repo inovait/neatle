@@ -24,10 +24,6 @@
 
 package si.inova.neatle;
 
-/**
- * Created by tomazs on 10/5/2016.
- */
-
 public interface ConnectionStateListener {
 
     void onConnectionStateChanged(Connection connection, int newState);

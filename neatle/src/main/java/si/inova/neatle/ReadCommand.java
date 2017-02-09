@@ -30,14 +30,10 @@ import android.bluetooth.BluetoothGattService;
 
 import java.util.UUID;
 
-/**
- * Created by tomazs on 9/20/2016.
- */
 class ReadCommand extends Command {
 
     private final UUID serviceUUID;
     private final UUID characteristicUUID;
-
 
     public ReadCommand(UUID serviceUUID, UUID characteristicUUID, OperationObserver operationObserver) {
         super(operationObserver);

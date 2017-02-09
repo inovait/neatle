@@ -24,12 +24,7 @@
 
 package si.inova.neatle;
 
-/**
- * Created by tomazs on 9/20/2016.
- */
-
 public interface OperationControl {
 
     void finished(Command command, OperationResults results, int status);
-
 }

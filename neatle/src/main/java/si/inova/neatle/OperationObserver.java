@@ -24,10 +24,6 @@
 
 package si.inova.neatle;
 
-/**
- * Created by tomazs on 9/20/2016.
- */
-
 public abstract class OperationObserver {
 
     /**
@@ -45,9 +41,9 @@ public abstract class OperationObserver {
     public void onCommandFinished(Operation operation, CommandResult result, OperationResults results) {
     }
 
-
+    /**
+     * Invoked when an operation has finished either successfully or unsuccessfully.
+     */
     public void onOperationFinished(Operation op, OperationResults results) {
     }
-
-
 }

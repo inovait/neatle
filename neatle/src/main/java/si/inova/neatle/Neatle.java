@@ -30,9 +30,8 @@ import android.content.Context;
 import java.util.UUID;
 
 /**
- * Created by tomazs on 9/20/2016.
+ * The starting point of the NeatLE library.
  */
-
 public class Neatle {
 
     public static Connection getConnection(Context context, BluetoothDevice device) {
