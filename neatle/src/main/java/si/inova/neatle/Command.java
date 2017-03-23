@@ -35,7 +35,7 @@ abstract class Command {
     static final int DESCRIPTOR_NOT_FOUND = CHARACTERISTIC_NOT_FOUND + 1;
 
     private final OperationObserver operationObserver;
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
     private OperationResults results;
     private CommandObserver observer;

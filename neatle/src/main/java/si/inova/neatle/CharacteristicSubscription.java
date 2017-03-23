@@ -32,7 +32,7 @@ import java.util.UUID;
 /**
  * A subscription for a GATT notifications/indications.
  *
- * @see Neatle#createSubscription(BluetoothDevice, UUID, UUID)
+ * @see Neatle#createSubscription(Context, BluetoothDevice, UUID, UUID)
  */
 public interface CharacteristicSubscription {
 
@@ -50,7 +50,7 @@ public interface CharacteristicSubscription {
      * <p>
      * It's save to call start multitple times.
      */
-    void start(Context context);
+    void start();
 
     /**
      * Stops listening for characteristics changes. If there is no other subscription for this

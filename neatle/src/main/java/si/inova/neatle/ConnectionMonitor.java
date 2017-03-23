@@ -65,55 +65,69 @@ public class ConnectionMonitor {
         }
     };
 
-    public ConnectionMonitor(BluetoothDevice device) {
+    public ConnectionMonitor(Context context, BluetoothDevice device) {
         if (device == null) {
-            throw new IllegalArgumentException("device cannot be null");
+            throw new IllegalArgumentException("Device cannot be null");
+        } else if (context == null) {
+            throw new IllegalArgumentException("Context cannot be null");
         }
+
+        this.context = context.getApplicationContext();
         this.device = device;
         this.handler = new Handler();
     }
 
     /**
-     * When true, the connection will stay alive even if there
-     * is no active subscription or any pending commands.
+     * When true, the connection will stay alive even if there is no active subscription or any
+     * pending commands.
      *
-     * @param keepAlive {@code true} to keep the connection alive, false to
-     *                  disconnect when the connection is idle (and no other connection monitor is set to keep alive)
+     * @param keepAlive {@code true} to keep the connection alive, {@code false} to
+     *                  disconnect when the connection is idle (and no other connection monitor
+     *                  is set to keep alive)
      */
     public void setKeepAlive(boolean keepAlive) {
         this.keepAlive = keepAlive;
     }
 
+    /**
+     * Adds a connection state listener to this monitor. The listener will be triggered on any
+     * changes to the connection (e.g. connect / disconnect).
+     *
+     * @param connectionStateListener the lsitener.
+     */
     public void setOnConnectionStateListener(ConnectionStateListener connectionStateListener) {
         this.connectionStateListener = connectionStateListener;
     }
 
     /**
-     * Starts this connection monitor.
+     * Starts this connection monitor, if it's not already running.
      */
-    public void start(Context context) {
+    public void start() {
         if (connection != null) {
             return;
         }
 
-        this.context = context.getApplicationContext();
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        this.context.registerReceiver(mReceiver, filter);
+        context.registerReceiver(mReceiver, filter);
 
-        connection = Neatle.getConnection(this.context, this.device);
+        connection = Neatle.getConnection(context, device);
         connection.addConnectionHandler(connectionHandler);
         connection.addConnectionStateListener(connectionHandler);
 
-        if (this.keepAlive) {
+        if (keepAlive) {
             connection.connect();
         }
     }
 
+    /**
+     * Stops this connection monitor, if it's running.
+     */
     public void stop() {
-        if (context != null) {
-            context.unregisterReceiver(mReceiver);
-            this.context = null;
+        if (connection == null) {
+            return;
         }
+
+        context.unregisterReceiver(mReceiver);
         handler.removeCallbacks(reconnectRunnable);
         if (connection != null) {
             connection.removeConnectionStateListener(connectionHandler);
@@ -122,14 +136,19 @@ public class ConnectionMonitor {
         }
     }
 
+    /**
+     * Returns the device this connection monitor is listening for.
+     *
+     * @return the bluetooth device.
+     */
+    public BluetoothDevice getDevice() {
+        return device;
+    }
+
     private void onBluetoothTurnedOn() {
         if (keepAlive && connection != null) {
             connection.connect();
         }
-    }
-
-    public BluetoothDevice getDevice() {
-        return device;
     }
 
     private class ConnHandler implements ConnectionHandler, ConnectionStateListener {

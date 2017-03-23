@@ -26,17 +26,20 @@ package si.inova.neatle;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.content.Context;
 
 import java.util.LinkedList;
 import java.util.UUID;
 
 public class OperationBuilder {
+
     private LinkedList<Command> cmds = new LinkedList<>();
     private OperationObserver masterObserver;
     private int retryCount;
+    private Context context;
 
-    public OperationBuilder() {
-
+    public OperationBuilder(Context context) {
+        this.context = context.getApplicationContext();
     }
 
     protected OperationBuilder subscribeNotification(UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
@@ -53,20 +56,51 @@ public class OperationBuilder {
         return this;
     }
 
+    /**
+     * Reads the the value of a characteristic from a service.
+     *
+     * @param serviceUUID         the UUID of the service
+     * @param characteristicsUUID the UUID of the characteristic.
+     * @return this object
+     */
     public OperationBuilder read(UUID serviceUUID, UUID characteristicsUUID) {
         return read(serviceUUID, characteristicsUUID, null);
     }
 
+    /**
+     * Reads the the value of a characteristic from a service.
+     *
+     * @param serviceUUID         the UUID of the service
+     * @param characteristicsUUID the UUID of the characteristic.
+     * @param observer            the observer for this specific command
+     * @return this object
+     */
     public OperationBuilder read(UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
         ReadCommand cmd = new ReadCommand(serviceUUID, characteristicsUUID, observer);
         cmds.add(cmd);
         return this;
     }
 
+    /**
+     * Writes data to a characteristic of a service.
+     *
+     * @param serviceUUID         the UUID of the service
+     * @param characteristicsUUID the UUID of the characteristic.
+     * @param buffer              the source of data for the write command
+     * @return this object
+     */
     public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource buffer) {
         return write(serviceUUID, characteristicsUUID, buffer, null);
     }
 
+    /**
+     * Writes data to a characteristic of a service.
+     *
+     * @param serviceUUID         the UUID of the service
+     * @param characteristicsUUID the UUID of the characteristic.
+     * @param buffer              the source of data for the write command
+     * @return this object
+     */
     public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource buffer, OperationObserver operationObserver) {
         WriteCommand cmd = new WriteCommand(serviceUUID, characteristicsUUID,
                 BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT, buffer, operationObserver);
@@ -93,7 +127,12 @@ public class OperationBuilder {
         return this;
     }
 
-
+    /**
+     * Sets an {@link OperationObserver} that is triggered when all operations have been executed.
+     *
+     * @param operationObserver the operation observer
+     * @return this object
+     */
     public OperationBuilder onFinished(OperationObserver operationObserver) {
         masterObserver = operationObserver;
         return this;
@@ -102,7 +141,7 @@ public class OperationBuilder {
     /**
      * Set how many times the operation should retry in case of an error.
      *
-     * @param count the number of times to retry. The default is 0
+     * @param count the number of times to retry. The default is 0. Use -1 to retry indefinitely.
      * @return this builder instance.
      */
     public OperationBuilder retryCount(int count) {
@@ -111,6 +150,6 @@ public class OperationBuilder {
     }
 
     public Operation build(BluetoothDevice device) {
-        return new OperationImpl(device, cmds, masterObserver, retryCount);
+        return new OperationImpl(context, device, cmds, masterObserver, retryCount);
     }
 }

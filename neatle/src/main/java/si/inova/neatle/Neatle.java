@@ -24,8 +24,10 @@
 
 package si.inova.neatle;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import java.util.UUID;
 
@@ -34,37 +36,78 @@ import java.util.UUID;
  */
 public class Neatle {
 
-    public static Connection getConnection(Context context, BluetoothDevice device) {
-        Device actualDevice = DeviceManager.getInstance(context).getDevice(device);
-        return actualDevice;
-    }
-
     /**
      * Creates a subscription for listening to characteristics changes. To listen for changes
      * the subscription needs to be started.
      *
+     * @param context             the current context
      * @param device              the device on which the subscribe
      * @param serviceUUID         the service UUID under which the characteristic is located.
      * @param characteristicsUUID the UUID of the characteristic on which the subsbscription will be
      *                            made
      * @return an un-started subscription.
      */
-    public static CharacteristicSubscription createSubscription(BluetoothDevice device,
-                                                                UUID serviceUUID, UUID characteristicsUUID) {
-        return new CharacteristicSubscriptionImpl(device, serviceUUID, characteristicsUUID);
+    public static CharacteristicSubscription createSubscription(@NonNull Context context, @NonNull BluetoothDevice device,
+                                                                @NonNull UUID serviceUUID, @NonNull UUID characteristicsUUID) {
+        return new CharacteristicSubscriptionImpl(context, device, serviceUUID, characteristicsUUID);
     }
 
-
-    public static ConnectionMonitor createConnectionMonitor(Context context, BluetoothDevice device) {
-        return new ConnectionMonitor(device);
+    /**
+     * Creates a connection monitor that tries to connect to a bluetooth device, and notifies us of
+     * changes to the connection. To listen for changes the monitor needs to be started.
+     *
+     * @param context the current context
+     * @param device  the device to connect to
+     * @return the connection monitor
+     */
+    public static ConnectionMonitor createConnectionMonitor(@NonNull Context context, @NonNull BluetoothDevice device) {
+        return new ConnectionMonitor(context, device);
     }
 
-    public static OperationBuilder create() {
-        return new OperationBuilder();
+    /**
+     * Creates a new operation builder, that can be used to build a system of sequential read / write
+     * operations to a device.
+     *
+     * @param context the current context
+     * @return the operation builder
+     */
+    public static OperationBuilder createOperationBuilder(@NonNull Context context) {
+        return new OperationBuilder(context);
     }
 
+    /**
+     * Creates a standardized UUID by using the rightmost byte of the provided integer.
+     *
+     * @param uuid the id
+     * @return the created UUID
+     */
     public static UUID createUUID(int uuid) {
         final String base = "-0000-1000-8000-00805F9B34FB";
         return UUID.fromString(String.format("%08X", uuid & 0xFFFF) + base);
+    }
+
+    /**
+     * Returns a connection to a device that has been added to the NeatLE library. The connection
+     * may not not be active.
+     *
+     * @param context the current context
+     * @param device  the device to search for
+     * @return the connection, or null if none has been found.
+     */
+    public static Connection getConnection(@NonNull Context context, @NonNull BluetoothDevice device) {
+        return DeviceManager.getInstance(context).getDevice(device);
+    }
+
+    /**
+     * Returns a {@link BluetoothDevice} based on the provided MAC address.
+     *
+     * @param mac the MAC address of the BTLE device
+     * @return the created BT device.
+     */
+    public static BluetoothDevice getDevice(@NonNull String mac) {
+        if (BluetoothAdapter.checkBluetoothAddress(mac)) {
+            return BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
+        }
+        throw new UnsupportedOperationException("Device mac not recognized.");
     }
 }

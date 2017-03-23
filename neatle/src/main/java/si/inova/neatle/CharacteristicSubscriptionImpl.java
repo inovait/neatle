@@ -27,55 +27,54 @@ package si.inova.neatle;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.os.Handler;
 
 import java.util.UUID;
 
-class CharacteristicSubscriptionImpl implements CharacteristicSubscription {
+public class CharacteristicSubscriptionImpl implements CharacteristicSubscription {
 
     private static final long RECONNECT_TIMEOUT = 5000;
 
     private final BluetoothDevice device;
-    private final UUID serviceUUID;
     private final UUID characteristicsUUID;
 
     private final Operation subscribeOp;
     private final Operation unsubscribeOp;
-    private final Handler handler;
 
     private CharacteristicsChangedListener listener;
-    private boolean persistent = true;
     private Context context;
+
+    private boolean started = false;
 
     private ConnectionStateListener connectionStateHandler = new ConnectionStateListener() {
         @Override
         public void onConnectionStateChanged(Connection connection, int newState) {
             if (newState == BluetoothAdapter.STATE_CONNECTED) {
-                subscribeOnDevice(connection);
+                subscribeOnDevice();
             }
         }
     };
 
     private CharacteristicsChangedListener changeHandler = new ChangeHandler();
 
-    CharacteristicSubscriptionImpl(BluetoothDevice device, UUID serviceUUID, UUID characteristicsUUID) {
+    public CharacteristicSubscriptionImpl(Context context, BluetoothDevice device, UUID serviceUUID, UUID characteristicsUUID) {
         if (device == null) {
             throw new IllegalArgumentException("Device cannot be null");
+        } else if (context == null) {
+            throw new IllegalArgumentException("Context cannot be null");
         }
+
+        this.context = context.getApplicationContext();
         this.device = device;
-        this.serviceUUID = serviceUUID;
         this.characteristicsUUID = characteristicsUUID;
 
-        OperationBuilder builderSub = new OperationBuilder();
+        OperationBuilder builderSub = new OperationBuilder(context);
         builderSub.subscribeNotification(serviceUUID, characteristicsUUID, null);
 
-        OperationBuilder builderUnSub = new OperationBuilder();
+        OperationBuilder builderUnSub = new OperationBuilder(context);
         builderUnSub.unsubscribeNotification(serviceUUID, characteristicsUUID, null);
 
         subscribeOp = builderSub.build(device);
         unsubscribeOp = builderUnSub.build(device);
-
-        this.handler = new Handler();
     }
 
     @Override
@@ -83,14 +82,12 @@ class CharacteristicSubscriptionImpl implements CharacteristicSubscription {
         this.listener = listener;
     }
 
-
     @Override
-    public void start(Context context) {
-        if (this.context != null) {
-            //already started
+    public void start() {
+        if (!started) {
             return;
         }
-        this.context = context.getApplicationContext();
+
         unsubscribeOp.cancel();
         Connection connection = Neatle.getConnection(context, device);
 
@@ -98,39 +95,41 @@ class CharacteristicSubscriptionImpl implements CharacteristicSubscription {
         connection.addCharacteristicsChangedListener(characteristicsUUID, changeHandler);
 
         if (connection.isConnected()) {
-            subscribeOnDevice(connection);
+            subscribeOnDevice();
         } else {
             connection.connect();
         }
+
+        started = true;
     }
 
     @Override
     public void stop() {
-        if (context == null) {
+        if (started) {
             return;
         }
+
         subscribeOp.cancel();
         Connection connection = Neatle.getConnection(context, device);
         connection.removeConnectionStateListener(connectionStateHandler);
         connection.removeCharacteristicsChangedListener(characteristicsUUID, changeHandler);
 
         if (connection.getState() == BluetoothAdapter.STATE_CONNECTED) {
-            unsubscribeOnDevice(connection);
+            unsubscribeOnDevice();
         }
 
-        this.context = null;
+        started = false;
     }
 
-    private void subscribeOnDevice(Connection connection) {
+    private void subscribeOnDevice() {
         unsubscribeOp.cancel();
-        subscribeOp.execute(context);
+        subscribeOp.execute();
     }
 
-    private void unsubscribeOnDevice(Connection connection) {
+    private void unsubscribeOnDevice() {
         subscribeOp.cancel();
-        unsubscribeOp.execute(context);
+        unsubscribeOp.execute();
     }
-
 
     private class ChangeHandler implements CharacteristicsChangedListener {
         @Override

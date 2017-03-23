@@ -24,11 +24,9 @@
 
 package si.inova.neatle;
 
-import android.content.Context;
-
 public interface Operation {
 
-    void execute(Context context);
+    void execute();
 
     void cancel();
 

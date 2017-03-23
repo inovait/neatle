@@ -36,12 +36,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 class OperationImpl implements Operation {
+
     private static Command NO_COMMAND = new NoCommand();
 
     private GattCallback callback = new GattCallback();
     private final OperationObserver operationObserver;
     private final int retryCount;
-
 
     private OperationResults results;
     private CommandHandler commandHandler = new CommandHandler();
@@ -53,7 +53,6 @@ class OperationImpl implements Operation {
     private boolean yielded;
     private boolean canceled = false;
 
-
     private Command current = NO_COMMAND;
     private LinkedList<Command> commands;
     private LinkedList<Command> commandQueue;
@@ -63,22 +62,24 @@ class OperationImpl implements Operation {
     private Device connection;
     private final BluetoothDevice device;
 
+    private Context context;
 
-    OperationImpl(BluetoothDevice device, Collection<Command> cmds, OperationObserver operationObserver, int retryCount) {
+    OperationImpl(Context context, BluetoothDevice device, Collection<Command> cmds, OperationObserver operationObserver, int retryCount) {
         if (device == null) {
             throw new IllegalArgumentException("Device cannot be null");
         }
-        this.device = device;
-        commands = new LinkedList<>(cmds);
-        this.commandQueue = new LinkedList<>(cmds);
 
+        this.device = device;
+        this.commands = new LinkedList<>(cmds);
+        this.commandQueue = new LinkedList<>(cmds);
         this.operationObserver = operationObserver;
         this.retryCount = retryCount;
+        this.context = context;
         handler = new Handler();
     }
 
     @Override
-    public void execute(Context context) {
+    public void execute() {
         //FIXME what happens if this operation is in the middle of being executed
         Device conn;
         synchronized (this) {
@@ -131,7 +132,6 @@ class OperationImpl implements Operation {
             this.connection = null;
         }
 
-
         if (wasExecuting) {
             conn.executeFinished(callback);
             NeatleLogger.d("Operation finished, success: " + results.wasSuccessful() + ", cancel:" + isCanceled());
@@ -150,12 +150,9 @@ class OperationImpl implements Operation {
         }
     }
 
-
-
     private synchronized Command current() {
         return current;
     }
-
 
     private void executeNext() {
         Command cmd;
@@ -166,7 +163,7 @@ class OperationImpl implements Operation {
                 return;
             }
             if (lastResult != null && !lastResult.wasSuccessful()) {
-                if (retriedCount + 1 <= retryCount) {
+                if (retryCount == -1 || retriedCount + 1 <= retryCount) {
                     retry();
                     return;
                 }
@@ -227,7 +224,7 @@ class OperationImpl implements Operation {
                 @Override
                 public void run() {
                     OperationObserver opObserver = command.getOperationObserver();
-                    if (opObserver  != null) {
+                    if (opObserver != null) {
                         if (result.wasSuccessful()) {
                             opObserver.onCommandSuccess(OperationImpl.this, result, results);
                         }
@@ -326,6 +323,7 @@ class OperationImpl implements Operation {
         }
 
         @Override
-        protected void onError(int error) {}
+        protected void onError(int error) {
+        }
     }
 }

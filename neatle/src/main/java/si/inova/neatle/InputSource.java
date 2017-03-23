@@ -30,8 +30,6 @@ public interface InputSource {
 
     /**
      * Opens the stream source.
-     *
-     * @throws IOException
      */
     void open() throws IOException;
 
@@ -44,8 +42,6 @@ public interface InputSource {
 
     /**
      * Closes the stream source.
-     *
-     * @throws IOException
      */
     void close() throws IOException;
 }

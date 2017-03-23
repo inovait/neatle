@@ -81,7 +81,7 @@ public interface Connection {
      * Add a change listener that will be notified when the devices notifies a characteristic change.
      *
      * <b>Note:</b> This method by itself won't subscribe to notifcations/indications, to do
-     * so use {@link Neatle#createSubscription(BluetoothDevice, UUID, UUID)}
+     * so use {@link Neatle#createSubscription(android.content.Context, BluetoothDevice, UUID, UUID)}
      *
      * @param characteristicsUUID the UUUID of the desired characteristics
      * @param listener the listener to add

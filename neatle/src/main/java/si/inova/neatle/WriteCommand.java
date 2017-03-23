@@ -113,7 +113,6 @@ public class WriteCommand extends Command {
         if (!gatt.writeCharacteristic(writeCharacteristic)) {
             NeatleLogger.d("Write returned false");
             finish(CommandResult.createErrorResult(characteristicsUUID, BluetoothGatt.GATT_FAILURE));
-            return;
         }
     }
 
