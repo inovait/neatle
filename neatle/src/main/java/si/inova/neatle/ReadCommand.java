@@ -48,10 +48,17 @@ class ReadCommand extends Command {
         if (service != null) {
             BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
             if (characteristic != null) {
+                NeatleLogger.d("Reading characteristics " + characteristicUUID);
                 if (gatt.readCharacteristic(characteristic)) {
                     return;
                 }
+                NeatleLogger.d("Read failed" + characteristicUUID);
+            } else {
+                NeatleLogger.e("Could not find characteristics " + characteristicUUID);
             }
+
+        } else {
+            NeatleLogger.e("Could not find service " + serviceUUID);
         }
 
         finish(CommandResult.createErrorResult(characteristicUUID, BluetoothGatt.GATT_FAILURE));
@@ -67,7 +74,9 @@ class ReadCommand extends Command {
             NeatleLogger.e("Got a read request for a unknown characteristic");
             return;
         }
+
         CommandResult result = CommandResult.onCharacteristicRead(characteristic, status);
+        NeatleLogger.d("Read " + result);
         finish(result);
     }
 

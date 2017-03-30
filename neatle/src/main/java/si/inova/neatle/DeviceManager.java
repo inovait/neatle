@@ -48,6 +48,7 @@ class DeviceManager {
     }
 
     public synchronized Device getDevice(BluetoothDevice device) {
+        NeatleLogger.d("Getting connection object for " + device.getAddress());
         Device dev = devices.get(device.getAddress());
         if (dev == null) {
             dev = new Device(context, device);

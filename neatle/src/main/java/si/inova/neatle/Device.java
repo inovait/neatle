@@ -43,7 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 class Device implements Connection {
 
-    private static final long DISCOVER_DEVICE_TIMEOUT = 30 * 1000;
+    private static final long DISCOVER_DEVICE_TIMEOUT = 60 * 1000;
 
     private final BluetoothDevice device;
     private final Handler handler;
@@ -303,17 +303,17 @@ class Device implements Connection {
         stopDiscovery();
 
         int state = getState();
-        if (device.getType() != BluetoothDevice.DEVICE_TYPE_UNKNOWN) {
-            if (state == BluetoothGatt.STATE_CONNECTING) {
-                NeatleLogger.e("Device discovered. Continuing with connecting");
-                connectWithGatt();
-            } else {
-                NeatleLogger.e("Device discovered but no longer connecting");
-            }
+//        if (device.getType() != BluetoothDevice.DEVICE_TYPE_UNKNOWN) {
+        if (state == BluetoothGatt.STATE_CONNECTING) {
+            NeatleLogger.i("Device discovered. Continuing with connecting");
+            connectWithGatt();
         } else {
-            NeatleLogger.e("Device discovered but is of unknown type.");
-            connectionFailed(BluetoothGatt.GATT_FAILURE);
+            NeatleLogger.e("Device discovered but no longer connecting");
         }
+//        } else {
+//            NeatleLogger.e("Device discovered but is of unknown type.");
+//            connectionFailed(BluetoothGatt.GATT_FAILURE);
+//        }
     }
 
     private void stopDiscovery() {
