@@ -84,7 +84,7 @@ public interface Connection {
      * so use {@link Neatle#createSubscription(android.content.Context, BluetoothDevice, UUID, UUID)}
      *
      * @param characteristicsUUID the UUUID of the desired characteristics
-     * @param listener the listener to add
+     * @param listener            the listener to add
      */
     void addCharacteristicsChangedListener(UUID characteristicsUUID, CharacteristicsChangedListener listener);
 
@@ -92,7 +92,7 @@ public interface Connection {
      * Removes the change listener privously added by {@link #addCharacteristicsChangedListener}
      *
      * @param characteristicsUUID characteristics UUID
-     * @param listener the listener to remove
+     * @param listener            the listener to remove
      */
     void removeCharacteristicsChangedListener(UUID characteristicsUUID, CharacteristicsChangedListener listener);
 
@@ -100,7 +100,6 @@ public interface Connection {
      * Gets the number of change listeners on the given characteristic.
      *
      * @param characteristicsUUID
-     *
      * @return the number of listeners or 0 is there are none
      */
     int getCharacteristicsChangedListenerCount(UUID characteristicsUUID);

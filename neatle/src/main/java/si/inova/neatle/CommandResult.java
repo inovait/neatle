@@ -107,4 +107,8 @@ public class CommandResult {
     public int getValueAsInt8() {
         return ByteBuffer.wrap(data).get(0);
     }
+
+    public int getValueAsInt32() {
+        return ByteBuffer.wrap(data).getInt();
+    }
 }

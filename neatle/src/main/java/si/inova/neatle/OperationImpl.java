@@ -219,7 +219,7 @@ class OperationImpl implements Operation {
                 current = NO_COMMAND;
             }
 
-            NeatleLogger.d("Command finished, status: " + result.getStatus() + ", command:" + command);
+            NeatleLogger.d("Command finished, status: " + result.getStatus() + ", command:" + command + ", on: " + device.getAddress());
             handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -319,7 +319,7 @@ class OperationImpl implements Operation {
 
         @Override
         protected void execute(Connection connection, BluetoothGatt gatt, OperationResults results) {
-            throw new IllegalStateException("Should no be called");
+            throw new IllegalStateException("Should not be called");
         }
 
         @Override
