@@ -10,3 +10,6 @@ android:
 
     # Additional components
     - extra-android-m2repository
+
+  licenses:
+    - 'android-sdk-license-.+'
