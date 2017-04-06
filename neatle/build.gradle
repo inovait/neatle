@@ -16,6 +16,11 @@ android {
         versionCode 1
         versionName "0.8.1"
     }
+
+    lintOptions {
+        abortOnError false
+        ignoreWarnings true
+    }
 }
 
 configurations {

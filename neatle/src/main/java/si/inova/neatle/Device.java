@@ -288,7 +288,6 @@ class Device implements Connection {
             }
 
             //FIXME: Switch to non-deprecated method.
-            //noinspection deprecation
             if (!adapter.startLeScan(discoverCallback)) {
                 break;
             }
