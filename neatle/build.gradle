@@ -18,8 +18,21 @@ android {
     }
 }
 
+configurations {
+    javadocDeps
+}
+
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:support-annotations:25.3.1'
+    javadocDeps 'com.android.support:support-annotations:25.3.1'
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'androidJavadocs') {
+        task.configure {
+            classpath += configurations.javadocDeps
+        }
+    }
 }
 
 apply from: 'https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle'

@@ -28,6 +28,10 @@ public abstract class OperationObserver {
 
     /**
      * Invoked when a command has finished successfully.
+     *
+     * @param op      the operation
+     * @param result  the result of the command
+     * @param results the result of all the operations
      */
     public void onCommandSuccess(Operation op, CommandResult result, OperationResults results) {
     }
@@ -37,12 +41,19 @@ public abstract class OperationObserver {
 
     /**
      * Invoked when a command has finished either successfully or unsuccessfully.
+     *
+     * @param operation the operation
+     * @param result    the result of the command
+     * @param results   the result of all the operations
      */
     public void onCommandFinished(Operation operation, CommandResult result, OperationResults results) {
     }
 
     /**
      * Invoked when an operation has finished either successfully or unsuccessfully.
+     *
+     * @param op      the operation
+     * @param results the result of all the operations
      */
     public void onOperationFinished(Operation op, OperationResults results) {
     }

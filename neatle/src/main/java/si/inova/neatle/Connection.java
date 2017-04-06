@@ -64,10 +64,9 @@ public interface Connection {
      * Disconnects and aborts any pending commends. Generally you don't want to
      * manually disconnect - just make sure all operations are canceled and any
      * persistent subscriptions are stopped.
-     *
+     * <p>
      * Note: If there are any persistant subscriptions they try to re-establish the
      * connection after this disconnect.
-     *
      */
     void disconnect();
 
@@ -79,7 +78,7 @@ public interface Connection {
 
     /**
      * Add a change listener that will be notified when the devices notifies a characteristic change.
-     *
+     * <p>
      * <b>Note:</b> This method by itself won't subscribe to notifcations/indications, to do
      * so use {@link Neatle#createSubscription(android.content.Context, BluetoothDevice, UUID, UUID)}
      *
@@ -99,7 +98,7 @@ public interface Connection {
     /**
      * Gets the number of change listeners on the given characteristic.
      *
-     * @param characteristicsUUID
+     * @param characteristicsUUID the UUID of the characteristic
      * @return the number of listeners or 0 is there are none
      */
     int getCharacteristicsChangedListenerCount(UUID characteristicsUUID);

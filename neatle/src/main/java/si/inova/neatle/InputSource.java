@@ -30,6 +30,8 @@ public interface InputSource {
 
     /**
      * Opens the stream source.
+     *
+     * @throws IOException if an IO error occurs
      */
     void open() throws IOException;
 
@@ -37,11 +39,14 @@ public interface InputSource {
      * Reads next "chunk" from this stream.
      *
      * @return the number of bytes read or null if there is nothing more to read.
+     * @throws IOException if an IO error occurs
      */
     byte[] nextChunk() throws IOException;
 
     /**
      * Closes the stream source.
+     *
+     * @throws IOException if an IO error occurs
      */
     void close() throws IOException;
 }

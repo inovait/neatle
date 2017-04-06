@@ -99,6 +99,7 @@ public class OperationBuilder {
      * @param serviceUUID         the UUID of the service
      * @param characteristicsUUID the UUID of the characteristic.
      * @param buffer              the source of data for the write command
+     * @param operationObserver   the operation observer - callback
      * @return this object
      */
     public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource buffer, OperationObserver operationObserver) {

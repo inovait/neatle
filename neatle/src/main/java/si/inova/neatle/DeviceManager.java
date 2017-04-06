@@ -24,6 +24,7 @@
 
 package si.inova.neatle;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
@@ -34,6 +35,8 @@ class DeviceManager {
     private final Context context;
     private HashMap<String, Device> devices = new HashMap<>();
 
+    // Using application context, so no chance for leak.
+    @SuppressLint("StaticFieldLeak")
     private static DeviceManager sharedInstance;
 
     DeviceManager(Context context) {

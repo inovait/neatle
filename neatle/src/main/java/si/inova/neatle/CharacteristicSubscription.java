@@ -39,7 +39,7 @@ public interface CharacteristicSubscription {
     /**
      * Sets the listener that will be called on characteristic changes.
      *
-     * @param characteristicsChangedListener
+     * @param characteristicsChangedListener the listener
      */
     void setOnCharacteristicsChangedListener(CharacteristicsChangedListener characteristicsChangedListener);
 
