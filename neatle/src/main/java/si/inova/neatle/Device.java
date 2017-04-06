@@ -286,6 +286,9 @@ class Device implements Connection {
             if (adapter == null || adapter.getState() != BluetoothAdapter.STATE_ON) {
                 break;
             }
+
+            //FIXME: Switch to non-deprecated method.
+            //noinspection deprecation
             if (!adapter.startLeScan(discoverCallback)) {
                 break;
             }
