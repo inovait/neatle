@@ -1,0 +1,11 @@
+language: android
+android:
+  components:
+    # The BuildTools version used
+    - build-tools-24.0.3
+
+    # The SDK version used
+    - android-25
+
+    # Additional components
+    - extra-android-m2repository
