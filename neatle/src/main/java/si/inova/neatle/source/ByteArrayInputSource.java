@@ -22,9 +22,53 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.source;
 
-public interface OperationControl {
+import java.io.IOException;
 
-    void finished(Command command, OperationResults results, int status);
+/**
+ * An input source that provides a byte array.
+ */
+public class ByteArrayInputSource implements InputSource {
+
+    private final byte[] data;
+
+    protected byte[] buffer;
+    protected int offset;
+
+    public ByteArrayInputSource(byte[] data) {
+        this.data = data;
+    }
+
+    @Override
+    public void close() throws IOException {
+        buffer = null;
+        offset = 0;
+    }
+
+    @Override
+    public void open() throws IOException {
+        buffer = data;
+        offset = 0;
+    }
+
+    @Override
+    public byte[] nextChunk() throws IOException {
+        if (buffer == null) {
+            return null;
+        }
+
+        int remaining = buffer.length - offset;
+        if (remaining <= 0) {
+            return null;
+        }
+
+        int chunkSize = Math.min(20, remaining);
+
+        byte[] ret = new byte[chunkSize];
+        System.arraycopy(buffer, offset, ret, 0, chunkSize);
+        offset += chunkSize;
+
+        return ret;
+    }
 }

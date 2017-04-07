@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.operation;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -34,6 +34,11 @@ import android.os.Handler;
 
 import java.util.Collection;
 import java.util.LinkedList;
+
+import si.inova.neatle.Device;
+import si.inova.neatle.monitor.Connection;
+import si.inova.neatle.util.DeviceManager;
+import si.inova.neatle.util.NeatleLogger;
 
 class OperationImpl implements Operation {
 
@@ -75,7 +80,7 @@ class OperationImpl implements Operation {
         this.operationObserver = operationObserver;
         this.retryCount = retryCount;
         this.context = context;
-        handler = new Handler();
+        this.handler = new Handler();
     }
 
     @Override

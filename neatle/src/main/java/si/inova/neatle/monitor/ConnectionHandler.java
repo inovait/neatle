@@ -22,31 +22,27 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.monitor;
 
-import java.io.IOException;
+import si.inova.neatle.Neatle;
 
-public interface InputSource {
+/**
+ * Listener for connection events on a bluetooth LE device.
+ *
+ * @see Neatle#getConnection
+ */
+public interface ConnectionHandler {
 
-    /**
-     * Opens the stream source.
-     *
-     * @throws IOException if an IO error occurs
-     */
-    void open() throws IOException;
-
-    /**
-     * Reads next "chunk" from this stream.
-     *
-     * @return the number of bytes read or null if there is nothing more to read.
-     * @throws IOException if an IO error occurs
-     */
-    byte[] nextChunk() throws IOException;
+    int ON_IDLE_KEEP_ALIVE = 1;
+    int ON_IDLE_DISCONNECT = 0;
 
     /**
-     * Closes the stream source.
+     * Called when there is no active subscription or any pending operations. By default
+     * an idle connection will be disconnected. In case of multiple handler, ON_IDLE_KEEP_ALIVE
+     * will win over ON_IDLE_DISCONNECT.
      *
-     * @throws IOException if an IO error occurs
+     * @param connection the connection of this event
+     * @return ON_IDLE_DISCONNECT if
      */
-    void close() throws IOException;
+    int onConnectionIdle(Connection connection);
 }

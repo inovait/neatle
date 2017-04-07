@@ -22,41 +22,9 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.operation;
 
-import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothDevice;
-import android.content.Context;
+public interface OperationControl {
 
-import java.util.HashMap;
-
-class DeviceManager {
-
-    private final Context context;
-    private HashMap<String, Device> devices = new HashMap<>();
-
-    // Using application context, so no chance for leak.
-    @SuppressLint("StaticFieldLeak")
-    private static DeviceManager sharedInstance;
-
-    DeviceManager(Context context) {
-        this.context = context;
-    }
-
-    public synchronized static DeviceManager getInstance(Context context) {
-        if (sharedInstance == null) {
-            sharedInstance = new DeviceManager(context.getApplicationContext());
-        }
-        return sharedInstance;
-    }
-
-    public synchronized Device getDevice(BluetoothDevice device) {
-        NeatleLogger.d("Getting connection object for " + device.getAddress());
-        Device dev = devices.get(device.getAddress());
-        if (dev == null) {
-            dev = new Device(context, device);
-            devices.put(device.getAddress(), dev);
-        }
-        return dev;
-    }
+    void finished(Command command, OperationResults results, int status);
 }

@@ -22,27 +22,50 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.operation;
 
-import android.util.Log;
+import android.bluetooth.BluetoothDevice;
 
-class NeatleLogger {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-    private static final String LOG_TAG = "Neatle";
+public class OperationResults {
+    private final BluetoothDevice device;
+    private Map<UUID, CommandResult> results = new HashMap<>();
+    private boolean success = false;
 
-    public static void i(String s) {
-        Log.i(LOG_TAG, s);
+    OperationResults(BluetoothDevice device) {
+        this.device = device;
     }
 
-    public static void d(String s) {
-        Log.d(LOG_TAG, s);
+    public boolean wasSuccessful() {
+        return success;
     }
 
-    public static void e(String s) {
-        Log.e(LOG_TAG, s);
+    public CommandResult getResult(UUID uuid) {
+        return results.get(uuid);
     }
 
-    public static void e(String msg, Throwable throwable) {
-        Log.e(LOG_TAG, msg, throwable);
+    public BluetoothDevice getDevice() {
+        return device;
+    }
+
+    synchronized void addCommandResult(CommandResult result) {
+        //first result sets the result flag
+        if (results.isEmpty()) {
+            success = result.wasSuccessful();
+        } else {
+            success = success && result.wasSuccessful();
+        }
+        results.put(result.getUUID(), result);
+    }
+
+    public synchronized String getString(UUID uuid) {
+        CommandResult res = getResult(uuid);
+        if (res != null) {
+            return res.getValueAsString();
+        }
+        return null;
     }
 }

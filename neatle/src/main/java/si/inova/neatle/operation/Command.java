@@ -22,11 +22,13 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.operation;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+
+import si.inova.neatle.monitor.Connection;
 
 abstract class Command {
 
@@ -40,7 +42,7 @@ abstract class Command {
     private OperationResults results;
     private CommandObserver observer;
 
-    public Command(OperationObserver operationObserver) {
+    Command(OperationObserver operationObserver) {
         this.operationObserver = operationObserver;
     }
 

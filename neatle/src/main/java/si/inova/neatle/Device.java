@@ -35,20 +35,29 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-class Device implements Connection {
+import si.inova.neatle.monitor.Connection;
+import si.inova.neatle.monitor.ConnectionHandler;
+import si.inova.neatle.monitor.ConnectionStateListener;
+import si.inova.neatle.operation.CharacteristicsChangedListener;
+import si.inova.neatle.operation.CommandResult;
+import si.inova.neatle.util.NeatleLogger;
+
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class Device implements Connection {
 
     private static final long DISCOVER_DEVICE_TIMEOUT = 60 * 1000;
 
     private final BluetoothDevice device;
     private final Handler handler;
+    private final GattCallback callback;
 
-    private GattCallback callback;
     private int state;
     private Context context;
 
@@ -68,7 +77,6 @@ class Device implements Connection {
 
     private BluetoothAdapter.LeScanCallback discoverCallback = new ScanForDeviceCallback();
     private Runnable discoverWatchdog = new ScanForDeviceTimeout();
-
 
     public Device(Context context, BluetoothDevice device) {
         this.device = device;
@@ -284,11 +292,13 @@ class Device implements Connection {
             BluetoothManager mng = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
             BluetoothAdapter adapter = mng.getAdapter();
             if (adapter == null || adapter.getState() != BluetoothAdapter.STATE_ON) {
+                isScanning = false;
                 break;
             }
 
             //FIXME: Switch to non-deprecated method.
             if (!adapter.startLeScan(discoverCallback)) {
+                isScanning = true;
                 break;
             }
         } while (false);
@@ -327,7 +337,7 @@ class Device implements Connection {
         handler.removeCallbacks(discoverWatchdog);
     }
 
-    void executeFinished(BluetoothGattCallback callback) {
+    public void executeFinished(BluetoothGattCallback callback) {
         synchronized (lock) {
             if (callback == currentCallback) {
                 this.currentCallback = DO_NOTHING_CALLBACK;
@@ -511,10 +521,6 @@ class Device implements Connection {
         });
 
     }*/
-
-    public BluetoothDevice getBluetoothDevice() {
-        return device;
-    }
 
     private class GattCallback extends BluetoothGattCallback {
 

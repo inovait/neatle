@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.operation;
 
-interface CommandObserver {
+public interface CommandObserver {
 
     void finished(Command command, CommandResult result);
 }

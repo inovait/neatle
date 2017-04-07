@@ -31,6 +31,13 @@ import android.support.annotation.NonNull;
 
 import java.util.UUID;
 
+import si.inova.neatle.monitor.Connection;
+import si.inova.neatle.monitor.ConnectionMonitor;
+import si.inova.neatle.operation.CharacteristicSubscription;
+import si.inova.neatle.operation.CharacteristicSubscriptionImpl;
+import si.inova.neatle.operation.OperationBuilder;
+import si.inova.neatle.util.DeviceManager;
+
 /**
  * The starting point of the NeatLE library.
  */

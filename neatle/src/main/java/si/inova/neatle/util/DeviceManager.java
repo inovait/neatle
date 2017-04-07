@@ -22,40 +22,45 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.util;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 
-import java.util.UUID;
+import java.util.HashMap;
 
-/**
- * A subscription for a GATT notifications/indications.
- *
- * @see Neatle#createSubscription(Context, BluetoothDevice, UUID, UUID)
- */
-public interface CharacteristicSubscription {
+import si.inova.neatle.Device;
 
-    /**
-     * Sets the listener that will be called on characteristic changes.
-     *
-     * @param characteristicsChangedListener the listener
-     */
-    void setOnCharacteristicsChangedListener(CharacteristicsChangedListener characteristicsChangedListener);
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class DeviceManager {
 
-    /**
-     * Starts listening for characteristics changes. If there is no active connection and
-     * the subscription is persistent than this is keep trying to connect to the device until
-     * stop is called.
-     * <p>
-     * It's save to call start multitple times.
-     */
-    void start();
+    private final Context context;
+    private final HashMap<String, Device> devices = new HashMap<>();
 
-    /**
-     * Stops listening for characteristics changes. If there is no other subscription for this
-     * characteristic a "unsubscribe" command will be sent to the device, but only if there
-     * is an active connection.
-     */
-    void stop();
+    // Using application context, so no chance for leak.
+    @SuppressLint("StaticFieldLeak")
+    private static DeviceManager sharedInstance;
+
+    public synchronized static DeviceManager getInstance(Context context) {
+        if (sharedInstance == null) {
+            sharedInstance = new DeviceManager(context.getApplicationContext());
+        }
+        return sharedInstance;
+    }
+
+    private DeviceManager(Context context) {
+        this.context = context;
+    }
+
+    public synchronized Device getDevice(BluetoothDevice device) {
+        NeatleLogger.d("Getting connection object for " + device.getAddress());
+        Device dev = devices.get(device.getAddress());
+        if (dev == null) {
+            dev = new Device(context, device);
+            devices.put(device.getAddress(), dev);
+        }
+        return dev;
+    }
 }

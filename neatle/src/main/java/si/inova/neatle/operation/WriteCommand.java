@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.operation;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -32,7 +32,12 @@ import android.os.Handler;
 import java.io.IOException;
 import java.util.UUID;
 
-public class WriteCommand extends Command {
+import si.inova.neatle.monitor.Connection;
+import si.inova.neatle.source.AsyncInputSource;
+import si.inova.neatle.source.InputSource;
+import si.inova.neatle.util.NeatleLogger;
+
+class WriteCommand extends Command {
 
     private final UUID serviceUUID;
     private final UUID characteristicsUUID;
@@ -48,7 +53,7 @@ public class WriteCommand extends Command {
     private boolean reading = false;
     private final boolean asyncMode;
 
-    public WriteCommand(UUID serviceUUID, UUID characteristicsUUID, int writeType, InputSource buffer, OperationObserver observer) {
+    WriteCommand(UUID serviceUUID, UUID characteristicsUUID, int writeType, InputSource buffer, OperationObserver observer) {
         super(observer);
 
         this.serviceUUID = serviceUUID;
@@ -194,7 +199,7 @@ public class WriteCommand extends Command {
         }
 
         private void fail(Exception ex) {
-
+            //TODO: Handle failure
         }
     }
 }

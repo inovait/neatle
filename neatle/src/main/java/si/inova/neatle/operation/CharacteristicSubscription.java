@@ -22,50 +22,42 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.operation;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
-public class OperationResults {
-    private final BluetoothDevice device;
-    private Map<UUID, CommandResult> results = new HashMap<>();
-    private boolean success = false;
+import si.inova.neatle.Neatle;
 
-    public OperationResults(BluetoothDevice device) {
-        this.device = device;
-    }
+/**
+ * A subscription for a GATT notifications/indications.
+ *
+ * @see Neatle#createSubscription(Context, BluetoothDevice, UUID, UUID)
+ */
+public interface CharacteristicSubscription {
 
-    public boolean wasSuccessful() {
-        return success;
-    }
+    /**
+     * Sets the listener that will be called on characteristic changes.
+     *
+     * @param characteristicsChangedListener the listener
+     */
+    void setOnCharacteristicsChangedListener(CharacteristicsChangedListener characteristicsChangedListener);
 
-    public CommandResult getResult(UUID uuid) {
-        return results.get(uuid);
-    }
+    /**
+     * Starts listening for characteristics changes. If there is no active connection and
+     * the subscription is persistent than this is keep trying to connect to the device until
+     * stop is called.
+     * <p>
+     * It's save to call start multitple times.
+     */
+    void start();
 
-    public BluetoothDevice getDevice() {
-        return device;
-    }
-
-    public synchronized void addCommandResult(CommandResult result) {
-        //first result sets the result flag
-        if (results.isEmpty()) {
-            success = result.wasSuccessful();
-        } else {
-            success = success && result.wasSuccessful();
-        }
-        results.put(result.getUUID(), result);
-    }
-
-    public synchronized String getString(UUID uuid) {
-        CommandResult res = getResult(uuid);
-        if (res != null) {
-            return res.getValueAsString();
-        }
-        return null;
-    }
+    /**
+     * Stops listening for characteristics changes. If there is no other subscription for this
+     * characteristic a "unsubscribe" command will be sent to the device, but only if there
+     * is an active connection.
+     */
+    void stop();
 }
