@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'jacoco-android'
 
 ext {
     PUBLISH_GROUP_ID = 'si.inova'
