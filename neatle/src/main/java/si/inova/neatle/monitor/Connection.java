@@ -22,15 +22,14 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.monitor;
 
 import android.bluetooth.BluetoothDevice;
 
 import java.util.UUID;
 
-/**
- * Created by tomazs on 9/27/2016.
- */
+import si.inova.neatle.Neatle;
+import si.inova.neatle.operation.CharacteristicsChangedListener;
 
 public interface Connection {
 
@@ -104,11 +103,6 @@ public interface Connection {
     int getCharacteristicsChangedListenerCount(UUID characteristicsUUID);
 
     /**
-     * @return the device
-     */
-    BluetoothDevice getBluetoothDevice();
-
-    /**
      * Returns the state of this connection - {@link android.bluetooth.BluetoothAdapter#STATE_CONNECTED},
      * {@link android.bluetooth.BluetoothAdapter#STATE_CONNECTING},
      * {@link android.bluetooth.BluetoothAdapter#STATE_DISCONNECTED} or {@link android.bluetooth.BluetoothAdapter#STATE_OFF}
@@ -117,9 +111,18 @@ public interface Connection {
      */
     int getState();
 
+    /**
+     * Adds a state listener for this connection
+     *
+     * @param connectionStateListener the state listener to add
+     */
     void addConnectionStateListener(ConnectionStateListener connectionStateListener);
 
+    /**
+     * Removes a state listener from this connection
+     *
+     * @param connectionStateListener the state listener to remove
+     */
     void removeConnectionStateListener(ConnectionStateListener connectionStateListener);
-
 
 }

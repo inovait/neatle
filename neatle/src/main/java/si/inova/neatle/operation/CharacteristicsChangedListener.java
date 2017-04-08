@@ -22,13 +22,12 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.operation;
 
-public interface Operation {
+/**
+ * Listener for characteristics changes.
+ */
+public interface CharacteristicsChangedListener {
 
-    void execute();
-
-    void cancel();
-
-    boolean isCanceled();
+    void onCharacteristicChanged(CommandResult change);
 }

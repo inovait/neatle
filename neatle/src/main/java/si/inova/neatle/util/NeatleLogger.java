@@ -22,12 +22,29 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.util;
 
-/**
- * Listener for characteristics changes.
- */
-public interface CharacteristicsChangedListener {
+import android.support.annotation.RestrictTo;
+import android.util.Log;
 
-    void onCharacteristicChanged(CommandResult change);
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class NeatleLogger {
+
+    private static final String LOG_TAG = "Neatle";
+
+    public static void i(String s) {
+        Log.i(LOG_TAG, s);
+    }
+
+    public static void d(String s) {
+        Log.d(LOG_TAG, s);
+    }
+
+    public static void e(String s) {
+        Log.e(LOG_TAG, s);
+    }
+
+    public static void e(String msg, Throwable throwable) {
+        Log.e(LOG_TAG, msg, throwable);
+    }
 }

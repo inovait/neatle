@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.operation;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -30,12 +30,15 @@ import android.bluetooth.BluetoothGattService;
 
 import java.util.UUID;
 
+import si.inova.neatle.monitor.Connection;
+import si.inova.neatle.util.NeatleLogger;
+
 class ReadCommand extends Command {
 
     private final UUID serviceUUID;
     private final UUID characteristicUUID;
 
-    public ReadCommand(UUID serviceUUID, UUID characteristicUUID, OperationObserver operationObserver) {
+    ReadCommand(UUID serviceUUID, UUID characteristicUUID, OperationObserver operationObserver) {
         super(operationObserver);
         this.serviceUUID = serviceUUID;
         this.characteristicUUID = characteristicUUID;

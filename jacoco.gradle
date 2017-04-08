@@ -1,0 +1,40 @@
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion = '0.7.9'
+}
+
+project.afterEvaluate {
+    Task coverageTask = tasks.create(name: 'testCoverage') {
+        group = "Reporting"
+        description = "Generate Jacoco coverage reports for all builds."
+    }
+
+    android.libraryVariants.all { variant ->
+        def name = variant.name
+        def testTaskName = "test${name.capitalize()}UnitTest"
+
+        coverageTask.dependsOn tasks.create(name: "${testTaskName}Coverage", type: JacocoReport, dependsOn: "$testTaskName") {
+            group = "Reporting"
+            description = "Generate Jacoco coverage reports for the ${name.capitalize()} build."
+
+            classDirectories = fileTree(
+                    dir: "${project.buildDir}/intermediates/classes/${name}",
+                    excludes: ['**/R.class',
+                               '**/R$*.class',
+                               '**/*$ViewInjector*.*',
+                               '**/*$ViewBinder*.*',
+                               '**/BuildConfig.*',
+                               '**/Manifest*.*']
+            )
+
+            sourceDirectories = files(['src/main/java'] + android.sourceSets[name].java.srcDirs)
+            executionData = files("${project.buildDir}/jacoco/${testTaskName}.exec")
+
+            reports {
+                xml.enabled = true
+                html.enabled = true
+            }
+        }
+    }
+}

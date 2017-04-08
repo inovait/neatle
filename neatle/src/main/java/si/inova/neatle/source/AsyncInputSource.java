@@ -22,42 +22,11 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.source;
 
-import java.io.IOException;
-
-public class ByteArrayInputSource implements InputSource {
-
-    private final byte[] data;
-    private int offset;
-
-    public ByteArrayInputSource(byte[] data) {
-        this.data = data;
-    }
-
-    @Override
-    public void close() throws IOException {
-    }
-
-    @Override
-    public void open() throws IOException {
-    }
-
-    @Override
-    public byte[] nextChunk() throws IOException {
-        if (data == null) {
-            return null;
-        }
-        int remaining = data.length - offset;
-        if (remaining <= 0) {
-            return null;
-        }
-        int chunkSize = Math.min(20, remaining);
-
-        byte[] ret = new byte[chunkSize];
-        System.arraycopy(data, offset, ret, 0, chunkSize);
-        offset += chunkSize;
-
-        return ret;
-    }
+/**
+ * A marker interface telling neatle to retrieve the data from
+ * a non EDT thread, for example from a file
+ */
+public interface AsyncInputSource extends InputSource {
 }

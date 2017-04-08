@@ -1,9 +1,10 @@
 apply plugin: 'com.android.library'
+apply from: '../jacoco.gradle'
 
 ext {
     PUBLISH_GROUP_ID = 'si.inova'
     PUBLISH_ARTIFACT_ID = 'neatle'
-    PUBLISH_VERSION = '0.8.1'
+    PUBLISH_VERSION = '0.9-RC1'
 }
 
 android {
@@ -13,14 +14,23 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 1
-        versionName "0.8.1"
+        versionCode 3
+        versionName "0.9-RC1"
     }
 
     lintOptions {
         abortOnError false
         ignoreWarnings true
     }
+    
+    testOptions {
+        unitTests.all {
+            jacoco {
+                includeNoLocationClasses = true
+            }
+        }
+    }
+
 }
 
 configurations {
@@ -30,6 +40,10 @@ configurations {
 dependencies {
     compile 'com.android.support:support-annotations:25.3.1'
     javadocDeps 'com.android.support:support-annotations:25.3.1'
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.robolectric:robolectric:3.3.2'
+    testCompile "org.mockito:mockito-core:2.7.22"
 }
 
 tasks.whenTaskAdded { task ->

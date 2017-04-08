@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.operation;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -31,29 +31,18 @@ import android.content.Context;
 import java.util.LinkedList;
 import java.util.UUID;
 
+import si.inova.neatle.source.InputSource;
+
 public class OperationBuilder {
 
-    private LinkedList<Command> cmds = new LinkedList<>();
+    private Context context;
+
+    private LinkedList<Command> commands = new LinkedList<>();
     private OperationObserver masterObserver;
     private int retryCount;
-    private Context context;
 
     public OperationBuilder(Context context) {
         this.context = context.getApplicationContext();
-    }
-
-    protected OperationBuilder subscribeNotification(UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
-        SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.SUBSCRIBE_NOTIFICATION,
-                serviceUUID, characteristicsUUID, observer);
-        cmds.add(cmd);
-        return this;
-    }
-
-    protected OperationBuilder unsubscribeNotification(UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
-        SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.UNSUBSCRIBE,
-                serviceUUID, characteristicsUUID, observer);
-        cmds.add(cmd);
-        return this;
     }
 
     /**
@@ -77,7 +66,7 @@ public class OperationBuilder {
      */
     public OperationBuilder read(UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
         ReadCommand cmd = new ReadCommand(serviceUUID, characteristicsUUID, observer);
-        cmds.add(cmd);
+        commands.add(cmd);
         return this;
     }
 
@@ -86,11 +75,11 @@ public class OperationBuilder {
      *
      * @param serviceUUID         the UUID of the service
      * @param characteristicsUUID the UUID of the characteristic.
-     * @param buffer              the source of data for the write command
+     * @param source              the source of data for the write command
      * @return this object
      */
-    public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource buffer) {
-        return write(serviceUUID, characteristicsUUID, buffer, null);
+    public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource source) {
+        return write(serviceUUID, characteristicsUUID, source, null);
     }
 
     /**
@@ -98,33 +87,45 @@ public class OperationBuilder {
      *
      * @param serviceUUID         the UUID of the service
      * @param characteristicsUUID the UUID of the characteristic.
-     * @param buffer              the source of data for the write command
+     * @param source              the source of data for the write command
      * @param operationObserver   the operation observer - callback
      * @return this object
      */
-    public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource buffer, OperationObserver operationObserver) {
+    public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource source, OperationObserver operationObserver) {
         WriteCommand cmd = new WriteCommand(serviceUUID, characteristicsUUID,
-                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT, buffer, operationObserver);
-        cmds.add(cmd);
+                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT, source, operationObserver);
+        commands.add(cmd);
         return this;
     }
 
-    public OperationBuilder writeNoResponse(UUID serviceUUID, UUID characteristicsUUID, byte[] data) {
-        return writeNoResponse(serviceUUID, characteristicsUUID, data, null);
-    }
-
-    public OperationBuilder writeNoResponse(UUID serviceUUID, UUID characteristicsUUID, byte[] data, OperationObserver operationObserver) {
-        return writeNoResponse(serviceUUID, characteristicsUUID, new ByteArrayInputSource(data), operationObserver);
-    }
-
+    /**
+     * Writes data to a characteristic of a service, but does not require a response from the
+     * BTLE device.
+     *
+     * @param serviceUUID         the UUID of the service
+     * @param characteristicsUUID the UUID of the characteristic.
+     * @param source              the source of data for the write command
+     * @return this object
+     */
     public OperationBuilder writeNoResponse(UUID serviceUUID, UUID characteristicsUUID, InputSource source) {
         return writeNoResponse(serviceUUID, characteristicsUUID, source, null);
     }
 
+
+    /**
+     * Writes data to a characteristic of a service, but does not require a response from the BTLE
+     * device.
+     *
+     * @param serviceUUID         the UUID of the service
+     * @param characteristicsUUID the UUID of the characteristic.
+     * @param source              the source of data for the write command
+     * @param operationObserver   the operation observer - callback
+     * @return this object
+     */
     public OperationBuilder writeNoResponse(UUID serviceUUID, UUID characteristicsUUID, InputSource source, OperationObserver operationObserver) {
         WriteCommand cmd = new WriteCommand(serviceUUID, characteristicsUUID,
                 BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE, source, operationObserver);
-        cmds.add(cmd);
+        commands.add(cmd);
         return this;
     }
 
@@ -150,7 +151,28 @@ public class OperationBuilder {
         return this;
     }
 
+    OperationBuilder subscribeNotification(UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
+        SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.SUBSCRIBE_NOTIFICATION,
+                serviceUUID, characteristicsUUID, observer);
+        commands.add(cmd);
+        return this;
+    }
+
+    OperationBuilder unsubscribeNotification(UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
+        SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.UNSUBSCRIBE,
+                serviceUUID, characteristicsUUID, observer);
+        commands.add(cmd);
+        return this;
+    }
+
+    /**
+     * Creates the operation. Note that you still need to call {@link Operation#execute()} to start
+     * the operation.
+     *
+     * @param device the device on which this operation will run
+     * @return the created operation
+     */
     public Operation build(BluetoothDevice device) {
-        return new OperationImpl(context, device, cmds, masterObserver, retryCount);
+        return new OperationImpl(context, device, commands, masterObserver, retryCount);
     }
 }

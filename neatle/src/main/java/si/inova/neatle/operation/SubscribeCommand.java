@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.operation;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -32,20 +32,22 @@ import android.bluetooth.BluetoothGattService;
 import java.util.Arrays;
 import java.util.UUID;
 
+import si.inova.neatle.monitor.Connection;
+import si.inova.neatle.util.NeatleLogger;
+
 class SubscribeCommand extends Command {
 
-    private static final UUID CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+    static final int SUBSCRIBE_NOTIFICATION = 1;
+    static final int SUBSCRIBE_INDICATION = 2;
+    static final int UNSUBSCRIBE = 3;
 
-    public static final int SUBSCRIBE_NOTIFICATION = 1;
-    public static final int SUBSCRIBE_INDICATION = 2;
-    public static final int UNSUBSCRIBE = 3;
+    private static final UUID CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
     private final UUID serviceUUID;
     private final UUID characteristicsUUID;
     private final int op;
-    private Connection connection;
 
-    public SubscribeCommand(int op, UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
+    SubscribeCommand(int op, UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
         super(observer);
         if (op != SUBSCRIBE_INDICATION && op != SUBSCRIBE_NOTIFICATION && op != UNSUBSCRIBE) {
             throw new IllegalArgumentException();
@@ -58,7 +60,6 @@ class SubscribeCommand extends Command {
 
     @Override
     protected void execute(Connection connection, BluetoothGatt gatt, OperationResults results) {
-        this.connection = connection;
         if (op == UNSUBSCRIBE && connection.getCharacteristicsChangedListenerCount(characteristicsUUID) > 0) {
             NeatleLogger.d("Won't unsubscribe on " + characteristicsUUID + " since it has registered listeners");
             finish(CommandResult.createEmptySuccess(characteristicsUUID));
@@ -123,7 +124,6 @@ class SubscribeCommand extends Command {
         if (!gatt.writeDescriptor(descriptor)) {
             NeatleLogger.e("Failed to write descriptor on " + characteristicsUUID);
             finish(CommandResult.createErrorResult(characteristicsUUID, BluetoothGatt.GATT_FAILURE));
-            return;
         }
     }
 
@@ -149,6 +149,5 @@ class SubscribeCommand extends Command {
             return "SubscribeIndication[" + characteristicsUUID + "] on [" + serviceUUID + "]";
         }
         return "SubscribeNotificationCommand[" + characteristicsUUID + "] on [" + serviceUUID + "]";
-
     }
 }

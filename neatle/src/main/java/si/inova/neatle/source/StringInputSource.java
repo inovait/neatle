@@ -22,57 +22,30 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.source;
 
 import java.io.IOException;
 
-public class StringSource implements InputSource {
+/**
+ * An input source that provides a string.
+ */
+public class StringInputSource extends ByteArrayInputSource {
 
-    private final String str;
+    private final String data;
 
-    private byte[] buffer = null;
-    private int offset = 0;
-
-    public StringSource() {
-        this.str = null;
-    }
-
-    public StringSource(String str) {
-        this.str = str;
-    }
-
-    protected String resolveString() {
-        return this.str;
+    public StringInputSource(String data) {
+        super(null);
+        this.data = data;
     }
 
     @Override
-    public final void close() throws IOException {
-    }
-
-    @Override
-    public final void open() throws IOException {
-        String string = resolveString();
-        if (string == null) {
+    public void open() throws IOException {
+        if (data == null || data.length() == 0) {
             buffer = null;
-            return;
+        } else {
+            buffer = data.getBytes("UTF8");
         }
-        buffer = string.getBytes("UTF8");
+
         offset = 0;
-    }
-
-    @Override
-    public final byte[] nextChunk() throws IOException {
-        if (buffer == null || offset >= buffer.length) {
-            return null;
-        }
-        int remaining = buffer.length - offset;
-        int chunkSize = Math.min(20, remaining);
-
-        byte[] ret = new byte[chunkSize];
-        System.arraycopy(buffer, offset, ret, 0, chunkSize);
-
-        offset += chunkSize;
-
-        return ret;
     }
 }

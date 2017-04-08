@@ -22,17 +22,21 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.operation;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 
 import java.util.UUID;
 
-public class CharacteristicSubscriptionImpl implements CharacteristicSubscription {
+import si.inova.neatle.Neatle;
+import si.inova.neatle.monitor.Connection;
+import si.inova.neatle.monitor.ConnectionStateListener;
 
-    private static final long RECONNECT_TIMEOUT = 5000;
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class CharacteristicSubscriptionImpl implements CharacteristicSubscription {
 
     private final BluetoothDevice device;
     private final UUID characteristicsUUID;
