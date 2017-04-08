@@ -44,6 +44,12 @@ import si.inova.neatle.util.DeviceManager;
 public class Neatle {
 
     /**
+     * If you think you need an instance of this class, you're wrong.
+     */
+    private Neatle() {
+    }
+
+    /**
      * Creates a subscription for listening to characteristics changes. To listen for changes
      * the subscription needs to be started.
      *

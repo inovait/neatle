@@ -47,15 +47,10 @@ public class ConnectionMonitor {
     private final Context context;
     private final BluetoothDevice device;
     private final Handler handler;
-
+    private final IntentFilter btFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
     private boolean keepAlive;
-
     private Connection connection;
-    private ConnHandler connectionHandler = new ConnHandler();
-    private ConnectionStateListener connectionStateListener;
-    private ReconnectRunnable reconnectRunnable = new ReconnectRunnable();
-
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+    private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(intent.getAction())) {
@@ -67,6 +62,9 @@ public class ConnectionMonitor {
             }
         }
     };
+    private ConnHandler connectionHandler = new ConnHandler();
+    private ConnectionStateListener connectionStateListener;
+    private ReconnectRunnable reconnectRunnable = new ReconnectRunnable();
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ConnectionMonitor(Context context, BluetoothDevice device) {
@@ -111,8 +109,7 @@ public class ConnectionMonitor {
             return;
         }
 
-        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        context.registerReceiver(receiver, filter);
+        context.registerReceiver(btReceiver, btFilter);
 
         connection = Neatle.getConnection(context, device);
         connection.addConnectionHandler(connectionHandler);
@@ -131,7 +128,7 @@ public class ConnectionMonitor {
             return;
         }
 
-        context.unregisterReceiver(receiver);
+        context.unregisterReceiver(btReceiver);
         handler.removeCallbacks(reconnectRunnable);
         if (connection != null) {
             connection.removeConnectionStateListener(connectionHandler);
