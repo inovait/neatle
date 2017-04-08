@@ -75,11 +75,11 @@ public class OperationBuilder {
      *
      * @param serviceUUID         the UUID of the service
      * @param characteristicsUUID the UUID of the characteristic.
-     * @param buffer              the source of data for the write command
+     * @param source              the source of data for the write command
      * @return this object
      */
-    public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource buffer) {
-        return write(serviceUUID, characteristicsUUID, buffer, null);
+    public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource source) {
+        return write(serviceUUID, characteristicsUUID, source, null);
     }
 
     /**
@@ -87,32 +87,40 @@ public class OperationBuilder {
      *
      * @param serviceUUID         the UUID of the service
      * @param characteristicsUUID the UUID of the characteristic.
-     * @param buffer              the source of data for the write command
+     * @param source              the source of data for the write command
      * @param operationObserver   the operation observer - callback
      * @return this object
      */
-    public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource buffer, OperationObserver operationObserver) {
+    public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource source, OperationObserver operationObserver) {
         WriteCommand cmd = new WriteCommand(serviceUUID, characteristicsUUID,
-                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT, buffer, operationObserver);
+                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT, source, operationObserver);
         commands.add(cmd);
         return this;
     }
 
     /**
-     * Same as {@link #write(UUID, UUID, InputSource)}, but does not require a response from the
+     * Writes data to a characteristic of a service, but does not require a response from the
      * BTLE device.
      *
-     * @see #write(UUID, UUID, InputSource)
+     * @param serviceUUID         the UUID of the service
+     * @param characteristicsUUID the UUID of the characteristic.
+     * @param source              the source of data for the write command
+     * @return this object
      */
     public OperationBuilder writeNoResponse(UUID serviceUUID, UUID characteristicsUUID, InputSource source) {
         return writeNoResponse(serviceUUID, characteristicsUUID, source, null);
     }
 
+
     /**
-     * Same as {@link #write(UUID, UUID, InputSource, OperationObserver)}, but does not require a
-     * response from the BTLE device.
+     * Writes data to a characteristic of a service, but does not require a response from the BTLE
+     * device.
      *
-     * @see #write(UUID, UUID, InputSource, OperationObserver)
+     * @param serviceUUID         the UUID of the service
+     * @param characteristicsUUID the UUID of the characteristic.
+     * @param source              the source of data for the write command
+     * @param operationObserver   the operation observer - callback
+     * @return this object
      */
     public OperationBuilder writeNoResponse(UUID serviceUUID, UUID characteristicsUUID, InputSource source, OperationObserver operationObserver) {
         WriteCommand cmd = new WriteCommand(serviceUUID, characteristicsUUID,

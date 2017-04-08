@@ -53,21 +53,16 @@ import si.inova.neatle.util.NeatleLogger;
 public class Device implements Connection {
 
     private static final long DISCOVER_DEVICE_TIMEOUT = 60 * 1000;
-
+    private static BluetoothGattCallback DO_NOTHING_CALLBACK = new BluetoothGattCallback() {
+    };
     private final BluetoothDevice device;
     private final Handler handler;
     private final GattCallback callback;
-
+    private final Object lock = new Object();
     private int state;
     private Context context;
-
-    private static BluetoothGattCallback DO_NOTHING_CALLBACK = new BluetoothGattCallback() {
-    };
-
     private LinkedList<BluetoothGattCallback> queue = new LinkedList<>();
     private BluetoothGattCallback currentCallback = DO_NOTHING_CALLBACK;
-
-    private final Object lock = new Object();
     private boolean serviceDiscovered;
     private BluetoothGatt gatt;
 

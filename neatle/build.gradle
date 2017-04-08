@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'jacoco-android'
+apply from: '../jacoco.gradle'
 
 ext {
     PUBLISH_GROUP_ID = 'si.inova'
@@ -22,6 +22,15 @@ android {
         abortOnError false
         ignoreWarnings true
     }
+    
+    testOptions {
+        unitTests.all {
+            jacoco {
+                includeNoLocationClasses = true
+            }
+        }
+    }
+
 }
 
 configurations {
