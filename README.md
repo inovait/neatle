@@ -1,6 +1,6 @@
 # NeatLE
 
-[![Build Status](https://img.shields.io/travis/InovaIT/NeatLE/master.svg)](https://travis-ci.org/InovaIT/NeatLE)
+[![Build Status](https://img.shields.io/travis/InovaIT/neatle/master.svg)](https://travis-ci.org/InovaIT/NeatLE)
 
 NeatLE is an Android BTLE (Bluetooth low energy) support library that simplifies management of BTLE connections, subscriptions, devices and operations.
 It provides a single entry point for all BTLE related operations.
@@ -11,7 +11,7 @@ It provides a single entry point for all BTLE related operations.
 Include the NeatLE library in your Android project as a Gradle dependency:
 ```groovy
 dependencies {
-    compile 'si.inova:neatle:0.8'
+    compile 'si.inova:neatle:0.8.1'
 }
 ```
 
