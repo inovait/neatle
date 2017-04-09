@@ -20,3 +20,7 @@ deploy:
     repo: InovaIT/neatle
     tags: true
 
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.gradle
