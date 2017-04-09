@@ -1,10 +1,14 @@
 # NeatLE
 
-[![Build Status](https://img.shields.io/travis/InovaIT/neatle/master.svg)](https://travis-ci.org/InovaIT/NeatLE)
+[![Build Status](https://img.shields.io/travis/inovait/neatle/master.svg)](https://travis-ci.org/inovait/neatle) [![Code Coverage](https://img.shields.io/codecov/c/github/inovait/neatle.svg)](https://codecov.io/gh/inovait/neatle)
 
 NeatLE is an Android BTLE (Bluetooth low energy) support library that simplifies management of BTLE connections, subscriptions, devices and operations.
 It provides a single entry point for all BTLE related operations.
 
+## Features
+ * Monitor a connection to a BTLE device.
+ * Send read / write commands and receive responses.
+ * Subscribe to characteristics and get notified of changes.
 
 ## Installation
 

@@ -1,0 +1,19 @@
+{
+  "package": {
+    "name": "neatle",
+    "repo": "NeatLE",
+    "subject": "inovait"
+  },
+  "version": {
+    "name": "0.9-RC1",
+    "vcs_tag": "0.9-RC1",
+    "gpgSign": false
+  },
+  "files": [
+    {
+      "includePattern": "neatle\/build\/release\/(.*)\/si\/inova\/neatle\/(.*)",
+      "uploadPattern": "$1/$2"
+    }
+  ],
+  "publish": false
+}
