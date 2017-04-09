@@ -36,7 +36,7 @@ deploy:
       tags: true
     dry-run: true
 
- cache:
+cache:
   directories:
   - $HOME/.m2
   - $HOME/.gradle
