@@ -11,7 +11,7 @@
   },
   "files": [
     {
-      "includePattern": "neatle\/build\/release\/(.*)\/si\/inova\/neatle\/(.*)",
+      "includePattern": "neatle\/build\/release\/(.*)\/si\/inova\/neatle\/\1\/(.*)",
       "uploadPattern": "$1/$2"
     }
   ],

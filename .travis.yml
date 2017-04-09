@@ -28,7 +28,7 @@ deploy:
     user: mihakinova
     key:
       secure: oMS/IkhXSnFgV4YS+r/TPL7DBDKeGPoEII+ln/ZLFAP53M92waz63LaaAWxiY3h979FDB4oZK6ZQDxna1aOQFGExtolhee/9bQHj//btDOE1QN1eL2dWB66zSTNjM82jte/0pHGy6mMuhKnH7S9OLCHKDv7xdjSsVjvsx4BWHT06WVv/HtcUVYgcspls2EGr1RAYvTEbUyJ293kYlOEIiPd4N1Abqhq/ktPG/3zkgON9kFSojpmOvnpUSHRlOa5diP9AqLzv9c13BLlL7l06a3e5J7xiYcTUmDOA6I96Ls+uro1apr49/qEqKHVTIQuf/4QAqPHQDANMPTlx9kcQCau5QdbpPxfJqUAwcFWM6cn/6fUoMYqwjX5rICAqdoN8RXpipva+PJKvlRjbcYEyG3A289Q2HWwR5KrHA4AyJ1+fMYykpOD0594eYkVmPRwwYIZGmOV5lRihRl3nUQ8SFea+9PUP2ZJOoESnO5SwrYGo4r9NeZtSa1udJa9ikFTlAqGkWwoQHEfAqDorkm3P75QtCtRPIzjrOCcdDIwRkpPs0f2oAP9jQYkRoIJuQ73m+wYCjazeEw5g6yPiMJloiiO5c92Z3CSArMPd2oAbfo6krl4tbowiYm5/czBydyDR56vkc33NlGMBCyne9h33xkM7lYgOMnGsV2V93dmFE04=
-    file: neatle/
+    file: neatle/bintray.json
     on:
       repo: inovait/neatle
       tags: true
