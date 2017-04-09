@@ -30,6 +30,12 @@ android {
             }
         }
     }
+
+    libraryVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFile = new File(output.outputFile.parent, output.outputFile.name.replace("${PUBLISH_ARTIFACT_ID}", "${PUBLISH_ARTIFACT_ID}-${PUBLISH_VERSION_NAME}"))
+        }
+    }
 }
 
 configurations {
