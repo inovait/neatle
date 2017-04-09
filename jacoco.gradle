@@ -5,7 +5,7 @@ jacoco {
 }
 
 project.afterEvaluate {
-    Task coverageTask = tasks.create(name: 'testCoverage') {
+    Task coverageTask = tasks.create(name: 'jacocoTestCoverage') {
         group = "Reporting"
         description = "Generate Jacoco coverage reports for all builds."
     }
@@ -14,7 +14,7 @@ project.afterEvaluate {
         def name = variant.name
         def testTaskName = "test${name.capitalize()}UnitTest"
 
-        coverageTask.dependsOn tasks.create(name: "${testTaskName}Coverage", type: JacocoReport, dependsOn: "$testTaskName") {
+        coverageTask.dependsOn tasks.create(name: "jacoco${name.capitalize()}TestCoverage", type: JacocoReport, dependsOn: "$testTaskName") {
             group = "Reporting"
             description = "Generate Jacoco coverage reports for the ${name.capitalize()} build."
 
