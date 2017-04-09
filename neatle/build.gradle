@@ -4,7 +4,7 @@ apply from: '../jacoco.gradle'
 ext {
     PUBLISH_ARTIFACT_ID = 'neatle'
     PUBLISH_VERSION_NAME = '0.9-RC1'
-    BUILD_NUMBER = System.getenv("TRAVIS_BUILD_NUMBER") ?: 1
+    BUILD_NUMBER = (System.getenv("TRAVIS_BUILD_NUMBER") ?: "1").toInteger()
 }
 
 android {
