@@ -2,9 +2,9 @@ apply plugin: 'com.android.library'
 apply from: '../jacoco.gradle'
 
 ext {
-    PUBLISH_GROUP_ID = 'si.inova'
     PUBLISH_ARTIFACT_ID = 'neatle'
-    PUBLISH_VERSION = '0.9-RC1'
+    PUBLISH_VERSION_NAME = '0.9-RC1'
+    BUILD_NUMBER = (System.getenv("TRAVIS_BUILD_NUMBER") ?: "1").toInteger()
 }
 
 android {
@@ -14,15 +14,15 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 3
-        versionName "0.9-RC1"
+        versionCode BUILD_NUMBER
+        versionName PUBLISH_VERSION_NAME
     }
 
     lintOptions {
         abortOnError false
         ignoreWarnings true
     }
-    
+
     testOptions {
         unitTests.all {
             jacoco {
@@ -31,6 +31,11 @@ android {
         }
     }
 
+    libraryVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFile = new File(output.outputFile.parent, output.outputFile.name.replace("${PUBLISH_ARTIFACT_ID}", "${PUBLISH_ARTIFACT_ID}-${PUBLISH_VERSION_NAME}"))
+        }
+    }
 }
 
 configurations {
@@ -46,12 +51,4 @@ dependencies {
     testCompile "org.mockito:mockito-core:2.7.22"
 }
 
-tasks.whenTaskAdded { task ->
-    if (task.name == 'androidJavadocs') {
-        task.configure {
-            classpath += configurations.javadocDeps
-        }
-    }
-}
-
-apply from: 'https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle'
+apply from: '../deploy.gradle'
