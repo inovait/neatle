@@ -15,7 +15,6 @@ after_success:
 - bash <(curl -s https://codecov.io/bash)
 
 deploy:
-  matrix:
   - provider: releases
     skip_cleanup: true
     api_key:
@@ -24,7 +23,6 @@ deploy:
     on:
       repo: inovait/neatle
       tags: true
-
   - provider: bintray
     skip_cleanup: true
     user: mihakinova
@@ -34,7 +32,6 @@ deploy:
     on:
       repo: inovait/neatle
       tags: true
-    dry-run: true
 
 cache:
   directories:
