@@ -2,8 +2,7 @@
 apply plugin: 'maven'
 
 def groupId = "si.inova"
-def artifactId = project.PUBLISH_ARTIFACT_ID
-def version = project.PUBLISH_VERSION_NAME
+def version = ext.getVersionName()
 
 def localReleaseDest = "${buildDir}/release/${version}"
 
@@ -28,7 +27,7 @@ task androidSourcesJar(type: Jar) {
 uploadArchives {
     repositories.mavenDeployer {
         pom.groupId = groupId
-        pom.artifactId = artifactId
+        pom.artifactId = project.artifactId
         pom.version = version
         // Add other pom properties here if you want (developer details / licenses)
         repository(url: "file://${localReleaseDest}")
@@ -40,6 +39,10 @@ task zipRelease(type: Zip) {
     destinationDir buildDir
     archiveName "release-${version}.zip"
     println "Release ${version} zipped can be found ${buildDir}/release-${version}.zip"
+}
+
+task updateBintrayConfig << {
+    ant.replace(file: "bintray.json", token: "#VERSION_NAME", value: version)
 }
 
 task generateRelease << {

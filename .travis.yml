@@ -9,7 +9,7 @@ android:
   - extra-android-m2repository
 
 script:
-- ./gradlew build jacocoTestCoverage generateRelease
+- ./gradlew build jacocoTestCoverage generateRelease updateBintrayConfig
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
