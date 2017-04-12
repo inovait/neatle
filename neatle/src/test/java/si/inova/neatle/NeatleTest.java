@@ -34,7 +34,9 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 19)
@@ -79,5 +81,17 @@ public class NeatleTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testGetDeviceException() {
         Neatle.getDevice("no:ta:ma:c!");
+    }
+
+    @Test
+    public void testIsMacValid() {
+        assertTrue(Neatle.isMacValid("00:11:22:33:44:55"));
+        assertTrue(Neatle.isMacValid("00:11:22:33:44:55"));
+        assertTrue(Neatle.isMacValid("aa:bb:cc:dd:ee:ff"));
+        assertTrue(Neatle.isMacValid("00:22:bb:cd:ef:12"));
+        assertFalse(Neatle.isMacValid(""));
+        assertFalse(Neatle.isMacValid("loremipsup"));
+        assertFalse(Neatle.isMacValid("00:22:bb:cd:ef:gg"));
+        assertFalse(Neatle.isMacValid(":::::"));
     }
 }

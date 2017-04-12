@@ -19,7 +19,6 @@ dependencies {
 }
 ```
 
-
 ## Examples
 
 ### Monitor for connections:
@@ -90,6 +89,17 @@ subscription.setOnCharacteristicsChangedListener(new CharacteristicsChangedListe
 subscription.start();
 ```
 Note: An active subscription will keep a `ConnectionMonitor` with `setKeepAlive(false)` (the default setting) alive.
+
+## Permissions
+
+The following permission are required by NeatLE (and are already defined in it's manifest):
+
+```xml
+<uses-permission android:name="android.permission.BLUETOOTH" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+```
+The `ACCESS_COARSE_LOCATION` permission is considered *dangerous* on Android 6.0 (23) and up, and should be requested manually by the developer, before running NeatLE.
 
 
 ## License

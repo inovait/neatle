@@ -22,11 +22,24 @@
   ~ SOFTWARE.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="si.inova.neatle">
+<resources>
+    <string name="app_name">NeatLE Sample</string>
 
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <string name="mac">MAC Address</string>
+    <string name="connect">CONNECT</string>
 
-</manifest>
+    <!-- Monitor -->
+    <string name="state_connecting">STATE: Connecting</string>
+    <string name="state_connected">STATE: Connected!</string>
+    <string name="state_not_connected">STATE: Not connected!</string>
+
+    <!-- Operation -->
+    <string name="read_battery_level">READ BATTERY LEVEL</string>
+    <string name="battery_level_status">Battery level: %d</string>
+    <string name="operation_failed">Operation failed!</string>
+
+    <!-- Subscription -->
+    <string name="subscription_failed">Subscription failed!</string>
+    <string name="subscribe">SUBSCRIBE</string>
+
+</resources>
