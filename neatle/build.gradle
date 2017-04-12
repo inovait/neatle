@@ -26,9 +26,16 @@ apply plugin: 'com.android.library'
 apply from: '../jacoco.gradle'
 
 ext {
-    PUBLISH_ARTIFACT_ID = 'neatle'
-    PUBLISH_VERSION_NAME = '0.9-RC1'
-    BUILD_NUMBER = (System.getenv("TRAVIS_BUILD_NUMBER") ?: "1").toInteger()
+    artifactId = 'neatle'
+    buildNumber = (System.getenv("TRAVIS_BUILD_NUMBER") ?: "1").toInteger()
+    getVersionName = { ->
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'describe', '--tags', '--long'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim().find("(.+)(?=-\\d+-[a-z0-9]+)") ?: "0.0.1"
+    }
 }
 
 android {
@@ -38,8 +45,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode BUILD_NUMBER
-        versionName PUBLISH_VERSION_NAME
+        versionCode buildNumber
+        versionName getVersionName()
     }
 
     lintOptions {
@@ -57,7 +64,7 @@ android {
 
     libraryVariants.all { variant ->
         variant.outputs.each { output ->
-            output.outputFile = new File(output.outputFile.parent, output.outputFile.name.replace("${PUBLISH_ARTIFACT_ID}", "${PUBLISH_ARTIFACT_ID}-${PUBLISH_VERSION_NAME}"))
+            output.outputFile = new File(output.outputFile.parent, output.outputFile.name.replace("${artifactId}", "${artifactId}-${getVersionName()}"))
         }
     }
 }
