@@ -82,6 +82,15 @@ public class OperationFragment extends Fragment {
         unbinder.unbind();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (operation != null) {
+            operation.cancel();
+            operation = null;
+        }
+    }
+
     @OnClick(R.id.operation_read_button)
     public void onReadClicked() {
         if (operation != null) {

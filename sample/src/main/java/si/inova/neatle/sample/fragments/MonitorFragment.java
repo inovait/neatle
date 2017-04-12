@@ -77,6 +77,22 @@ public class MonitorFragment extends Fragment implements ConnectionStateListener
         unbinder.unbind();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (connectionMonitor != null) {
+            connectionMonitor.stop();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (connectionMonitor != null) {
+            connectionMonitor.start();
+        }
+    }
+
     @OnClick(R.id.monitor_connect_button)
     public void onConnectClicked() {
         String macAddress = macInput.getText().toString();

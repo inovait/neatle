@@ -112,13 +112,13 @@ public class Neatle {
     }
 
     /**
-     * Validates a MAC address
+     * Validates a MAC address.
      *
      * @param mac the mac address to validate
      * @return true if it's a valid address, otherwise false
      */
     public static boolean isMacValid(String mac) {
-        return BluetoothAdapter.checkBluetoothAddress(mac);
+        return BluetoothAdapter.checkBluetoothAddress(mac.toUpperCase());
     }
 
     /**
@@ -128,7 +128,8 @@ public class Neatle {
      * @return the created BT device.
      */
     public static BluetoothDevice getDevice(@NonNull String mac) {
-        if (BluetoothAdapter.checkBluetoothAddress(mac)) {
+        mac = mac.toUpperCase();
+        if (isMacValid(mac)) {
             return BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
         }
         throw new UnsupportedOperationException("Device mac not recognized.");

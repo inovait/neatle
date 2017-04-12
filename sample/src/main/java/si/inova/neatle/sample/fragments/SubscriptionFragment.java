@@ -82,6 +82,22 @@ public class SubscriptionFragment extends Fragment implements CharacteristicsCha
         unbinder.unbind();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (characteristicSubscription != null) {
+            characteristicSubscription.stop();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (characteristicSubscription != null) {
+            characteristicSubscription.start();
+        }
+    }
+
     @OnClick(R.id.subscription_connect_button)
     public void onSubscribeClicked() {
         String macAddress = macInput.getText().toString();
