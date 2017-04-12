@@ -112,6 +112,16 @@ public class Neatle {
     }
 
     /**
+     * Validates a MAC address
+     *
+     * @param mac the mac address to validate
+     * @return true if it's a valid address, otherwise false
+     */
+    public static boolean isMacValid(String mac) {
+        return BluetoothAdapter.checkBluetoothAddress(mac);
+    }
+
+    /**
      * Returns a {@link BluetoothDevice} based on the provided MAC address.
      *
      * @param mac the MAC address of the BTLE device
