@@ -22,4 +22,4 @@
  * SOFTWARE.
  */
 
-include ':neatle'
+include ':neatle', ':sample'
