@@ -5,8 +5,8 @@
     "subject": "inovait"
   },
   "version": {
-    "name": "0.9-RC1",
-    "vcs_tag": "0.9-RC1",
+    "name": "#VERSION_NAME",
+    "vcs_tag": "#VERSION_NAME",
     "gpgSign": false
   },
   "files": [
