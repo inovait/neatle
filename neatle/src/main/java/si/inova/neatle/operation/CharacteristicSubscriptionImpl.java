@@ -88,7 +88,7 @@ public class CharacteristicSubscriptionImpl implements CharacteristicSubscriptio
 
     @Override
     public void start() {
-        if (!started) {
+        if (started) {
             return;
         }
 
@@ -109,7 +109,7 @@ public class CharacteristicSubscriptionImpl implements CharacteristicSubscriptio
 
     @Override
     public void stop() {
-        if (started) {
+        if (!started) {
             return;
         }
 
