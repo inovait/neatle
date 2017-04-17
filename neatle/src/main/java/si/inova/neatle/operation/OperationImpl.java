@@ -90,7 +90,7 @@ class OperationImpl implements Operation {
         synchronized (this) {
             this.connection = DeviceManager.getInstance(context).getDevice(device);
             conn = this.connection;
-            results = new OperationResults(device);
+            results = new OperationResults();
             this.commandQueue = new LinkedList<>(commands);
             this.current = NO_COMMAND;
             this.retriedCount = 0;
@@ -106,7 +106,7 @@ class OperationImpl implements Operation {
         synchronized (this) {
             retriedCount++;
             NeatleLogger.i("Retrying operation, attempt:" + retriedCount);
-            results = new OperationResults(device);
+            results = new OperationResults();
             commandQueue = new LinkedList<>(commands);
             conn = connection;
             lastResult = null;
@@ -188,11 +188,11 @@ class OperationImpl implements Operation {
             cmd = current;
         }
         NeatleLogger.d("Executing command: " + current);
-        if (cmd.getOperationObserver() != null) {
-            cmd.getOperationObserver().onCommandExecuting(this, results);
+        if (operationObserver != null) {
+            operationObserver.onCommandExecuting(this, results);
         }
 
-        cmd.execute(targetDevice, commandHandler, gatt, results);
+        cmd.execute(targetDevice, commandHandler, gatt);
     }
 
     private void scheduleNext() {
@@ -214,12 +214,29 @@ class OperationImpl implements Operation {
         return "Operation[retryCount: " + retryCount + ", attempts: " + retriedCount + ", commands:" + this.commands + "]";
     }
 
+    private static class NoCommand extends Command {
+
+        private NoCommand() {
+            super(null);
+        }
+
+        @Override
+        protected void execute(Connection connection, CommandObserver observer, BluetoothGatt gatt) {
+            super.execute(connection, observer, gatt);
+            throw new IllegalStateException("Should not be called");
+        }
+
+        @Override
+        protected void onError(int error) {
+        }
+    }
+
     private class CommandHandler implements CommandObserver {
         @Override
         public void finished(final Command command, final CommandResult result) {
             synchronized (OperationImpl.this) {
                 lastResult = result;
-                results.addCommandResult(result);
+                results.addResult(result);
                 //once the command is finished, don't forward any more events
                 current = NO_COMMAND;
             }
@@ -228,12 +245,11 @@ class OperationImpl implements Operation {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    OperationObserver opObserver = command.getOperationObserver();
-                    if (opObserver != null) {
+                    if (operationObserver != null) {
                         if (result.wasSuccessful()) {
-                            opObserver.onCommandSuccess(OperationImpl.this, result, results);
+                            operationObserver.onCommandSuccess(OperationImpl.this, result, results);
                         }
-                        opObserver.onCommandFinished(OperationImpl.this, result, results);
+                        operationObserver.onCommandFinished(OperationImpl.this, result, results);
                     }
                 }
             });
@@ -272,11 +288,6 @@ class OperationImpl implements Operation {
         }
 
         @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            current().onCharacteristicChanged(gatt, characteristic);
-        }
-
-        @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             current().onCharacteristicRead(gatt, characteristic, status);
         }
@@ -297,38 +308,8 @@ class OperationImpl implements Operation {
         }
 
         @Override
-        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            current().onMtuChanged(gatt, mtu, status);
-        }
-
-        @Override
-        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-            current().onReadRemoteRssi(gatt, rssi, status);
-        }
-
-        @Override
-        public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
-            current().onReliableWriteCompleted(gatt, status);
-        }
-
-        @Override
         public String toString() {
             return "Callback[" + OperationImpl.this.toString() + "]";
-        }
-    }
-
-    private static class NoCommand extends Command {
-        private NoCommand() {
-            super(null);
-        }
-
-        @Override
-        protected void execute(Connection connection, BluetoothGatt gatt, OperationResults results) {
-            throw new IllegalStateException("Should not be called");
-        }
-
-        @Override
-        protected void onError(int error) {
         }
     }
 }

@@ -38,16 +38,17 @@ class ReadCommand extends Command {
     private final UUID serviceUUID;
     private final UUID characteristicUUID;
 
-    ReadCommand(UUID serviceUUID, UUID characteristicUUID, OperationObserver operationObserver) {
-        super(operationObserver);
+    ReadCommand(UUID serviceUUID, UUID characteristicUUID, CommandObserver observer) {
+        super(observer);
         this.serviceUUID = serviceUUID;
         this.characteristicUUID = characteristicUUID;
     }
 
-    public void execute(Connection connection, BluetoothGatt gatt, OperationResults results) {
+    @Override
+    public void execute(Connection connection, CommandObserver commandObserver, BluetoothGatt gatt) {
+        super.execute(connection, commandObserver, gatt);
 
         BluetoothGattService service = gatt.getService(serviceUUID);
-
         if (service != null) {
             BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
             if (characteristic != null) {
@@ -59,7 +60,6 @@ class ReadCommand extends Command {
             } else {
                 NeatleLogger.e("Could not find characteristics " + characteristicUUID);
             }
-
         } else {
             NeatleLogger.e("Could not find service " + serviceUUID);
         }
@@ -69,6 +69,7 @@ class ReadCommand extends Command {
 
     @Override
     protected void onError(int error) {
+        NeatleLogger.e("Unexpected error while reading [" + error + "]");
         finish(CommandResult.createErrorResult(characteristicUUID, error));
     }
 
@@ -78,8 +79,8 @@ class ReadCommand extends Command {
             return;
         }
 
-        CommandResult result = CommandResult.onCharacteristicRead(characteristic, status);
-        NeatleLogger.d("Read " + result);
+        CommandResult result = CommandResult.createCharacteristicRead(characteristic, status);
+        NeatleLogger.d("Read: " + result);
         finish(result);
     }
 

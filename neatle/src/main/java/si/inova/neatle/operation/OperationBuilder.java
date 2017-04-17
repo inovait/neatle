@@ -27,6 +27,7 @@ package si.inova.neatle.operation;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 
 import java.util.LinkedList;
 import java.util.UUID;
@@ -41,6 +42,7 @@ public class OperationBuilder {
     private OperationObserver masterObserver;
     private int retryCount;
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public OperationBuilder(Context context) {
         this.context = context.getApplicationContext();
     }
@@ -64,7 +66,7 @@ public class OperationBuilder {
      * @param observer            the observer for this specific command
      * @return this object
      */
-    public OperationBuilder read(UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
+    public OperationBuilder read(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
         ReadCommand cmd = new ReadCommand(serviceUUID, characteristicsUUID, observer);
         commands.add(cmd);
         return this;
@@ -88,12 +90,11 @@ public class OperationBuilder {
      * @param serviceUUID         the UUID of the service
      * @param characteristicsUUID the UUID of the characteristic.
      * @param source              the source of data for the write command
-     * @param operationObserver   the operation observer - callback
+     * @param observer            the operation observer - callback
      * @return this object
      */
-    public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource source, OperationObserver operationObserver) {
-        WriteCommand cmd = new WriteCommand(serviceUUID, characteristicsUUID,
-                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT, source, operationObserver);
+    public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource source, CommandObserver observer) {
+        WriteCommand cmd = new WriteCommand(serviceUUID, characteristicsUUID, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT, source, observer);
         commands.add(cmd);
         return this;
     }
@@ -111,7 +112,6 @@ public class OperationBuilder {
         return writeNoResponse(serviceUUID, characteristicsUUID, source, null);
     }
 
-
     /**
      * Writes data to a characteristic of a service, but does not require a response from the BTLE
      * device.
@@ -119,12 +119,11 @@ public class OperationBuilder {
      * @param serviceUUID         the UUID of the service
      * @param characteristicsUUID the UUID of the characteristic.
      * @param source              the source of data for the write command
-     * @param operationObserver   the operation observer - callback
+     * @param observer            the operation observer - callback
      * @return this object
      */
-    public OperationBuilder writeNoResponse(UUID serviceUUID, UUID characteristicsUUID, InputSource source, OperationObserver operationObserver) {
-        WriteCommand cmd = new WriteCommand(serviceUUID, characteristicsUUID,
-                BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE, source, operationObserver);
+    public OperationBuilder writeNoResponse(UUID serviceUUID, UUID characteristicsUUID, InputSource source, CommandObserver observer) {
+        WriteCommand cmd = new WriteCommand(serviceUUID, characteristicsUUID, BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE, source, observer);
         commands.add(cmd);
         return this;
     }
@@ -151,16 +150,14 @@ public class OperationBuilder {
         return this;
     }
 
-    OperationBuilder subscribeNotification(UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
-        SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.SUBSCRIBE_NOTIFICATION,
-                serviceUUID, characteristicsUUID, observer);
+    OperationBuilder subscribeNotification(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
+        SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.SUBSCRIBE_NOTIFICATION, serviceUUID, characteristicsUUID, observer);
         commands.add(cmd);
         return this;
     }
 
-    OperationBuilder unsubscribeNotification(UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
-        SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.UNSUBSCRIBE,
-                serviceUUID, characteristicsUUID, observer);
+    OperationBuilder unsubscribeNotification(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
+        SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.UNSUBSCRIBE, serviceUUID, characteristicsUUID, observer);
         commands.add(cmd);
         return this;
     }

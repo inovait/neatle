@@ -22,14 +22,11 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.source;
 
 import org.junit.Test;
 
 import java.io.IOException;
-
-import si.inova.neatle.source.ByteArrayInputSource;
-import si.inova.neatle.source.StringInputSource;
 
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertArrayEquals;

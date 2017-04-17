@@ -41,48 +41,47 @@ class WriteCommand extends Command {
 
     private final UUID serviceUUID;
     private final UUID characteristicsUUID;
-    private final InputSource buffer;
-    private final Handler handler;
-    private BluetoothGattCharacteristic writeCharacteristic;
 
-    private Thread readerThread;
     private BluetoothGatt gatt;
-    private int writeType;
+    private BluetoothGattCharacteristic writeCharacteristic;
+    private final int writeType;
 
-    private final Object readyToRead = new Object();
-    private boolean reading = false;
+    private final InputSource buffer;
+
+    private final Handler handler = new Handler();
+    private final Object bufferReadLock = new Object();
     private final boolean asyncMode;
+    private Thread readerThread;
 
-    WriteCommand(UUID serviceUUID, UUID characteristicsUUID, int writeType, InputSource buffer, OperationObserver observer) {
+    WriteCommand(UUID serviceUUID, UUID characteristicsUUID, int writeType, InputSource buffer, CommandObserver observer) {
         super(observer);
-
         this.serviceUUID = serviceUUID;
         this.characteristicsUUID = characteristicsUUID;
         this.buffer = buffer;
         this.writeType = writeType;
-        this.handler = new Handler();
-
         this.asyncMode = buffer instanceof AsyncInputSource;
     }
 
     @Override
-    protected void execute(Connection connection, BluetoothGatt gatt, OperationResults results) {
+    protected void execute(Connection connection, CommandObserver observer, BluetoothGatt gatt) {
+        super.execute(connection, observer, gatt);
+
         BluetoothGattService service = gatt.getService(serviceUUID);
         if (service == null) {
-            NeatleLogger.i("Service for write not found " + serviceUUID);
+            NeatleLogger.i("Service for write not found [" + serviceUUID + "]");
             finish(CommandResult.createErrorResult(characteristicsUUID, BluetoothGatt.GATT_FAILURE));
             return;
         }
 
         writeCharacteristic = service.getCharacteristic(characteristicsUUID);
         if (writeCharacteristic == null) {
-            NeatleLogger.i("Characteristic not found " + characteristicsUUID);
+            NeatleLogger.i("Characteristic not found [" + characteristicsUUID + "]");
             finish(CommandResult.createErrorResult(characteristicsUUID, BluetoothGatt.GATT_FAILURE));
             return;
         }
         writeCharacteristic.setWriteType(writeType);
-        this.gatt = gatt;
 
+        this.gatt = gatt;
         if (asyncMode) {
             readerThread = new Thread(new AsyncReader());
             readerThread.start();
@@ -91,7 +90,7 @@ class WriteCommand extends Command {
                 buffer.open();
                 nextChunkReady(buffer.nextChunk());
             } catch (IOException ex) {
-                NeatleLogger.e("Failed to get the first chunk", ex);
+                NeatleLogger.e("Failed to read from the input source", ex);
                 finish(CommandResult.createErrorResult(characteristicsUUID, BluetoothGatt.GATT_FAILURE));
             }
         }
@@ -103,7 +102,7 @@ class WriteCommand extends Command {
         if (readerThread != null) {
             readerThread.interrupt();
         }
-        NeatleLogger.d("Writing finished" + characteristicsUUID);
+        NeatleLogger.d("Writing finished [" + characteristicsUUID + "]");
     }
 
     private void nextChunkReady(byte[] chunk) {
@@ -113,7 +112,6 @@ class WriteCommand extends Command {
         }
 
         NeatleLogger.d("Writing " + chunk.length + " bytes onto " + writeCharacteristic.getUuid());
-
         writeCharacteristic.setValue(chunk);
         if (!gatt.writeCharacteristic(writeCharacteristic)) {
             NeatleLogger.d("Write returned false");
@@ -129,9 +127,9 @@ class WriteCommand extends Command {
             return;
         }
 
-        if (this.asyncMode) {
-            synchronized (readyToRead) {
-                readyToRead.notify();
+        if (asyncMode) {
+            synchronized (bufferReadLock) {
+                bufferReadLock.notify();
             }
         } else {
             byte[] chunk;
@@ -150,10 +148,9 @@ class WriteCommand extends Command {
         }
     }
 
-
     @Override
     protected void onError(int error) {
-        NeatleLogger.e("Unexpected error while writing ");
+        NeatleLogger.e("Unexpected error while writing [" + error + "]");
         finish(CommandResult.createErrorResult(characteristicsUUID, error));
 
         if (asyncMode && readerThread != null) {
@@ -161,8 +158,9 @@ class WriteCommand extends Command {
         }
     }
 
+    @Override
     public String toString() {
-        return "WriteCommand[ async:" + asyncMode + " - " + characteristicsUUID + "] on [" + serviceUUID + "]";
+        return "WriteCommand[async:" + asyncMode + " - " + characteristicsUUID + "] on [" + serviceUUID + "]";
     }
 
     private class AsyncReader implements Runnable {
@@ -174,7 +172,6 @@ class WriteCommand extends Command {
                 return;
             }
             try {
-                reading = true;
                 while (!Thread.interrupted()) {
                     final byte[] chunk = buffer.nextChunk();
                     handler.post(new Runnable() {
@@ -184,15 +181,14 @@ class WriteCommand extends Command {
                         }
                     });
 
-                    synchronized (readyToRead) {
-                        readyToRead.wait();
+                    synchronized (bufferReadLock) {
+                        bufferReadLock.wait();
                     }
+
                     if (chunk == null) {
                         break;
                     }
                 }
-
-
             } catch (IOException | InterruptedException ex) {
                 fail(ex);
             }

@@ -24,6 +24,9 @@
 
 package si.inova.neatle.operation;
 
+/**
+ * Observes the status of a command, and gets notified if a command is finished.
+ */
 public interface CommandObserver {
 
     void finished(Command command, CommandResult result);

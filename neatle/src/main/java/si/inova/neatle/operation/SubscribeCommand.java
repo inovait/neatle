@@ -47,8 +47,9 @@ class SubscribeCommand extends Command {
     private final UUID characteristicsUUID;
     private final int op;
 
-    SubscribeCommand(int op, UUID serviceUUID, UUID characteristicsUUID, OperationObserver observer) {
+    SubscribeCommand(int op, UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
         super(observer);
+
         if (op != SUBSCRIBE_INDICATION && op != SUBSCRIBE_NOTIFICATION && op != UNSUBSCRIBE) {
             throw new IllegalArgumentException();
         }
@@ -59,7 +60,9 @@ class SubscribeCommand extends Command {
     }
 
     @Override
-    protected void execute(Connection connection, BluetoothGatt gatt, OperationResults results) {
+    protected void execute(Connection connection, CommandObserver commandObserver, BluetoothGatt gatt) {
+        super.execute(connection, commandObserver, gatt);
+
         if (op == UNSUBSCRIBE && connection.getCharacteristicsChangedListenerCount(characteristicsUUID) > 0) {
             NeatleLogger.d("Won't unsubscribe on " + characteristicsUUID + " since it has registered listeners");
             finish(CommandResult.createEmptySuccess(characteristicsUUID));
@@ -71,6 +74,7 @@ class SubscribeCommand extends Command {
             finish(CommandResult.createErrorResult(characteristicsUUID, SERVICE_NOT_FOUND));
             return;
         }
+
         BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicsUUID);
         if (characteristic == null) {
             finish(CommandResult.createErrorResult(characteristicsUUID, CHARACTERISTIC_NOT_FOUND));
@@ -117,7 +121,6 @@ class SubscribeCommand extends Command {
             finish(CommandResult.createErrorResult(characteristicsUUID, BluetoothGatt.GATT_FAILURE));
             return;
         }
-
 
         descriptor.setValue(valueToWrite);
         NeatleLogger.e("Writing descriptor on " + characteristicsUUID);

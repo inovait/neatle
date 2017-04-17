@@ -31,6 +31,8 @@ import java.io.IOException;
  */
 public class ByteArrayInputSource implements InputSource {
 
+    private static final int MAX_CHUNK_SIZE = 20;
+
     private final byte[] data;
 
     protected byte[] buffer;
@@ -63,7 +65,7 @@ public class ByteArrayInputSource implements InputSource {
             return null;
         }
 
-        int chunkSize = Math.min(20, remaining);
+        int chunkSize = Math.min(MAX_CHUNK_SIZE, remaining);
 
         byte[] ret = new byte[chunkSize];
         System.arraycopy(buffer, offset, ret, 0, chunkSize);

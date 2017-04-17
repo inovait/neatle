@@ -24,48 +24,46 @@
 
 package si.inova.neatle.operation;
 
-import android.bluetooth.BluetoothDevice;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The combined results of an operation.
+ */
 public class OperationResults {
-    private final BluetoothDevice device;
-    private Map<UUID, CommandResult> results = new HashMap<>();
-    private boolean success = false;
 
-    OperationResults(BluetoothDevice device) {
-        this.device = device;
+    private final Map<UUID, CommandResult> results = new HashMap<>();
+    private boolean successful = false;
+
+    OperationResults() {
     }
 
-    public boolean wasSuccessful() {
-        return success;
+    /**
+     * Indicates whether or not all of the commands in the operation were successful.
+     *
+     * @return true if all commands were successful, false otherwise
+     */
+    public synchronized boolean wasSuccessful() {
+        return successful;
     }
 
-    public CommandResult getResult(UUID uuid) {
+    /**
+     * Gets the result of a command that was executed on a specific UUAD.
+     *
+     * @param uuid the UUAD of the characteristic
+     * @return the command result
+     */
+    public synchronized CommandResult getResult(UUID uuid) {
         return results.get(uuid);
     }
 
-    public BluetoothDevice getDevice() {
-        return device;
-    }
-
-    synchronized void addCommandResult(CommandResult result) {
-        //first result sets the result flag
+    synchronized void addResult(CommandResult result) {
         if (results.isEmpty()) {
-            success = result.wasSuccessful();
+            successful = result.wasSuccessful();
         } else {
-            success = success && result.wasSuccessful();
+            successful = successful && result.wasSuccessful();
         }
         results.put(result.getUUID(), result);
-    }
-
-    public synchronized String getString(UUID uuid) {
-        CommandResult res = getResult(uuid);
-        if (res != null) {
-            return res.getValueAsString();
-        }
-        return null;
     }
 }

@@ -59,7 +59,7 @@ Operation operation = Neatle.createOperationBuilder(context)
             @Override
             public void onOperationFinished(Operation op, OperationResults results) {
                 if(results.wasSuccessful()){
-                    int battery = results.getResult(batteryCharacteristic).getValueAsInt8();
+                    int battery = results.getResult(batteryCharacteristic).getValueAsInt();
                 }
             }
         })
@@ -82,7 +82,7 @@ subscription.setOnCharacteristicsChangedListener(new CharacteristicsChangedListe
     @Override
     public void onCharacteristicChanged(CommandResult change) {
         if (change.wasSuccessful()) {
-            int batteryLevel = change.getValueAsInt8();
+            int batteryLevel = change.getValueAsInt();
         }
     }
 });

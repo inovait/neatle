@@ -104,14 +104,13 @@ public class OperationFragment extends Fragment {
             return;
         }
 
-
         operation = Neatle.createOperationBuilder(getContext())
                 .read(BATTERY_LEVEL_SERVICE, BATTERY_LEVEL)
                 .onFinished(new OperationObserver() {
                     @Override
                     public void onOperationFinished(Operation op, OperationResults results) {
                         if (results.wasSuccessful()) {
-                            int batteryLevel = results.getResult(BATTERY_LEVEL).getValueAsInt8();
+                            int batteryLevel = results.getResult(BATTERY_LEVEL).getValueAsInt();
                             statusLabel.setText(getString(R.string.battery_level_status, batteryLevel));
                         } else {
                             statusLabel.setText(R.string.operation_failed);

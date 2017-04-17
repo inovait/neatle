@@ -30,7 +30,6 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
@@ -55,30 +54,31 @@ public class Device implements Connection {
     private static final long DISCOVER_DEVICE_TIMEOUT = 60 * 1000;
     private static BluetoothGattCallback DO_NOTHING_CALLBACK = new BluetoothGattCallback() {
     };
+
     private final BluetoothDevice device;
-    private final Handler handler;
-    private final GattCallback callback;
+    public final Handler handler = new Handler();
+    private final GattCallback callback = new GattCallback();
     private final Object lock = new Object();
+
     private int state;
     private Context context;
-    private LinkedList<BluetoothGattCallback> queue = new LinkedList<>();
+    private final BluetoothAdapter adapter;
+    private final LinkedList<BluetoothGattCallback> queue = new LinkedList<>();
     private BluetoothGattCallback currentCallback = DO_NOTHING_CALLBACK;
     private boolean serviceDiscovered;
     private BluetoothGatt gatt;
 
-    private CopyOnWriteArrayList<ConnectionHandler> connectionHandlers = new CopyOnWriteArrayList<>();
-    private HashMap<UUID, CopyOnWriteArrayList<CharacteristicsChangedListener>> changeListeners = new HashMap<>();
-    private CopyOnWriteArrayList<ConnectionStateListener> connectionStateListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<ConnectionHandler> connectionHandlers = new CopyOnWriteArrayList<>();
+    private final HashMap<UUID, CopyOnWriteArrayList<CharacteristicsChangedListener>> changeListeners = new HashMap<>();
+    private final CopyOnWriteArrayList<ConnectionStateListener> connectionStateListeners = new CopyOnWriteArrayList<>();
 
     private BluetoothAdapter.LeScanCallback discoverCallback = new ScanForDeviceCallback();
     private Runnable discoverWatchdog = new ScanForDeviceTimeout();
 
-    public Device(Context context, BluetoothDevice device) {
+    public Device(Context context, BluetoothDevice device, BluetoothAdapter adapter) {
         this.device = device;
         this.context = context.getApplicationContext();
-
-        callback = new GattCallback();
-        handler = new Handler();
+        this.adapter = adapter;
     }
 
     @Override
@@ -221,9 +221,6 @@ public class Device implements Connection {
         });
     }
 
-    /**
-     *
-     */
     private void resume() {
         BluetoothGattCallback target;
         BluetoothGatt targetGatt;
@@ -284,8 +281,6 @@ public class Device implements Connection {
         boolean isScanning = false;
 
         do {
-            BluetoothManager mng = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-            BluetoothAdapter adapter = mng.getAdapter();
             if (adapter == null || adapter.getState() != BluetoothAdapter.STATE_ON) {
                 isScanning = false;
                 break;
@@ -324,8 +319,6 @@ public class Device implements Connection {
     }
 
     private void stopDiscovery() {
-        BluetoothManager mng = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-        BluetoothAdapter adapter = mng.getAdapter();
         if (adapter != null) {
             adapter.stopLeScan(discoverCallback);
         }
@@ -356,8 +349,6 @@ public class Device implements Connection {
         int newState;
         boolean doConnectGatt = false;
         boolean doDiscovery = false;
-        BluetoothManager mng = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-        final BluetoothAdapter adapter = mng.getAdapter();
         boolean adapterEnabled = adapter != null && adapter.isEnabled();
 
         synchronized (lock) {
@@ -550,7 +541,7 @@ public class Device implements Connection {
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            NeatleLogger.d("onCharacteristicRead");
+            NeatleLogger.d("createCharacteristicRead");
             BluetoothGattCallback target;
             synchronized (lock) {
                 target = currentCallback;
@@ -586,7 +577,7 @@ public class Device implements Connection {
             }
             target.onCharacteristicChanged(gatt, characteristic);
 
-            notifyCharacteristicChange(CommandResult.onCharacteristicChanged(characteristic));
+            notifyCharacteristicChange(CommandResult.createCharacteristicChanged(characteristic));
         }
 
         @Override

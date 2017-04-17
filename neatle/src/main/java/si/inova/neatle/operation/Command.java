@@ -27,6 +27,7 @@ package si.inova.neatle.operation;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.support.annotation.CallSuper;
 
 import si.inova.neatle.monitor.Connection;
 
@@ -36,48 +37,40 @@ abstract class Command {
     static final int CHARACTERISTIC_NOT_FOUND = SERVICE_NOT_FOUND + 1;
     static final int DESCRIPTOR_NOT_FOUND = CHARACTERISTIC_NOT_FOUND + 1;
 
-    private final OperationObserver operationObserver;
     private final Object lock = new Object();
 
-    private OperationResults results;
-    private CommandObserver observer;
+    private CommandObserver observer, operationCommandObserver;
 
-    Command(OperationObserver operationObserver) {
-        this.operationObserver = operationObserver;
+    Command(CommandObserver observer) {
+        this.observer = observer;
     }
 
-    public OperationObserver getOperationObserver() {
-        return operationObserver;
-    }
-
-    protected final void execute(Connection connection, CommandObserver observer, BluetoothGatt gatt, OperationResults results) {
+    @CallSuper
+    protected void execute(Connection connection, CommandObserver operationCommandObserver, BluetoothGatt gatt) {
         synchronized (lock) {
-            this.observer = observer;
-            this.results = results;
+            this.operationCommandObserver = operationCommandObserver;
         }
-        execute(connection, gatt, results);
     }
-
-    protected abstract void execute(Connection connection, BluetoothGatt gatt, OperationResults results);
 
     protected abstract void onError(int error);
 
+    @CallSuper
     protected void finish(CommandResult result) {
-        CommandObserver oc;
+        CommandObserver oco;
         synchronized (lock) {
-            oc = observer;
+            oco = operationCommandObserver;
         }
-        oc.finished(this, result);
 
+        oco.finished(this, result);
+        if (observer != null) {
+            observer.finished(this, result);
+        }
     }
 
     protected void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         if (status != BluetoothGatt.GATT_SUCCESS || newState != BluetoothGatt.STATE_CONNECTED) {
             onError(BluetoothGatt.GATT_FAILURE);
         }
-    }
-
-    protected void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
     }
 
     protected void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
@@ -90,14 +83,5 @@ abstract class Command {
     }
 
     protected void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-    }
-
-    protected void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-    }
-
-    protected void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-    }
-
-    protected void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
     }
 }
