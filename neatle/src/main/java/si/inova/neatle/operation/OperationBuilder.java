@@ -152,13 +152,13 @@ public class OperationBuilder {
     }
 
     OperationBuilder subscribeNotification(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
-        SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.SUBSCRIBE_NOTIFICATION, serviceUUID, characteristicsUUID, observer);
+        SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.Type.SUBSCRIBE_NOTIFICATION, serviceUUID, characteristicsUUID, observer);
         commands.add(cmd);
         return this;
     }
 
     OperationBuilder unsubscribeNotification(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
-        SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.UNSUBSCRIBE, serviceUUID, characteristicsUUID, observer);
+        SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.Type.UNSUBSCRIBE, serviceUUID, characteristicsUUID, observer);
         commands.add(cmd);
         return this;
     }

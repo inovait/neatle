@@ -36,9 +36,9 @@ import si.inova.neatle.monitor.Connection;
 
 abstract class Command {
 
-    static final int SERVICE_NOT_FOUND = BluetoothGatt.GATT_FAILURE + 10;
-    static final int CHARACTERISTIC_NOT_FOUND = SERVICE_NOT_FOUND + 1;
-    static final int DESCRIPTOR_NOT_FOUND = CHARACTERISTIC_NOT_FOUND + 1;
+    public static final int SERVICE_NOT_FOUND = BluetoothGatt.GATT_FAILURE + 10;
+    public static final int CHARACTERISTIC_NOT_FOUND = SERVICE_NOT_FOUND + 1;
+    public static final int DESCRIPTOR_NOT_FOUND = CHARACTERISTIC_NOT_FOUND + 1;
 
     private final Object lock = new Object();
 
@@ -61,8 +61,6 @@ abstract class Command {
         }
     }
 
-    protected abstract void onError(int error);
-
     @CallSuper
     protected void finish(CommandResult result) {
         CommandObserver oco;
@@ -76,22 +74,24 @@ abstract class Command {
         }
     }
 
-    protected void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+    protected abstract void onError(int error);
+
+    void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         if (status != BluetoothGatt.GATT_SUCCESS || newState != BluetoothGatt.STATE_CONNECTED) {
             onError(BluetoothGatt.GATT_FAILURE);
         }
     }
 
-    protected void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+    void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
     }
 
-    protected void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+    void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
     }
 
-    protected void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+    void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
     }
 
-    protected void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+    void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
     }
 
     @RestrictTo(RestrictTo.Scope.TESTS)

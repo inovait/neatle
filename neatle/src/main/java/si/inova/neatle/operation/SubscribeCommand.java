@@ -28,6 +28,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
+import android.support.annotation.IntDef;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -37,29 +38,21 @@ import si.inova.neatle.util.NeatleLogger;
 
 class SubscribeCommand extends Command {
 
-    static final int SUBSCRIBE_NOTIFICATION = 1;
-    static final int SUBSCRIBE_INDICATION = 2;
-    static final int UNSUBSCRIBE = 3;
-
     private static final UUID CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
-    private final int op;
+    @Type
+    private final int type;
 
-    SubscribeCommand(int op, UUID serviceUUID, UUID characteristicUUID, CommandObserver observer) {
+    SubscribeCommand(@Type int type, UUID serviceUUID, UUID characteristicUUID, CommandObserver observer) {
         super(serviceUUID, characteristicUUID, observer);
-
-        if (op != SUBSCRIBE_INDICATION && op != SUBSCRIBE_NOTIFICATION && op != UNSUBSCRIBE) {
-            throw new IllegalArgumentException();
-        }
-
-        this.op = op;
+        this.type = type;
     }
 
     @Override
     protected void execute(Connection connection, CommandObserver commandObserver, BluetoothGatt gatt) {
         super.execute(connection, commandObserver, gatt);
 
-        if (op == UNSUBSCRIBE && connection.getCharacteristicsChangedListenerCount(characteristicUUID) > 0) {
+        if (type == Type.UNSUBSCRIBE && connection.getCharacteristicsChangedListenerCount(characteristicUUID) > 0) {
             NeatleLogger.d("Won't unsubscribe on " + characteristicUUID + " since it has registered listeners");
             finish(CommandResult.createEmptySuccess(characteristicUUID));
             return;
@@ -85,18 +78,18 @@ class SubscribeCommand extends Command {
 
         boolean turnOn;
         byte[] valueToWrite;
-        switch (op) {
-            case SUBSCRIBE_INDICATION:
+        switch (type) {
+            case Type.SUBSCRIBE_INDICATION:
                 NeatleLogger.d("Subscribing to indications on  " + characteristicUUID);
                 valueToWrite = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE;
                 turnOn = true;
                 break;
-            case SUBSCRIBE_NOTIFICATION:
+            case Type.SUBSCRIBE_NOTIFICATION:
                 NeatleLogger.d("Subscribing to notifications on  " + characteristicUUID);
                 valueToWrite = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE;
                 turnOn = true;
                 break;
-            case UNSUBSCRIBE:
+            case Type.UNSUBSCRIBE:
                 NeatleLogger.d("Unsubscribing from notifications/indications on  " + characteristicUUID);
                 valueToWrite = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE;
                 turnOn = false;
@@ -130,9 +123,9 @@ class SubscribeCommand extends Command {
     protected void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
         if (status != BluetoothGatt.GATT_SUCCESS) {
             finish(CommandResult.createErrorResult(characteristicUUID, status));
-            return;
+        } else {
+            finish(CommandResult.createEmptySuccess(characteristicUUID));
         }
-        finish(CommandResult.createEmptySuccess(characteristicUUID));
     }
 
     @Override
@@ -142,11 +135,21 @@ class SubscribeCommand extends Command {
 
     @Override
     public String toString() {
-        if (op == UNSUBSCRIBE) {
+        if (type == Type.UNSUBSCRIBE) {
             return "UnsubscribeCommand[" + characteristicUUID + "] on [" + serviceUUID + "]";
-        } else if (op == SUBSCRIBE_INDICATION) {
-            return "SubscribeIndication[" + characteristicUUID + "] on [" + serviceUUID + "]";
+        } else if (type == Type.SUBSCRIBE_INDICATION) {
+            return "SubscribeCommand[" + characteristicUUID + "] on [" + serviceUUID + "]";
+        } else if (type == Type.SUBSCRIBE_NOTIFICATION) {
+            return "SubscribeNotificationCommand[" + characteristicUUID + "] on [" + serviceUUID + "]";
+        } else {
+            return super.toString();
         }
-        return "SubscribeNotificationCommand[" + characteristicUUID + "] on [" + serviceUUID + "]";
+    }
+
+    @IntDef({Type.SUBSCRIBE_NOTIFICATION, Type.SUBSCRIBE_INDICATION, Type.UNSUBSCRIBE})
+    @interface Type {
+        int SUBSCRIBE_NOTIFICATION = 0;
+        int SUBSCRIBE_INDICATION = 1;
+        int UNSUBSCRIBE = 2;
     }
 }
