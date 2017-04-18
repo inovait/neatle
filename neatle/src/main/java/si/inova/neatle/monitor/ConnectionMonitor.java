@@ -24,60 +24,12 @@
 
 package si.inova.neatle.monitor;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Handler;
-import android.support.annotation.RestrictTo;
-
-import si.inova.neatle.Neatle;
-import si.inova.neatle.util.NeatleLogger;
 
 /**
- * Monitors the connection with a bluetooth device.
+ * Monitors the state of a connection with a bluetooth device.
  */
-public class ConnectionMonitor {
-
-    private static final long DEFAULT_RECONNECT_TIMEOUT = 2500L;
-    private static final long MAX_RECONNECT_TIMEOUT = 60 * 1000L;
-
-    private final Context context;
-    private final BluetoothDevice device;
-    private final Handler handler;
-    private final IntentFilter btFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-    private boolean keepAlive;
-    private Connection connection;
-    private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(intent.getAction())) {
-                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF);
-
-                if (state == BluetoothAdapter.STATE_ON) {
-                    onBluetoothTurnedOn();
-                }
-            }
-        }
-    };
-    private ConnHandler connectionHandler = new ConnHandler();
-    private ConnectionStateListener connectionStateListener;
-    private ReconnectRunnable reconnectRunnable = new ReconnectRunnable();
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public ConnectionMonitor(Context context, BluetoothDevice device) {
-        if (device == null) {
-            throw new IllegalArgumentException("Device cannot be null");
-        } else if (context == null) {
-            throw new IllegalArgumentException("Context cannot be null");
-        }
-
-        this.context = context.getApplicationContext();
-        this.device = device;
-        this.handler = new Handler();
-    }
+public interface ConnectionMonitor {
 
     /**
      * When true, the connection will stay alive even if there is no active subscription or any
@@ -87,9 +39,7 @@ public class ConnectionMonitor {
      *                  disconnect when the connection is idle (and no other connection monitor
      *                  is set to keep alive)
      */
-    public void setKeepAlive(boolean keepAlive) {
-        this.keepAlive = keepAlive;
-    }
+    void setKeepAlive(boolean keepAlive);
 
     /**
      * Adds a connection state listener to this monitor. The listener will be triggered on any
@@ -97,93 +47,22 @@ public class ConnectionMonitor {
      *
      * @param connectionStateListener the lsitener.
      */
-    public void setOnConnectionStateListener(ConnectionStateListener connectionStateListener) {
-        this.connectionStateListener = connectionStateListener;
-    }
+    void setOnConnectionStateListener(ConnectionStateListener connectionStateListener);
 
     /**
      * Starts this connection monitor, if it's not already running.
      */
-    public void start() {
-        if (connection != null) {
-            return;
-        }
-
-        context.registerReceiver(btReceiver, btFilter);
-
-        connection = Neatle.getConnection(context, device);
-        connection.addConnectionHandler(connectionHandler);
-        connection.addConnectionStateListener(connectionHandler);
-
-        if (keepAlive) {
-            connection.connect();
-        }
-    }
+    void start();
 
     /**
      * Stops this connection monitor, if it's running.
      */
-    public void stop() {
-        if (connection == null) {
-            return;
-        }
-
-        context.unregisterReceiver(btReceiver);
-        handler.removeCallbacks(reconnectRunnable);
-        if (connection != null) {
-            connection.removeConnectionStateListener(connectionHandler);
-            connection.removeConnectionHandler(connectionHandler);
-            connection = null;
-        }
-    }
+    void stop();
 
     /**
      * Returns the device this connection monitor is listening for.
      *
      * @return the bluetooth device.
      */
-    public BluetoothDevice getDevice() {
-        return device;
-    }
-
-    private void onBluetoothTurnedOn() {
-        if (keepAlive && connection != null) {
-            connection.connect();
-        }
-    }
-
-    private class ConnHandler implements ConnectionHandler, ConnectionStateListener {
-
-        private long reconnectTimeout = DEFAULT_RECONNECT_TIMEOUT;
-
-        @Override
-        public int onConnectionIdle(Connection connection) {
-            return keepAlive ? ON_IDLE_KEEP_ALIVE : ON_IDLE_DISCONNECT;
-        }
-
-        @Override
-        public void onConnectionStateChanged(Connection connection, int newState) {
-            if (connectionStateListener != null) {
-                connectionStateListener.onConnectionStateChanged(connection, newState);
-            }
-
-            if (newState == BluetoothAdapter.STATE_DISCONNECTED) {
-                handler.removeCallbacks(reconnectRunnable);
-                NeatleLogger.d("Will try to reconnect after " + (reconnectTimeout / 1000) + " seconds");
-                handler.postDelayed(reconnectRunnable, reconnectTimeout);
-                reconnectTimeout = Math.min(reconnectTimeout * 2, MAX_RECONNECT_TIMEOUT);
-            } else if (newState == BluetoothAdapter.STATE_CONNECTED) {
-                reconnectTimeout = DEFAULT_RECONNECT_TIMEOUT;
-            }
-        }
-    }
-
-    private class ReconnectRunnable implements Runnable {
-        public void run() {
-            if (keepAlive && connection != null) {
-                NeatleLogger.d("Reconnecting");
-                connection.connect();
-            }
-        }
-    }
+    BluetoothDevice getDevice();
 }

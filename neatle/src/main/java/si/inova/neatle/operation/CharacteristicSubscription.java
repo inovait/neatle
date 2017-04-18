@@ -50,7 +50,7 @@ public interface CharacteristicSubscription {
      * the subscription is persistent than this is keep trying to connect to the device until
      * stop is called.
      * <p>
-     * It's save to call start multitple times.
+     * It's safe to call start multitple times.
      */
     void start();
 
@@ -60,4 +60,11 @@ public interface CharacteristicSubscription {
      * is an active connection.
      */
     void stop();
+
+    /**
+     * Check if this subscription is started.
+     *
+     * @return true if started, false otherwise
+     */
+    boolean isStarted();
 }

@@ -58,27 +58,22 @@ public class CharacteristicSubscriptionImpl implements CharacteristicSubscriptio
         }
     };
 
-    private CharacteristicsChangedListener changeHandler = new ChangeHandler();
+    private CharacteristicsChangedListener changeHandler = new CharacteristicsChangedListener() {
+        @Override
+        public void onCharacteristicChanged(CommandResult change) {
+            if (listener != null) {
+                listener.onCharacteristicChanged(change);
+            }
+        }
+    };
 
     public CharacteristicSubscriptionImpl(Context context, BluetoothDevice device, UUID serviceUUID, UUID characteristicsUUID) {
-        if (device == null) {
-            throw new IllegalArgumentException("Device cannot be null");
-        } else if (context == null) {
-            throw new IllegalArgumentException("Context cannot be null");
-        }
-
         this.context = context.getApplicationContext();
         this.device = device;
         this.characteristicsUUID = characteristicsUUID;
 
-        OperationBuilder builderSub = new OperationBuilder(context);
-        builderSub.subscribeNotification(serviceUUID, characteristicsUUID, null);
-
-        OperationBuilder builderUnSub = new OperationBuilder(context);
-        builderUnSub.unsubscribeNotification(serviceUUID, characteristicsUUID, null);
-
-        subscribeOp = builderSub.build(device);
-        unsubscribeOp = builderUnSub.build(device);
+        subscribeOp = new OperationBuilder(this.context).subscribeNotification(serviceUUID, characteristicsUUID, null).build(device);
+        unsubscribeOp = new OperationBuilder(this.context).unsubscribeNotification(serviceUUID, characteristicsUUID, null).build(device);
     }
 
     @Override
@@ -118,11 +113,16 @@ public class CharacteristicSubscriptionImpl implements CharacteristicSubscriptio
         connection.removeConnectionStateListener(connectionStateHandler);
         connection.removeCharacteristicsChangedListener(characteristicsUUID, changeHandler);
 
-        if (connection.getState() == BluetoothAdapter.STATE_CONNECTED) {
+        if (connection.isConnected()) {
             unsubscribeOnDevice();
         }
 
         started = false;
+    }
+
+    @Override
+    public boolean isStarted() {
+        return started;
     }
 
     private void subscribeOnDevice() {
@@ -133,14 +133,5 @@ public class CharacteristicSubscriptionImpl implements CharacteristicSubscriptio
     private void unsubscribeOnDevice() {
         subscribeOp.cancel();
         unsubscribeOp.execute();
-    }
-
-    private class ChangeHandler implements CharacteristicsChangedListener {
-        @Override
-        public void onCharacteristicChanged(CommandResult change) {
-            if (listener != null) {
-                listener.onCharacteristicChanged(change);
-            }
-        }
     }
 }

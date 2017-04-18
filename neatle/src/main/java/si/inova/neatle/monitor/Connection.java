@@ -125,4 +125,10 @@ public interface Connection {
      */
     void removeConnectionStateListener(ConnectionStateListener connectionStateListener);
 
+    /**
+     * Returns the BluetoothDevice associated with this connection.
+     *
+     * @return the associated BluetoothDevice
+     */
+    BluetoothDevice getDevice();
 }

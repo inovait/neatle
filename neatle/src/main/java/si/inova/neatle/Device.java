@@ -104,6 +104,11 @@ public class Device implements Connection {
     }
 
     @Override
+    public BluetoothDevice getDevice() {
+        return device;
+    }
+
+    @Override
     public int getState() {
         synchronized (lock) {
             return state;
