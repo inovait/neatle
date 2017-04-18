@@ -24,30 +24,36 @@
 
 package si.inova.neatle.operation;
 
-public abstract class OperationObserver {
+/**
+ * Observes the status of an operation.
+ */
+public interface OperationObserver {
+
+    /**
+     * Invoked when a command has started execution.
+     *
+     * @param op      the operation
+     * @param command the command
+     */
+    void onCommandStarted(Operation op, Command command);
 
     /**
      * Invoked when a command has finished successfully.
      *
      * @param op      the operation
+     * @param command the command
      * @param result  the result of the command
-     * @param results the result of all the operations
      */
-    public void onCommandSuccess(Operation op, CommandResult result, OperationResults results) {
-    }
-
-    public void onCommandExecuting(Operation op, OperationResults results) {
-    }
+    void onCommandSuccess(Operation op, Command command, CommandResult result);
 
     /**
-     * Invoked when a command has finished either successfully or unsuccessfully.
+     * Invoked when a command has finished unsuccessfully.
      *
      * @param operation the operation
-     * @param result    the result of the command
-     * @param results   the result of all the operations
+     * @param command   the command
+     * @param error     the error code
      */
-    public void onCommandFinished(Operation operation, CommandResult result, OperationResults results) {
-    }
+    void onCommandError(Operation operation, Command command, int error);
 
     /**
      * Invoked when an operation has finished either successfully or unsuccessfully.
@@ -55,6 +61,5 @@ public abstract class OperationObserver {
      * @param op      the operation
      * @param results the result of all the operations
      */
-    public void onOperationFinished(Operation op, OperationResults results) {
-    }
+    void onOperationFinished(Operation op, OperationResults results);
 }

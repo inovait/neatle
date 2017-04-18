@@ -55,7 +55,7 @@ final UUID batteryCharacteristic = Neatle.createUUID(0x2a19);
 
 Operation operation = Neatle.createOperationBuilder(context)
         .read(batteryService, batteryCharacteristic)
-        .onFinished(new OperationObserver() {
+        .onFinished(new SimpleOperationObserver() {
             @Override
             public void onOperationFinished(Operation op, OperationResults results) {
                 if(results.wasSuccessful()){

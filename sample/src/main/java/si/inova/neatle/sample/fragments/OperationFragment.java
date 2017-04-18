@@ -41,8 +41,8 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import si.inova.neatle.Neatle;
 import si.inova.neatle.operation.Operation;
-import si.inova.neatle.operation.OperationObserver;
 import si.inova.neatle.operation.OperationResults;
+import si.inova.neatle.operation.SimpleOperationObserver;
 import si.inova.neatle.sample.R;
 
 /**
@@ -106,7 +106,7 @@ public class OperationFragment extends Fragment {
 
         operation = Neatle.createOperationBuilder(getContext())
                 .read(BATTERY_LEVEL_SERVICE, BATTERY_LEVEL)
-                .onFinished(new OperationObserver() {
+                .onFinished(new SimpleOperationObserver() {
                     @Override
                     public void onOperationFinished(Operation op, OperationResults results) {
                         if (results.wasSuccessful()) {

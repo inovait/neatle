@@ -25,16 +25,23 @@
 package si.inova.neatle.operation;
 
 /**
- * Observes the status of a command, and gets notified if a command is finished.
+ * An empty implementation of {@link OperationObserver}
  */
-public interface CommandObserver {
+public abstract class SimpleOperationObserver implements OperationObserver {
 
-    /**
-     * Called when a command has finisher. You can check the status of the command with
-     * {@link CommandResult#wasSuccessful()} and {@link CommandResult#getStatus()}
-     *
-     * @param command the command that finished execution
-     * @param result  the result of the execution
-     */
-    void finished(Command command, CommandResult result);
+    @Override
+    public void onCommandStarted(Operation op, Command command) {
+    }
+
+    @Override
+    public void onCommandSuccess(Operation op, Command command, CommandResult result) {
+    }
+
+    @Override
+    public void onCommandError(Operation operation, Command command, int error) {
+    }
+
+    @Override
+    public void onOperationFinished(Operation op, OperationResults results) {
+    }
 }

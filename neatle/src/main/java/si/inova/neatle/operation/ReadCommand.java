@@ -35,13 +35,8 @@ import si.inova.neatle.util.NeatleLogger;
 
 class ReadCommand extends Command {
 
-    private final UUID serviceUUID;
-    private final UUID characteristicUUID;
-
     ReadCommand(UUID serviceUUID, UUID characteristicUUID, CommandObserver observer) {
-        super(observer);
-        this.serviceUUID = serviceUUID;
-        this.characteristicUUID = characteristicUUID;
+        super(serviceUUID, characteristicUUID, observer);
     }
 
     @Override

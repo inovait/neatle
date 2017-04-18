@@ -27,6 +27,7 @@ package si.inova.neatle.operation;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
+import android.support.annotation.CheckResult;
 import android.support.annotation.RestrictTo;
 
 import java.util.LinkedList;
@@ -169,7 +170,12 @@ public class OperationBuilder {
      * @param device the device on which this operation will run
      * @return the created operation
      */
+    @CheckResult
     public Operation build(BluetoothDevice device) {
-        return new OperationImpl(context, device, commands, masterObserver, retryCount);
+        if (device == null) {
+            throw new IllegalArgumentException("Device cannot be null");
+        }
+
+        return new OperationImpl(context, device, commands, retryCount, masterObserver);
     }
 }

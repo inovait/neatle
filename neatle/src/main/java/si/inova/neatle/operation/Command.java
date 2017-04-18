@@ -28,6 +28,9 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.support.annotation.CallSuper;
+import android.support.annotation.RestrictTo;
+
+import java.util.UUID;
 
 import si.inova.neatle.monitor.Connection;
 
@@ -39,9 +42,15 @@ abstract class Command {
 
     private final Object lock = new Object();
 
-    private CommandObserver observer, operationCommandObserver;
+    protected final UUID serviceUUID;
+    protected final UUID characteristicUUID;
 
-    Command(CommandObserver observer) {
+    private final CommandObserver observer;
+    private CommandObserver operationCommandObserver;
+
+    Command(UUID serviceUUID, UUID characteristicUUID, CommandObserver observer) {
+        this.serviceUUID = serviceUUID;
+        this.characteristicUUID = characteristicUUID;
         this.observer = observer;
     }
 
@@ -83,5 +92,15 @@ abstract class Command {
     }
 
     protected void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    UUID getServiceUUID() {
+        return serviceUUID;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    UUID getCharacteristicUUID() {
+        return characteristicUUID;
     }
 }
