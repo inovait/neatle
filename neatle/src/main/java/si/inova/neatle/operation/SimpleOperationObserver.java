@@ -24,7 +24,24 @@
 
 package si.inova.neatle.operation;
 
-public interface OperationControl {
+/**
+ * An empty implementation of {@link OperationObserver}
+ */
+public abstract class SimpleOperationObserver implements OperationObserver {
 
-    void finished(Command command, OperationResults results, int status);
+    @Override
+    public void onCommandStarted(Operation op, Command command) {
+    }
+
+    @Override
+    public void onCommandSuccess(Operation op, Command command, CommandResult result) {
+    }
+
+    @Override
+    public void onCommandError(Operation operation, Command command, int error) {
+    }
+
+    @Override
+    public void onOperationFinished(Operation op, OperationResults results) {
+    }
 }

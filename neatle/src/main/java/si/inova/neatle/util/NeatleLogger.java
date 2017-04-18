@@ -28,9 +28,12 @@ import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class NeatleLogger {
+public final class NeatleLogger {
 
     private static final String LOG_TAG = "Neatle";
+
+    private NeatleLogger() {
+    }
 
     public static void i(String s) {
         Log.i(LOG_TAG, s);

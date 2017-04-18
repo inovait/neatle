@@ -27,77 +27,80 @@ package si.inova.neatle.operation;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.support.annotation.CallSuper;
+import android.support.annotation.RestrictTo;
+
+import java.util.UUID;
 
 import si.inova.neatle.monitor.Connection;
 
 abstract class Command {
 
-    static final int SERVICE_NOT_FOUND = BluetoothGatt.GATT_FAILURE + 10;
-    static final int CHARACTERISTIC_NOT_FOUND = SERVICE_NOT_FOUND + 1;
-    static final int DESCRIPTOR_NOT_FOUND = CHARACTERISTIC_NOT_FOUND + 1;
+    public static final int SERVICE_NOT_FOUND = BluetoothGatt.GATT_FAILURE + 10;
+    public static final int CHARACTERISTIC_NOT_FOUND = SERVICE_NOT_FOUND + 1;
+    public static final int DESCRIPTOR_NOT_FOUND = CHARACTERISTIC_NOT_FOUND + 1;
 
-    private final OperationObserver operationObserver;
     private final Object lock = new Object();
 
-    private OperationResults results;
-    private CommandObserver observer;
+    protected final UUID serviceUUID;
+    protected final UUID characteristicUUID;
 
-    Command(OperationObserver operationObserver) {
-        this.operationObserver = operationObserver;
+    private final CommandObserver observer;
+    private CommandObserver operationCommandObserver;
+
+    Command(UUID serviceUUID, UUID characteristicUUID, CommandObserver observer) {
+        this.serviceUUID = serviceUUID;
+        this.characteristicUUID = characteristicUUID;
+        this.observer = observer;
     }
 
-    public OperationObserver getOperationObserver() {
-        return operationObserver;
-    }
-
-    protected final void execute(Connection connection, CommandObserver observer, BluetoothGatt gatt, OperationResults results) {
+    @CallSuper
+    protected void execute(Connection connection, CommandObserver operationCommandObserver, BluetoothGatt gatt) {
         synchronized (lock) {
-            this.observer = observer;
-            this.results = results;
+            this.operationCommandObserver = operationCommandObserver;
         }
-        execute(connection, gatt, results);
     }
 
-    protected abstract void execute(Connection connection, BluetoothGatt gatt, OperationResults results);
+    @CallSuper
+    protected void finish(CommandResult result) {
+        CommandObserver oco;
+        synchronized (lock) {
+            oco = operationCommandObserver;
+        }
+
+        oco.finished(this, result);
+        if (observer != null) {
+            observer.finished(this, result);
+        }
+    }
 
     protected abstract void onError(int error);
 
-    protected void finish(CommandResult result) {
-        CommandObserver oc;
-        synchronized (lock) {
-            oc = observer;
-        }
-        oc.finished(this, result);
-
-    }
-
-    protected void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+    void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         if (status != BluetoothGatt.GATT_SUCCESS || newState != BluetoothGatt.STATE_CONNECTED) {
             onError(BluetoothGatt.GATT_FAILURE);
         }
     }
 
-    protected void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+    void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
     }
 
-    protected void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+    void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
     }
 
-    protected void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+    void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
     }
 
-    protected void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+    void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
     }
 
-    protected void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    UUID getServiceUUID() {
+        return serviceUUID;
     }
 
-    protected void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-    }
-
-    protected void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-    }
-
-    protected void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    UUID getCharacteristicUUID() {
+        return characteristicUUID;
     }
 }

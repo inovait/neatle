@@ -120,7 +120,7 @@ public class SubscriptionFragment extends Fragment implements CharacteristicsCha
     @Override
     public void onCharacteristicChanged(CommandResult change) {
         if (change.wasSuccessful()) {
-            int batteryLevel = change.getValueAsInt8();
+            int batteryLevel = change.getValueAsInt();
             statusLabel.setText(getString(R.string.battery_level_status, batteryLevel));
         } else {
             statusLabel.setText(R.string.subscription_failed);

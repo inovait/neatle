@@ -26,6 +26,7 @@ package si.inova.neatle.util;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 
@@ -58,7 +59,8 @@ public class DeviceManager {
         NeatleLogger.d("Getting connection object for " + device.getAddress());
         Device dev = devices.get(device.getAddress());
         if (dev == null) {
-            dev = new Device(context, device);
+            BluetoothManager mng = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            dev = new Device(context, device, mng.getAdapter());
             devices.put(device.getAddress(), dev);
         }
         return dev;

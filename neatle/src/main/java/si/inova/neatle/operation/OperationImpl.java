@@ -31,6 +31,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.RestrictTo;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -42,62 +43,57 @@ import si.inova.neatle.util.NeatleLogger;
 
 class OperationImpl implements Operation {
 
-    private static Command NO_COMMAND = new NoCommand();
+    private static Command EMPTY_COMMAND = new EmptyCommand();
 
-    private GattCallback callback = new GattCallback();
+    private final Context context;
+
+    private final LinkedList<Command> commands;
+    private LinkedList<Command> commandQueue;
+    private Command currentCommand = EMPTY_COMMAND;
+    private CommandResult lastResult;
+
     private final OperationObserver operationObserver;
-    private final int retryCount;
-
     private OperationResults results;
-    private CommandHandler commandHandler = new CommandHandler();
-    private BluetoothGatt gatt;
-    private Handler handler;
 
+    private final BluetoothDevice device;
+    private Device connection;
+
+    private final CommandHandler commandHandler = new CommandHandler();
+    private final Handler handler = new Handler();
+    private final GattCallback callback = new GattCallback();
+    private BluetoothGatt gatt;
+
+    private final int retryCount;
     private int retriedCount = 0;
 
     private boolean yielded;
     private boolean canceled = false;
 
-    private Command current = NO_COMMAND;
-    private LinkedList<Command> commands;
-    private LinkedList<Command> commandQueue;
-
-    private CommandResult lastResult;
-
-    private Device connection;
-    private final BluetoothDevice device;
-
-    private Context context;
-
-    OperationImpl(Context context, BluetoothDevice device, Collection<Command> cmds, OperationObserver operationObserver, int retryCount) {
-        if (device == null) {
-            throw new IllegalArgumentException("Device cannot be null");
-        }
-
-        this.device = device;
-        this.commands = new LinkedList<>(cmds);
-        this.commandQueue = new LinkedList<>(cmds);
-        this.operationObserver = operationObserver;
-        this.retryCount = retryCount;
+    OperationImpl(Context context, BluetoothDevice device, Collection<Command> commands, int retryCount, OperationObserver operationObserver) {
         this.context = context;
-        this.handler = new Handler();
+        this.device = device;
+        this.commands = new LinkedList<>(commands);
+        this.commandQueue = new LinkedList<>(commands);
+        this.retryCount = retryCount;
+        this.operationObserver = operationObserver;
     }
 
     @Override
     public void execute() {
-        //FIXME what happens if this operation is in the middle of being executed
+        if (connection != null) {
+            return;
+        }
+
         Device conn;
         synchronized (this) {
-            this.connection = DeviceManager.getInstance(context).getDevice(device);
-            conn = this.connection;
-            results = new OperationResults(device);
+            this.connection = conn = DeviceManager.getInstance(context).getDevice(device);
+            this.results = new OperationResults();
             this.commandQueue = new LinkedList<>(commands);
-            this.current = NO_COMMAND;
+            this.currentCommand = EMPTY_COMMAND;
             this.retriedCount = 0;
             this.canceled = false;
             this.lastResult = null;
         }
-
         conn.execute(callback);
     }
 
@@ -106,7 +102,7 @@ class OperationImpl implements Operation {
         synchronized (this) {
             retriedCount++;
             NeatleLogger.i("Retrying operation, attempt:" + retriedCount);
-            results = new OperationResults(device);
+            results = new OperationResults();
             commandQueue = new LinkedList<>(commands);
             conn = connection;
             lastResult = null;
@@ -116,10 +112,15 @@ class OperationImpl implements Operation {
 
     @Override
     public void cancel() {
+        if (connection == null) {
+            return;
+        }
+
         synchronized (this) {
             canceled = true;
         }
-        done(BluetoothGatt.GATT_SUCCESS);
+
+        done();
     }
 
     @Override
@@ -127,13 +128,12 @@ class OperationImpl implements Operation {
         return canceled;
     }
 
-    private void done(int status) {
+    private void done() {
         Device conn;
         boolean wasExecuting;
         synchronized (this) {
             wasExecuting = this.connection != null;
             conn = this.connection;
-
             this.connection = null;
         }
 
@@ -155,10 +155,6 @@ class OperationImpl implements Operation {
         }
     }
 
-    private synchronized Command current() {
-        return current;
-    }
-
     private void executeNext() {
         Command cmd;
         Device targetDevice;
@@ -173,30 +169,30 @@ class OperationImpl implements Operation {
                     return;
                 }
                 NeatleLogger.i("Command failed. Aborting operation. Error: " + lastResult.getStatus());
-                done(lastResult.getStatus());
+                done();
                 return;
             }
 
-            Command old = current;
-            current = commandQueue.poll();
-            NeatleLogger.d("Continuing with " + current + " after " + old + " with " + lastResult);
-            if (current == null) {
-                current = NO_COMMAND;
-                done(BluetoothGatt.GATT_SUCCESS);
+            Command old = currentCommand;
+            currentCommand = commandQueue.poll();
+            NeatleLogger.d("Continuing with " + currentCommand + " after " + old + " with " + lastResult);
+            if (currentCommand == null) {
+                currentCommand = EMPTY_COMMAND;
+                done();
                 return;
             }
-            cmd = current;
+            cmd = currentCommand;
         }
-        NeatleLogger.d("Executing command: " + current);
-        if (cmd.getOperationObserver() != null) {
-            cmd.getOperationObserver().onCommandExecuting(this, results);
+        NeatleLogger.d("Executing command: " + currentCommand);
+        if (operationObserver != null) {
+            operationObserver.onCommandStarted(this, cmd);
         }
 
-        cmd.execute(targetDevice, commandHandler, gatt, results);
+        cmd.execute(targetDevice, commandHandler, gatt);
     }
 
     private void scheduleNext() {
-        NeatleLogger.d("Scheduling next command after : " + current());
+        NeatleLogger.d("Scheduling next command after : " + currentCommand);
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -205,8 +201,24 @@ class OperationImpl implements Operation {
         });
     }
 
-    private boolean failIfError(int status) {
-        return status != BluetoothGatt.GATT_SUCCESS;
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    LinkedList<Command> getCommands() {
+        return commands;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    OperationObserver getOperationObserver() {
+        return operationObserver;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    int getRetryCount() {
+        return retryCount;
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    BluetoothDevice getDevice() {
+        return device;
     }
 
     @Override
@@ -214,26 +226,43 @@ class OperationImpl implements Operation {
         return "Operation[retryCount: " + retryCount + ", attempts: " + retriedCount + ", commands:" + this.commands + "]";
     }
 
+    private static class EmptyCommand extends Command {
+
+        private EmptyCommand() {
+            super(null, null, null);
+        }
+
+        @Override
+        protected void execute(Connection connection, CommandObserver observer, BluetoothGatt gatt) {
+            super.execute(connection, observer, gatt);
+            throw new IllegalStateException("Should not be called");
+        }
+
+        @Override
+        protected void onError(int error) {
+        }
+    }
+
     private class CommandHandler implements CommandObserver {
         @Override
         public void finished(final Command command, final CommandResult result) {
             synchronized (OperationImpl.this) {
                 lastResult = result;
-                results.addCommandResult(result);
+                results.addResult(result);
                 //once the command is finished, don't forward any more events
-                current = NO_COMMAND;
+                currentCommand = EMPTY_COMMAND;
             }
 
             NeatleLogger.d("Command finished, status: " + result.getStatus() + ", command:" + command + ", on: " + device.getAddress());
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    OperationObserver opObserver = command.getOperationObserver();
-                    if (opObserver != null) {
+                    if (operationObserver != null) {
                         if (result.wasSuccessful()) {
-                            opObserver.onCommandSuccess(OperationImpl.this, result, results);
+                            operationObserver.onCommandSuccess(OperationImpl.this, command, result);
+                        } else {
+                            operationObserver.onCommandError(OperationImpl.this, command, result.getStatus());
                         }
-                        opObserver.onCommandFinished(OperationImpl.this, result, results);
                     }
                 }
             });
@@ -247,11 +276,12 @@ class OperationImpl implements Operation {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             NeatleLogger.i("OperationImpl: onConnectionStateChange, state:" + status + ", newState: " + newState);
+
             Command cur;
             synchronized (OperationImpl.this) {
-                cur = current();
-                if (newState != BluetoothGatt.STATE_CONNECTED && cur == NO_COMMAND
-                        && (lastResult == null || lastResult.wasSuccessful())) {
+                cur = currentCommand;
+                if (newState != BluetoothGatt.STATE_CONNECTED && cur == EMPTY_COMMAND &&
+                        (lastResult == null || lastResult.wasSuccessful())) {
                     lastResult = CommandResult.createErrorResult(null, BluetoothGatt.GATT_FAILURE);
                     scheduleNext();
                     return;
@@ -262,7 +292,7 @@ class OperationImpl implements Operation {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            if (!failIfError(status)) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
                 synchronized (OperationImpl.this) {
                     yielded = false;
                     OperationImpl.this.gatt = gatt;
@@ -272,63 +302,28 @@ class OperationImpl implements Operation {
         }
 
         @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            current().onCharacteristicChanged(gatt, characteristic);
-        }
-
-        @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            current().onCharacteristicRead(gatt, characteristic, status);
+            currentCommand.onCharacteristicRead(gatt, characteristic, status);
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            current().onCharacteristicWrite(gatt, characteristic, status);
+            currentCommand.onCharacteristicWrite(gatt, characteristic, status);
         }
 
         @Override
         public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            current().onDescriptorRead(gatt, descriptor, status);
+            currentCommand.onDescriptorRead(gatt, descriptor, status);
         }
 
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            current().onDescriptorWrite(gatt, descriptor, status);
-        }
-
-        @Override
-        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            current().onMtuChanged(gatt, mtu, status);
-        }
-
-        @Override
-        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-            current().onReadRemoteRssi(gatt, rssi, status);
-        }
-
-        @Override
-        public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
-            current().onReliableWriteCompleted(gatt, status);
+            currentCommand.onDescriptorWrite(gatt, descriptor, status);
         }
 
         @Override
         public String toString() {
             return "Callback[" + OperationImpl.this.toString() + "]";
-        }
-    }
-
-    private static class NoCommand extends Command {
-        private NoCommand() {
-            super(null);
-        }
-
-        @Override
-        protected void execute(Connection connection, BluetoothGatt gatt, OperationResults results) {
-            throw new IllegalStateException("Should not be called");
-        }
-
-        @Override
-        protected void onError(int error) {
         }
     }
 }

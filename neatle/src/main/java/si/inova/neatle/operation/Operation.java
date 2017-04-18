@@ -24,11 +24,25 @@
 
 package si.inova.neatle.operation;
 
+/**
+ * An operation that combines one or more read and write commands.
+ */
 public interface Operation {
 
+    /**
+     * Starts the execution of read / write commands.
+     */
     void execute();
 
+    /**
+     * Cancels the execution of the operation.
+     */
     void cancel();
 
+    /**
+     * Checks if the operation has been canceled.
+     *
+     * @return true if canceled, false otherwise
+     */
     boolean isCanceled();
 }

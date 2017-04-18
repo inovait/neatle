@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package si.inova.neatle;
+package si.inova.neatle.util;
 
 import android.bluetooth.BluetoothDevice;
 import android.os.Build;
@@ -35,7 +35,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import si.inova.neatle.util.DeviceManager;
+import si.inova.neatle.BuildConfig;
 
 import static org.junit.Assert.assertNotNull;
 
