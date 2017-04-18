@@ -33,6 +33,7 @@ import java.util.UUID;
 
 import si.inova.neatle.monitor.Connection;
 import si.inova.neatle.monitor.ConnectionMonitor;
+import si.inova.neatle.monitor.ConnectionMonitorImpl;
 import si.inova.neatle.operation.CharacteristicSubscription;
 import si.inova.neatle.operation.CharacteristicSubscriptionImpl;
 import si.inova.neatle.operation.OperationBuilder;
@@ -74,7 +75,7 @@ public class Neatle {
      * @return the connection monitor
      */
     public static ConnectionMonitor createConnectionMonitor(@NonNull Context context, @NonNull BluetoothDevice device) {
-        return new ConnectionMonitor(context, device);
+        return new ConnectionMonitorImpl(context, device);
     }
 
     /**
