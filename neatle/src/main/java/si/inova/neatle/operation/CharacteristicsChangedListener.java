@@ -29,5 +29,10 @@ package si.inova.neatle.operation;
  */
 public interface CharacteristicsChangedListener {
 
+    /**
+     * Invoked when a characteristic is changed and user should be notified of the change.
+     *
+     * @param change the new value of the characteristic.
+     */
     void onCharacteristicChanged(CommandResult change);
 }

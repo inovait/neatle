@@ -65,4 +65,14 @@ public class DeviceManager {
         }
         return dev;
     }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public void putDevice(Device device, String address) {
+        devices.put(address, device);
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public void clearDevices() {
+        devices.clear();
+    }
 }
