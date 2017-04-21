@@ -1,3 +1,7 @@
+## Version 0.9
+ - Changed: Refactored and cleaned up ConnectionMonitor logic.
+ - Changed: Refactored and cleaned up CharacteristicSubscription logic.
+
 ## Version 0.9-RC3
  - Changed: Refactored command and operation structure.
  - Changed: Removed unused / redundant listeners and updated existing ones.
