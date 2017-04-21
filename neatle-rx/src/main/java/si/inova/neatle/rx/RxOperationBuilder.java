@@ -22,4 +22,23 @@
  * SOFTWARE.
  */
 
-include ':neatle', ':sample', ':neatle-rx'
+package si.inova.neatle.rx;
+
+import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+
+import io.reactivex.Observable;
+import si.inova.neatle.operation.CommandResult;
+import si.inova.neatle.operation.OperationBuilder;
+
+public class RxOperationBuilder extends OperationBuilder {
+
+    RxOperationBuilder(Context context) {
+        super(context);
+    }
+
+    public Observable<CommandResult> buildReactive(BluetoothDevice device) {
+        //TODO: Add implementation
+        return null;
+    }
+}

@@ -22,4 +22,32 @@
  * SOFTWARE.
  */
 
-include ':neatle', ':sample', ':neatle-rx'
+package si.inova.neatle.rx;
+
+import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.support.annotation.NonNull;
+
+import java.util.HashMap;
+
+import io.reactivex.Observable;
+import si.inova.neatle.operation.CommandResult;
+
+public class NeatleRx {
+
+    private static HashMap<String, Observable<MonitorResult>> connectionMonitors = new HashMap<>();
+
+    public static Observable<MonitorResult> getConnectionMonitor(@NonNull Context context, @NonNull BluetoothDevice device) {
+        // TODO: Add implementation
+        return null;
+    }
+
+    public static Observable<CommandResult> getSubscription(@NonNull Context context, @NonNull BluetoothDevice device) {
+        // TODO: Add implementation
+        return null;
+    }
+
+    public static RxOperationBuilder createOperationBuilder(@NonNull Context context) {
+        return new RxOperationBuilder(context);
+    }
+}
