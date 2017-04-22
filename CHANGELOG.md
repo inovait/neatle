@@ -1,4 +1,7 @@
-## Version 0.9
+## Version 0.9.1
+ - Fixed: #15 - Command class should be public
+
+## Version 0.9.0
  - Changed: Refactored and cleaned up ConnectionMonitor logic.
  - Changed: Refactored and cleaned up CharacteristicSubscription logic.
 
