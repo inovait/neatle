@@ -34,7 +34,7 @@ import java.util.UUID;
 
 import si.inova.neatle.monitor.Connection;
 
-abstract class Command {
+public abstract class Command {
 
     public static final int SERVICE_NOT_FOUND = BluetoothGatt.GATT_FAILURE + 10;
     public static final int CHARACTERISTIC_NOT_FOUND = SERVICE_NOT_FOUND + 1;
