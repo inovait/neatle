@@ -1,3 +1,10 @@
+## Version 0.9.1
+ - Fixed: #15 - Command class should be public
+
+## Version 0.9.0
+ - Changed: Refactored and cleaned up ConnectionMonitor logic.
+ - Changed: Refactored and cleaned up CharacteristicSubscription logic.
+
 ## Version 0.9-RC3
  - Changed: Refactored command and operation structure.
  - Changed: Removed unused / redundant listeners and updated existing ones.
