@@ -1,5 +1,8 @@
+## Version 0.9.2
+ - Fixed: #17 - Subscriptions are not working - Type not found.
+
 ## Version 0.9.1
- - Fixed: #15 - Command class should be public
+ - Fixed: #15 - Command class should be public.
 
 ## Version 0.9.0
  - Changed: Refactored and cleaned up ConnectionMonitor logic.
@@ -14,7 +17,7 @@
 
 ## Version 0.9-RC1
  - New: Updated documentation.
- - New: Added sample app
+ - New: Added sample app.
  - Changed: Refactored project structure.
 
 ## Version 0.8.1
@@ -23,4 +26,4 @@
  - Changed: Raised device timeout to 60 seconds.
 
 ## Version 0.8
- - New: First development release
+ - New: First development release.
