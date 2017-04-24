@@ -30,6 +30,8 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.support.annotation.IntDef;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -146,6 +148,7 @@ class SubscribeCommand extends Command {
         }
     }
 
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({Type.SUBSCRIBE_NOTIFICATION, Type.SUBSCRIBE_INDICATION, Type.UNSUBSCRIBE})
     @interface Type {
         int SUBSCRIBE_NOTIFICATION = 0;
