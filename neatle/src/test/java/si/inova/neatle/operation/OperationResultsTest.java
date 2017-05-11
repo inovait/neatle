@@ -25,6 +25,7 @@
 package si.inova.neatle.operation;
 
 import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Build;
 
 import org.junit.Before;
@@ -46,6 +47,7 @@ import static junit.framework.Assert.assertTrue;
 public class OperationResultsTest {
 
     private OperationResults operationResults;
+    private BluetoothGattCharacteristic UNUSED_CHARACTERISTIC = null;
 
     @Before
     public void setUp() {
@@ -54,9 +56,9 @@ public class OperationResultsTest {
 
     @Test
     public void testAddGet() {
-        CommandResult result1 = new CommandResult(Neatle.createUUID(1), null, BluetoothGatt.GATT_SUCCESS, 0);
-        CommandResult result2 = new CommandResult(Neatle.createUUID(2), null, BluetoothGatt.GATT_SUCCESS, 0);
-        CommandResult result3 = new CommandResult(Neatle.createUUID(3), null, BluetoothGatt.GATT_SUCCESS, 0);
+        CommandResult result1 = new CommandResult(Neatle.createUUID(1), null, BluetoothGatt.GATT_SUCCESS, 0, UNUSED_CHARACTERISTIC);
+        CommandResult result2 = new CommandResult(Neatle.createUUID(2), null, BluetoothGatt.GATT_SUCCESS, 0, UNUSED_CHARACTERISTIC);
+        CommandResult result3 = new CommandResult(Neatle.createUUID(3), null, BluetoothGatt.GATT_SUCCESS, 0, UNUSED_CHARACTERISTIC);
 
         operationResults.addResult(result1);
         operationResults.addResult(result2);
@@ -70,9 +72,9 @@ public class OperationResultsTest {
 
     @Test
     public void testSuccessful() {
-        CommandResult result1 = new CommandResult(Neatle.createUUID(1), null, BluetoothGatt.GATT_SUCCESS, 0);
-        CommandResult result2 = new CommandResult(Neatle.createUUID(2), null, BluetoothGatt.GATT_SUCCESS, 0);
-        CommandResult result3 = new CommandResult(Neatle.createUUID(3), null, BluetoothGatt.GATT_FAILURE, 0);
+        CommandResult result1 = new CommandResult(Neatle.createUUID(1), null, BluetoothGatt.GATT_SUCCESS, 0, UNUSED_CHARACTERISTIC);
+        CommandResult result2 = new CommandResult(Neatle.createUUID(2), null, BluetoothGatt.GATT_SUCCESS, 0, UNUSED_CHARACTERISTIC);
+        CommandResult result3 = new CommandResult(Neatle.createUUID(3), null, BluetoothGatt.GATT_FAILURE, 0, UNUSED_CHARACTERISTIC);
 
         operationResults.addResult(result1);
         assertTrue(operationResults.wasSuccessful());

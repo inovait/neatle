@@ -28,6 +28,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Build;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -45,14 +46,23 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.N_MR1)
 public class CommandResultTest {
 
+    private BluetoothGattCharacteristic characteristic;
+
+    @Before
+    public void setUp() throws Exception {
+        characteristic = mock(BluetoothGattCharacteristic.class);
+    }
+
     @Test
     public void testGeneral() {
-        CommandResult commandResult = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21}, BluetoothGatt.GATT_SUCCESS, 1234556);
+        CommandResult commandResult = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21}, BluetoothGatt.GATT_SUCCESS, 1234556, characteristic);
 
         assertEquals(BluetoothGatt.GATT_SUCCESS, commandResult.getStatus());
         assertEquals(1234556, commandResult.getTimestamp());
@@ -60,19 +70,19 @@ public class CommandResultTest {
         assertTrue(commandResult.wasSuccessful());
         assertNotNull(commandResult.toString());
 
-        CommandResult commandResult2 = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21}, BluetoothGatt.GATT_FAILURE, 1234556);
+        CommandResult commandResult2 = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21}, BluetoothGatt.GATT_FAILURE, 1234556, characteristic);
         assertFalse(commandResult2.wasSuccessful());
     }
 
     @Test
     public void testIntValues() {
-        CommandResult commandResult = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21}, BluetoothGatt.GATT_SUCCESS, 1);
+        CommandResult commandResult = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21}, BluetoothGatt.GATT_SUCCESS, 1, characteristic);
         assertArrayEquals(new byte[]{22, 21}, commandResult.getValue());
 
-        CommandResult commandResult1 = new CommandResult(Neatle.createUUID(1), new byte[]{22}, BluetoothGatt.GATT_SUCCESS, 1);
-        CommandResult commandResult2 = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21}, BluetoothGatt.GATT_SUCCESS, 1);
-        CommandResult commandResult3 = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21, 20}, BluetoothGatt.GATT_SUCCESS, 1);
-        CommandResult commandResult4 = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21, 20, 19}, BluetoothGatt.GATT_SUCCESS, 1);
+        CommandResult commandResult1 = new CommandResult(Neatle.createUUID(1), new byte[]{22}, BluetoothGatt.GATT_SUCCESS, 1, characteristic);
+        CommandResult commandResult2 = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21}, BluetoothGatt.GATT_SUCCESS, 1, characteristic);
+        CommandResult commandResult3 = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21, 20}, BluetoothGatt.GATT_SUCCESS, 1, characteristic);
+        CommandResult commandResult4 = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21, 20, 19}, BluetoothGatt.GATT_SUCCESS, 1, characteristic);
 
         assertEquals(22, commandResult1.getValueAsInt());
         assertEquals(5653, commandResult2.getValueAsInt());
@@ -82,26 +92,62 @@ public class CommandResultTest {
 
     @Test(expected = IllegalStateException.class)
     public void testIntException() {
-        CommandResult commandResult = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21, 20, 19, 18}, BluetoothGatt.GATT_SUCCESS, 1);
+        CommandResult commandResult = new CommandResult(Neatle.createUUID(1), new byte[]{22, 21, 20, 19, 18}, BluetoothGatt.GATT_SUCCESS, 1, characteristic);
         commandResult.getValueAsInt();
     }
 
     @Test
     public void testStringValues() {
         String dataStr = "lorem ipsum dolor sit amet";
-        CommandResult commandResult = new CommandResult(Neatle.createUUID(1), dataStr.getBytes(Charset.forName("UTF8")), BluetoothGatt.GATT_SUCCESS, 1);
+        CommandResult commandResult = new CommandResult(Neatle.createUUID(1), dataStr.getBytes(Charset.forName("UTF8")), BluetoothGatt.GATT_SUCCESS, 1, characteristic);
         assertEquals(dataStr, commandResult.getValueAsString());
 
-        CommandResult commandResult2 = new CommandResult(Neatle.createUUID(1), null, BluetoothGatt.GATT_SUCCESS, 1);
+        CommandResult commandResult2 = new CommandResult(Neatle.createUUID(1), null, BluetoothGatt.GATT_SUCCESS, 1, characteristic);
         assertNull(commandResult2.getValueAsString());
 
-        CommandResult commandResult3 = new CommandResult(Neatle.createUUID(1), new byte[]{}, BluetoothGatt.GATT_SUCCESS, 1);
+        CommandResult commandResult3 = new CommandResult(Neatle.createUUID(1), new byte[]{}, BluetoothGatt.GATT_SUCCESS, 1, characteristic);
         assertEquals("", commandResult3.getValueAsString());
     }
 
     @Test
+    public void delegatesGetPropertiesToCharacteristic() throws Exception {
+        CommandResult commandResult = new CommandResult(Neatle.createUUID(1), new byte[]{}, BluetoothGatt.GATT_SUCCESS, 1, characteristic);
+
+        commandResult.getProperties();
+
+        verify(characteristic).getProperties();
+    }
+
+    @Test
+    public void delegatesGetIntValueToCharacteristic() throws Exception {
+        CommandResult commandResult = new CommandResult(Neatle.createUUID(1), new byte[]{}, BluetoothGatt.GATT_SUCCESS, 1, characteristic);
+
+        commandResult.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 1);
+
+        verify(characteristic).getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 1);
+    }
+
+    @Test
+    public void delegatesGetFloatValueToCharacteristic() throws Exception {
+        CommandResult commandResult = new CommandResult(Neatle.createUUID(1), new byte[]{}, BluetoothGatt.GATT_SUCCESS, 1, characteristic);
+
+        commandResult.getFloatValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 2);
+
+        verify(characteristic).getFloatValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 2);
+    }
+
+    @Test
+    public void delegatesGetStringValueToCharacteristic() throws Exception {
+        CommandResult commandResult = new CommandResult(Neatle.createUUID(1), new byte[]{}, BluetoothGatt.GATT_SUCCESS, 1, characteristic);
+
+        commandResult.getStringValue(3);
+
+        verify(characteristic).getStringValue(3);
+    }
+
+    @Test
     public void testFactoryMethods() {
-        BluetoothGattCharacteristic gattCharacteristic = Mockito.mock(BluetoothGattCharacteristic.class);
+        BluetoothGattCharacteristic gattCharacteristic = mock(BluetoothGattCharacteristic.class);
         Mockito.when(gattCharacteristic.getValue()).thenReturn(new byte[]{20, 11, 22});
         Mockito.when(gattCharacteristic.getUuid()).thenReturn(Neatle.createUUID(1));
 
