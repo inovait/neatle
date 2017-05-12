@@ -1,3 +1,6 @@
+## Version 0.9.3
+ - Fixed: #21 - BluetoothGattCharacteristic needed to extract value on subscription
+
 ## Version 0.9.2
  - Fixed: #17 - Subscriptions are not working - Type not found.
 
