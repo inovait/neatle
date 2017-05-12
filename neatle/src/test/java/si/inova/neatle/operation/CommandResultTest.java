@@ -133,11 +133,11 @@ public class CommandResultTest {
         Mockito.when(gattCharacteristic.getUuid()).thenReturn(Neatle.createUUID(1));
 
         CommandResult result = CommandResult.createCharacteristicRead(gattCharacteristic, BluetoothGatt.GATT_SUCCESS);
-        assertEquals(255, (int) result.getFormattedIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0));
-        assertEquals(3071, (int) result.getFormattedIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 0));
-        assertEquals(202771455, (int) result.getFormattedIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0));
-        assertEquals(-1, (int) result.getFormattedIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0));
-        assertEquals(3071, (int) result.getFormattedIntValue(BluetoothGattCharacteristic.FORMAT_SINT16, 0));
-        assertEquals(202771455, (int) result.getFormattedIntValue(BluetoothGattCharacteristic.FORMAT_SINT32, 0));
+        assertEquals(255, (int) result.getFormattedIntValue(CommandResult.FORMAT_UINT8, 0));
+        assertEquals(3071, (int) result.getFormattedIntValue(CommandResult.FORMAT_UINT16, 0));
+        assertEquals(202771455, (int) result.getFormattedIntValue(CommandResult.FORMAT_UINT32, 0));
+        assertEquals(-1, (int) result.getFormattedIntValue(CommandResult.FORMAT_SINT8, 0));
+        assertEquals(3071, (int) result.getFormattedIntValue(CommandResult.FORMAT_SINT16, 0));
+        assertEquals(202771455, (int) result.getFormattedIntValue(CommandResult.FORMAT_SINT32, 0));
     }
 }

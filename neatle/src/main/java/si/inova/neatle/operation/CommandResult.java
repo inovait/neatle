@@ -31,17 +31,40 @@ import android.support.annotation.RestrictTo;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
-import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT16;
-import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT32;
-import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT8;
-import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT16;
-import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT32;
-import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8;
-
 /**
  * A result of a single command.
  */
 public class CommandResult {
+
+    /**
+     * Characteristic value format type uint8
+     */
+    public static final int FORMAT_UINT8 = 0x11;
+
+    /**
+     * Characteristic value format type uint16
+     */
+    public static final int FORMAT_UINT16 = 0x12;
+
+    /**
+     * Characteristic value format type uint32
+     */
+    public static final int FORMAT_UINT32 = 0x14;
+
+    /**
+     * Characteristic value format type sint8
+     */
+    public static final int FORMAT_SINT8 = 0x21;
+
+    /**
+     * Characteristic value format type sint16
+     */
+    public static final int FORMAT_SINT16 = 0x22;
+
+    /**
+     * Characteristic value format type sint32
+     */
+    public static final int FORMAT_SINT32 = 0x24;
 
     private final UUID uuid;
     private final byte[] data;
