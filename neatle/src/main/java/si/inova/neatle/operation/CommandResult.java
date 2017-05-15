@@ -70,12 +70,14 @@ public class CommandResult {
     private final byte[] data;
     private final int status;
     private final long timestamp;
+    private final BluetoothGattCharacteristic characteristic;
 
-    CommandResult(UUID uuid, byte[] data, int status, long timestamp) {
+    CommandResult(UUID uuid, byte[] data, int status, long timestamp, BluetoothGattCharacteristic characteristic) {
         this.uuid = uuid;
         this.data = data;
         this.status = status;
         this.timestamp = timestamp;
+        this.characteristic = characteristic;
     }
 
     /**
@@ -198,6 +200,47 @@ public class CommandResult {
     }
 
     /**
+     * Returns the properties of the characteristic
+     *
+     * @return the properties
+     */
+    public int getProperties() {
+        return characteristic.getProperties();
+    }
+
+    /**
+     * Returns the int value stored in the characteristic. See
+     * {@link BluetoothGattCharacteristic#getIntValue(int, int)} for further information.
+     * @param formatType
+     * @param offset
+     * @return
+     */
+    public int getIntValue(int formatType, int offset) {
+        return characteristic.getIntValue(formatType, offset);
+    }
+
+    /**
+     * Returns the float value stored in the characteristic. See
+     * {@link BluetoothGattCharacteristic#getFloatValue(int, int)} for further information.
+     * @param formatType
+     * @param offset
+     * @return
+     */
+    public float getFloatValue(int formatType, int offset) {
+        return characteristic.getFloatValue(formatType, offset);
+    }
+
+    /**
+     * Returns the string value stored in the characteristic. See
+     * {@link BluetoothGattCharacteristic#getStringValue(int)} for further information.
+     * @param offset
+     * @return
+     */
+    public String getStringValue(int offset) {
+        return characteristic.getStringValue(offset);
+    }
+
+    /**
      * Checks if this command was successful.
      *
      * @return true if the command was succesful, false otherwise
@@ -247,24 +290,24 @@ public class CommandResult {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static CommandResult createCharacteristicRead(BluetoothGattCharacteristic characteristic, int status) {
         long when = System.currentTimeMillis();
-        return new CommandResult(characteristic.getUuid(), characteristic.getValue(), status, when);
+        return new CommandResult(characteristic.getUuid(), characteristic.getValue(), status, when, characteristic);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static CommandResult createErrorResult(UUID characteristicUUID, int error) {
         long when = System.currentTimeMillis();
-        return new CommandResult(characteristicUUID, null, error, when);
+        return new CommandResult(characteristicUUID, null, error, when, null);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static CommandResult createEmptySuccess(UUID characteristicUUID) {
         long when = System.currentTimeMillis();
-        return new CommandResult(characteristicUUID, null, BluetoothGatt.GATT_SUCCESS, when);
+        return new CommandResult(characteristicUUID, null, BluetoothGatt.GATT_SUCCESS, when, null);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static CommandResult createCharacteristicChanged(BluetoothGattCharacteristic characteristic) {
         long when = System.currentTimeMillis();
-        return new CommandResult(characteristic.getUuid(), characteristic.getValue(), BluetoothGatt.GATT_SUCCESS, when);
+        return new CommandResult(characteristic.getUuid(), characteristic.getValue(), BluetoothGatt.GATT_SUCCESS, when, characteristic);
     }
 }
