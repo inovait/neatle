@@ -30,6 +30,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
@@ -38,6 +39,7 @@ import android.support.annotation.RestrictTo;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -106,6 +108,20 @@ public class Device implements Connection {
     @Override
     public BluetoothDevice getDevice() {
         return device;
+    }
+
+    @Override
+    public BluetoothGattService getService(UUID serviceUUID) {
+        synchronized (lock) {
+            return gatt == null ? null : gatt.getService(serviceUUID);
+        }
+    }
+
+    @Override
+    public List<BluetoothGattService> getServices() {
+        synchronized (lock) {
+            return gatt == null ? null : gatt.getServices();
+        }
     }
 
     @Override

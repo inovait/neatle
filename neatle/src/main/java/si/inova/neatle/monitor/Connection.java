@@ -25,7 +25,10 @@
 package si.inova.neatle.monitor;
 
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattService;
 
+import java.util.List;
 import java.util.UUID;
 
 import si.inova.neatle.Neatle;
@@ -131,4 +134,25 @@ public interface Connection {
      * @return the associated BluetoothDevice
      */
     BluetoothDevice getDevice();
+
+    /**
+     * Returns a {@link BluetoothGattService}, if the requested UUID is
+     * supported by the remote device.
+     *
+     * @param serviceUUID UUID of the requested service
+     * @return BluetoothGattService if supported, or null if the requested
+     * service is not offered by the remote device.
+     * @see BluetoothGatt#getService(UUID)
+     */
+    BluetoothGattService getService(UUID serviceUUID);
+
+    /**
+     * Returns a list of GATT services offered by the remote device.
+     *
+     * @return List of services on the remote device. Returns an empty list
+     * if service discovery has not yet been performed.
+     * @see BluetoothGatt#getServices()
+     */
+    List<BluetoothGattService> getServices();
+
 }

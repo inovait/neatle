@@ -36,6 +36,36 @@ import java.util.UUID;
  */
 public class CommandResult {
 
+    /**
+     * Characteristic value format type uint8
+     */
+    public static final int FORMAT_UINT8 = 0x11;
+
+    /**
+     * Characteristic value format type uint16
+     */
+    public static final int FORMAT_UINT16 = 0x12;
+
+    /**
+     * Characteristic value format type uint32
+     */
+    public static final int FORMAT_UINT32 = 0x14;
+
+    /**
+     * Characteristic value format type sint8
+     */
+    public static final int FORMAT_SINT8 = 0x21;
+
+    /**
+     * Characteristic value format type sint16
+     */
+    public static final int FORMAT_SINT16 = 0x22;
+
+    /**
+     * Characteristic value format type sint32
+     */
+    public static final int FORMAT_SINT32 = 0x24;
+
     private final UUID uuid;
     private final byte[] data;
     private final int status;
@@ -101,6 +131,45 @@ public class CommandResult {
     }
 
     /**
+     * Return the stored value of this characteristic.
+     * <p>
+     * <p>The formatType parameter determines how the characteristic value
+     * is to be interpreted. For example, settting formatType to
+     * {@link BluetoothGattCharacteristic#FORMAT_UINT16} specifies that the first two bytes of the
+     * characteristic value at the given offset are interpreted to generate the
+     * return value.
+     *
+     * @param formatType The format type used to interpret the characteristic
+     *                   value.
+     * @param offset     Offset at which the integer value can be found.
+     * @return Cached value of the characteristic or null of offset exceeds
+     * value size.
+     */
+    public Integer getFormattedIntValue(int formatType, int offset) {
+        if ((offset + formatType & 0xF) > data.length) return null;
+
+        switch (formatType) {
+            case FORMAT_UINT8:
+                return unsignedByteToInt(data[offset]);
+            case FORMAT_UINT16:
+                return unsignedBytesToInt(data[offset], data[offset + 1]);
+            case FORMAT_UINT32:
+                return unsignedBytesToInt(data[offset], data[offset + 1],
+                        data[offset + 2], data[offset + 3]);
+            case FORMAT_SINT8:
+                return unsignedToSigned(unsignedByteToInt(data[offset]), 8);
+            case FORMAT_SINT16:
+                return unsignedToSigned(unsignedBytesToInt(data[offset],
+                        data[offset + 1]), 16);
+            case FORMAT_SINT32:
+                return unsignedToSigned(unsignedBytesToInt(data[offset],
+                        data[offset + 1], data[offset + 2], data[offset + 3]), 32);
+        }
+
+        return null;
+    }
+
+    /**
      * Returns the UUID of the characteristic this data was read from.
      *
      * @return the uuid
@@ -135,6 +204,39 @@ public class CommandResult {
      */
     public boolean wasSuccessful() {
         return status == BluetoothGatt.GATT_SUCCESS;
+    }
+
+    /**
+     * Convert signed bytes to a 16-bit unsigned int.
+     */
+    private int unsignedBytesToInt(byte b0, byte b1) {
+        return (unsignedByteToInt(b0) + (unsignedByteToInt(b1) << 8));
+    }
+
+    /**
+     * Convert a signed byte to an unsigned int.
+     */
+    private int unsignedByteToInt(byte b) {
+        return b & 0xFF;
+    }
+
+    /**
+     * Convert an unsigned integer value to a two's-complement encoded
+     * signed value.
+     */
+    private int unsignedToSigned(int unsigned, int size) {
+        if ((unsigned & (1 << size - 1)) != 0) {
+            unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
+        }
+        return unsigned;
+    }
+
+    /**
+     * Convert signed bytes to a 32-bit unsigned int.
+     */
+    private int unsignedBytesToInt(byte b0, byte b1, byte b2, byte b3) {
+        return (unsignedByteToInt(b0) + (unsignedByteToInt(b1) << 8))
+                + (unsignedByteToInt(b2) << 16) + (unsignedByteToInt(b3) << 24);
     }
 
     @Override
