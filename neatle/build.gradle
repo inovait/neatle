@@ -23,6 +23,7 @@
  */
 
 apply plugin: 'com.android.library'
+apply plugin: 'io.github.ddimtirov.codacy'
 apply from: '../jacoco.gradle'
 
 ext {
