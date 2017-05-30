@@ -9,14 +9,7 @@ android:
   - extra-android-m2repository
 
 script:
-  - ./gradlew build jacocoTestCoverage generateRelease updateBintrayConfig
-
-before_install:
-  - sudo apt-get install jq
-  - wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
-
-after_success:
-  - java -cp ~/codacy-coverage-reporter-assembly-latest.jar com.codacy.CodacyCoverageReporter -l Java -r neatle/build/reports/jacoco/jacocoReleaseTestCoverage/jacocoReleaseTestCoverage.xml
+  - ./gradlew build jacocoTestCoverage codacyUpload generateRelease updateBintrayConfig
 
 deploy:
   - provider: releases
