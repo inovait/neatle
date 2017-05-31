@@ -24,6 +24,10 @@
 
 package si.inova.neatle.sample;
 
+import android.Manifest;
+import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -32,14 +36,22 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import si.inova.neatle.Neatle;
+import si.inova.neatle.operation.Command;
+import si.inova.neatle.operation.CommandObserver;
+import si.inova.neatle.operation.CommandResult;
+import si.inova.neatle.sample.fragments.FoundDevice;
 import si.inova.neatle.sample.fragments.MonitorFragment;
 import si.inova.neatle.sample.fragments.OperationFragment;
+import si.inova.neatle.sample.fragments.ScannerFragment;
 import si.inova.neatle.sample.fragments.SubscriptionFragment;
+import si.inova.sample.DeviceDetails;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ScannerFragment.OnDeviceSelected {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -58,6 +70,26 @@ public class MainActivity extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         viewPager.setAdapter(new SectionsPagerAdapter(getSupportFragmentManager()));
         tabLayout.setupWithViewPager(viewPager);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(new String[] {
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.BLUETOOTH_ADMIN
+            }, 123);
+        }
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onDeviceSelected(BluetoothDevice item) {
+        Intent intent = new Intent(this, DeviceDetails.class);
+        intent.putExtra("device", item);
+        startActivity(intent);
     }
 
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -70,10 +102,12 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return MonitorFragment.newInstance();
+                    return ScannerFragment.newInstance();
                 case 1:
-                    return OperationFragment.newInstance();
+                    return MonitorFragment.newInstance();
                 case 2:
+                    return OperationFragment.newInstance();
+                case 3:
                     return SubscriptionFragment.newInstance();
                 default:
                     throw new UnsupportedOperationException("Item position not handled");
@@ -82,17 +116,19 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 3;
+            return 4;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "MONITOR";
+                    return "SCANNER";
                 case 1:
-                    return "OPERATION";
+                    return "MONITOR";
                 case 2:
+                    return "OPERATION";
+                case 3:
                     return "SUBSCRIPTION";
                 default:
                     throw new UnsupportedOperationException("Page position not handled");

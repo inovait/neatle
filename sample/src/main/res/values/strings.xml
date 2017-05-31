@@ -41,5 +41,6 @@
     <!-- Subscription -->
     <string name="subscription_failed">Subscription failed!</string>
     <string name="subscribe">SUBSCRIBE</string>
+    <string name="title_activity_device_details">DeviceDetails</string>
 
 </resources>
