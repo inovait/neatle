@@ -37,6 +37,7 @@ import si.inova.neatle.monitor.ConnectionMonitorImpl;
 import si.inova.neatle.operation.CharacteristicSubscription;
 import si.inova.neatle.operation.CharacteristicSubscriptionImpl;
 import si.inova.neatle.operation.OperationBuilder;
+import si.inova.neatle.scan.ScanBuilder;
 import si.inova.neatle.util.DeviceManager;
 
 /**
@@ -134,5 +135,9 @@ public class Neatle {
             return BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
         }
         throw new UnsupportedOperationException("Device mac not recognized.");
+    }
+
+    public static ScanBuilder createScannerBuilder() {
+        return new ScanBuilder();
     }
 }

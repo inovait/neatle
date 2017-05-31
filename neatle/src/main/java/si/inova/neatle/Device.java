@@ -73,6 +73,7 @@ public class Device implements Connection {
     private final CopyOnWriteArrayList<ConnectionHandler> connectionHandlers = new CopyOnWriteArrayList<>();
     private final HashMap<UUID, CopyOnWriteArrayList<CharacteristicsChangedListener>> changeListeners = new HashMap<>();
     private final CopyOnWriteArrayList<ConnectionStateListener> connectionStateListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<ServicesDiscoveredListener> servicesDiscoveredListeners = new CopyOnWriteArrayList<>();
 
     private BluetoothAdapter.LeScanCallback discoverCallback = new ScanForDeviceCallback();
     private Runnable discoverWatchdog = new ScanForDeviceTimeout();
@@ -103,6 +104,14 @@ public class Device implements Connection {
     @Override
     public void removeConnectionStateListener(ConnectionStateListener connectionStateListener) {
         connectionStateListeners.remove(connectionStateListener);
+    }
+
+    public void addServicesDiscoveredListener(ServicesDiscoveredListener listener) {
+        servicesDiscoveredListeners.add(listener);
+    }
+
+    public void removeServicesDiscoveredListener(ServicesDiscoveredListener listener) {
+        servicesDiscoveredListeners.remove(listener);
     }
 
     @Override
@@ -326,17 +335,12 @@ public class Device implements Connection {
         stopDiscovery();
 
         int state = getState();
-//        if (device.getType() != BluetoothDevice.DEVICE_TYPE_UNKNOWN) {
         if (state == BluetoothGatt.STATE_CONNECTING) {
             NeatleLogger.i("Device discovered. Continuing with connecting");
             connectWithGatt();
         } else {
             NeatleLogger.e("Device discovered but no longer connecting");
         }
-//        } else {
-//            NeatleLogger.e("Device discovered but is of unknown type.");
-//            connectionFailed(BluetoothGatt.GATT_FAILURE);
-//        }
     }
 
     private void stopDiscovery() {
@@ -429,6 +433,24 @@ public class Device implements Connection {
         }
 
         notifyConnectionStateChange(oldState, newState);
+    }
+
+    private void notifyServicesDiscovered() {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (Device.this.lock) {
+                    //state has changed after we scheduled this runnable
+                    if (!areServicesDiscovered()) {
+                        NeatleLogger.d("notifyServicesDiscovered expired.");
+                        return;
+                    }
+                }
+                for (ServicesDiscoveredListener l : servicesDiscoveredListeners) {
+                    l.onServicesDiscovered(Device.this);
+                }
+            }
+        });
     }
 
     private void notifyConnectionStateChange(final int oldState, final int newState) {
@@ -557,6 +579,7 @@ public class Device implements Connection {
             synchronized (lock) {
                 serviceDiscovered = true;
             }
+            notifyServicesDiscovered();
             resume();
         }
 

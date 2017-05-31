@@ -37,7 +37,7 @@ import si.inova.neatle.source.AsyncInputSource;
 import si.inova.neatle.source.InputSource;
 import si.inova.neatle.util.NeatleLogger;
 
-class WriteCommand extends Command {
+class WriteCommand extends SingleCharacteristicsCommand {
 
     private BluetoothGatt gatt;
     private BluetoothGattCharacteristic writeCharacteristic;
@@ -58,9 +58,7 @@ class WriteCommand extends Command {
     }
 
     @Override
-    protected void execute(Connection connection, CommandObserver observer, BluetoothGatt gatt) {
-        super.execute(connection, observer, gatt);
-
+    protected void start(Connection connection, BluetoothGatt gatt) {
         BluetoothGattService service = gatt.getService(serviceUUID);
         if (service == null) {
             NeatleLogger.i("Service for write not found [" + serviceUUID + "]");
@@ -92,8 +90,8 @@ class WriteCommand extends Command {
     }
 
     @Override
-    protected void finish(CommandResult result) {
-        super.finish(result);
+    protected void onFinished(CommandResult result) {
+        super.onFinished(result);
         if (readerThread != null) {
             readerThread.interrupt();
         }

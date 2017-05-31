@@ -129,6 +129,11 @@ public class OperationBuilder {
         return this;
     }
 
+    public OperationBuilder executeCommand(Command cmd) {
+        commands.add(cmd);
+        return this;
+    }
+
     /**
      * Sets an {@link OperationObserver} that is triggered when all operations have been executed.
      *
