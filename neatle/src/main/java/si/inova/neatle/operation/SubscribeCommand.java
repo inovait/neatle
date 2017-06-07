@@ -114,7 +114,7 @@ class SubscribeCommand extends Command {
         }
 
         descriptor.setValue(valueToWrite);
-        NeatleLogger.e("Writing descriptor on " + characteristicUUID);
+        NeatleLogger.d("Writing descriptor on " + characteristicUUID);
         if (!gatt.writeDescriptor(descriptor)) {
             NeatleLogger.e("Failed to write descriptor on " + characteristicUUID);
             finish(CommandResult.createErrorResult(characteristicUUID, BluetoothGatt.GATT_FAILURE));
