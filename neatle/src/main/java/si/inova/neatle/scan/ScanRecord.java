@@ -56,15 +56,14 @@ public class ScanRecord {
     private final List<UUID> serviceUUIDs;
 
     private int flags = 0;
-    private byte[] rawData;
+//    private byte[] rawData;
 
 
     public ScanRecord(int flags, SparseArray<byte[]> manufacturerData, List<UUID> serviceUUIDs, byte[] data) {
         this.flags = flags;
         this.manufacturerData = manufacturerData;
         this.serviceUUIDs = serviceUUIDs;
-        this.rawData = data;
-
+  //      this.rawData = data;
     }
 
 
@@ -137,7 +136,9 @@ public class ScanRecord {
                     mfgData.append(id, mfg);
                     break;
                 default:
-                    NeatleLogger.i("Unknown data type:" + type);
+                    //TODO, add support for other datatypes
+                    break;
+
 
             }
             index += len;
@@ -168,7 +169,7 @@ public class ScanRecord {
         if (!serviceUUIDs.isEmpty()) {
             sb.append(", serviceUUIDS = ").append(serviceUUIDs);
         }
-        sb.append(", raw = ").append(bufferToString(rawData));
+//        sb.append(", raw = ").append(bufferToString(rawData));
 
 
         sb.append(']');

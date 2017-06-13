@@ -108,7 +108,6 @@ class LolipopLEScanner implements Scanner {
                 return;
             }
             ScanEvent se = new ScanEvent(device, rssi, scanRecord);
-            Log.d("neatle", se.getDevice() + " -> " + se.getScanRecord());
 
             onScanEvent(se);
         }
