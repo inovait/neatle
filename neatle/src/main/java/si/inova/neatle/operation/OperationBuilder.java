@@ -30,9 +30,12 @@ import android.content.Context;
 import android.support.annotation.CheckResult;
 import android.support.annotation.RestrictTo;
 
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
+import si.inova.neatle.source.CalllableInputSource;
 import si.inova.neatle.source.InputSource;
 
 public class OperationBuilder {
@@ -83,6 +86,20 @@ public class OperationBuilder {
      */
     public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, InputSource source) {
         return write(serviceUUID, characteristicsUUID, source, null);
+    }
+
+    /**
+     * Writes data provided by callable. The callable will be evaluated when it is time to
+     * write. The callable will be re-evaluated if the operation is retried.
+     *
+     * @param serviceUUID the UUID of the service
+     * @param characteristicsUUID the UUID of the characteristic.
+     * @param callable the callable implantation that will be evaluated when it's time to write the value.
+     *
+     * @return this object
+     */
+    public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, Callable<ByteBuffer> callable) {
+        return write(serviceUUID, characteristicsUUID, new CalllableInputSource(callable));
     }
 
     /**
