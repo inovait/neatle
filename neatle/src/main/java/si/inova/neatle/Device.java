@@ -190,7 +190,7 @@ public class Device implements Connection {
                     list = changeListeners.get(change.getUUID());
                 }
                 if (list == null) {
-                    NeatleLogger.d("Got a characteristic change, but nobody is interested");
+                    //a command could have enable a notification by it's own
                     return;
                 }
                 for (CharacteristicsChangedListener listener : list) {
