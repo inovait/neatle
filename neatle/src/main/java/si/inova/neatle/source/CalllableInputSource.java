@@ -43,7 +43,7 @@ public class CalllableInputSource implements InputSource {
 
     @Override
     public void open() throws IOException {
-
+        //nothing to do
     }
 
     @Override
