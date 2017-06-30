@@ -61,20 +61,30 @@ abstract class BaseScanner implements Scanner {
 
     @Override
     public void setMode(ScanMode mode) {
+        if (mode.getScanDuration() == scanDuration
+                && mode.getScanInterval() == scanInterval
+                && mode.getScanMode() == scanMode) {
+            return;
+        }
         boolean wasScanning = scanning;
+        Context oldContext = this.context;
         stopScanning();
+
 
         scanMode = mode.getScanMode();
         scanInterval = mode.getScanInterval();
         scanDuration = mode.getScanDuration();
 
         if (wasScanning) {
-            startScanning(context);
+            startScanning(oldContext);
         }
     }
 
     @Override
     public final void startScanning(Context context) {
+        if (context == null) {
+            throw new IllegalArgumentException("Context cannot be null");
+        }
         if (scanning) {
             NeatleLogger.i("Already scanning, ignoring start scanning request");
             return;
