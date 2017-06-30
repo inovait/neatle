@@ -23,13 +23,22 @@
  */
 package si.inova.neatle.scan;
 
-public interface Scanner {
+import android.content.Context;
 
+public interface Scanner {
     /**
      * Starts scanning until stop scan is invoked.
      */
-    void startScanning();
+    void startScanning(Context context);
 
+    /**
+     * Updates the scan mode for this scanner.
+     *
+     * The scanner does not need to be restarted for the changes to take effect.
+     *
+     * @param mode the new scan mode.
+     */
+    void setMode(ScanMode mode);
     /**
      * Stops scanning.
      */

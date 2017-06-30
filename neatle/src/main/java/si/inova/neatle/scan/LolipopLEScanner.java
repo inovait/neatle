@@ -25,44 +25,30 @@ package si.inova.neatle.scan;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import si.inova.neatle.Neatle;
 import si.inova.neatle.util.NeatleLogger;
 
-class LolipopLEScanner implements Scanner {
-    private ScanConfiguration scanConfiguration = new ScanConfiguration();
+class LolipopLEScanner extends BaseScanner {
+    private ScannerConfiguration scannerConfiguration = new ScannerConfiguration();
 
-    private boolean scanning = false;
     private ScanCallbackHandler callback = new ScanCallbackHandler();
 
     private Map<BluetoothDevice, ScanEvent> seenDevices = new HashMap<>();
 
-    LolipopLEScanner(ScanConfiguration settings) {
-        this.scanConfiguration = settings;
+    LolipopLEScanner(ScannerConfiguration settings) {
+        this.scannerConfiguration = settings;
     }
 
 
     @Override
-    public void startScanning() {
-        if (scanning) {
-            return;
-        }
-        scanning = doStart();
-    }
-
-    private boolean doStart() {
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        if (adapter == null) {
-            NeatleLogger.d("Bluetooth LE scan failed to start. No bluetooth adapter found");
-            return false;
-        }
+    @SuppressWarnings({"SpellCheckingInspection", "deprecation"})
+    protected void onStart(BluetoothAdapter adapter, int scanMode) {
         boolean ret;
-        UUID uuids[] = scanConfiguration.getServiceUUIDs();
+        UUID uuids[] = scannerConfiguration.getServiceUUIDs();
         if (uuids.length > 0) {
             ret = adapter.startLeScan(uuids, callback);
         } else {
@@ -74,41 +60,39 @@ class LolipopLEScanner implements Scanner {
         } else {
             NeatleLogger.i("Bluetooth LE scan failed to start. State = " + adapter.getState());
         }
-        return ret;
     }
 
-    protected void onScanEvent(ScanEvent e) {
+    @SuppressWarnings("deprecation")
+    @Override
+    protected void onStop(BluetoothAdapter adapter) {
+        adapter.stopLeScan(callback);
+        NeatleLogger.d("Bluetooth LE scan stopped");
+    }
+
+
+    private void onScanEvent(ScanEvent e) {
         ScanEvent old = seenDevices.put(e.getDevice(), e);
-        if (old == null && scanConfiguration.getNewDeviceFoundListener() != null) {
-            NewDeviceFoundListener listener = scanConfiguration.getNewDeviceFoundListener();
+        if (old == null && scannerConfiguration.getNewDeviceFoundListener() != null) {
+            NewDeviceFoundListener listener = scannerConfiguration.getNewDeviceFoundListener();
             listener.onNewDeviceFound(e);
         }
 
-        ScanEventListener scanListener = scanConfiguration.getScanEventListener();
+        ScanEventListener scanListener = scannerConfiguration.getScanEventListener();
         if (scanListener != null) {
             scanListener.onScanEvent(e);
         }
     }
 
-    @Override
-    public void stopScanning() {
-        scanning = false;
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        if (adapter != null) {
-            adapter.stopLeScan(callback);
-            NeatleLogger.d("Bluetooth LE scan stopped");
-        }
-    }
 
     private class ScanCallbackHandler implements BluetoothAdapter.LeScanCallback {
         @Override
+        @SuppressWarnings("SpellCheckingInspection")
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-            if (!scanConfiguration.shouldReport(device)) {
-//                NeatleLogger.d("Not interested in device " + device.getAddress() + ", ignoring");
+            if (!scannerConfiguration.shouldReport(device)) {
+                //NeatleLogger.d("Not interested in device " + device.getAddress() + ", ignoring");
                 return;
             }
             ScanEvent se = new ScanEvent(device, rssi, scanRecord);
-
             onScanEvent(se);
         }
     }

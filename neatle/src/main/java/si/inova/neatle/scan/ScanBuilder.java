@@ -28,11 +28,11 @@ import android.bluetooth.BluetoothAdapter;
 import java.util.UUID;
 
 public class ScanBuilder {
-    private ScanConfiguration scanConfiguration = new ScanConfiguration();
+    private ScannerConfiguration scannerConfiguration = new ScannerConfiguration();
     private Scanner.ScanEventListener scanEventListener;
 
     public Scanner build() {
-        return new LolipopLEScanner(scanConfiguration);
+        return new LolipopLEScanner(scannerConfiguration);
     }
 
     /**
@@ -44,16 +44,16 @@ public class ScanBuilder {
      * @param serviceUUID the serviceUUID that will
      */
     public void addServiceUUID(UUID serviceUUID) {
-        scanConfiguration.addServiceUUID(serviceUUID);
+        scannerConfiguration.addServiceUUID(serviceUUID);
     }
 
     public ScanBuilder setNewDeviceFoundListener(Scanner.NewDeviceFoundListener listener) {
-        scanConfiguration.setNewDeviceFoundListener(listener);
+        scannerConfiguration.setNewDeviceFoundListener(listener);
         return this;
     }
 
     public ScanBuilder setScanEventListener(Scanner.ScanEventListener scanEventListener) {
-        scanConfiguration.setScanEventListener(scanEventListener);
+        scannerConfiguration.setScanEventListener(scanEventListener);
         return this;
     }
 
@@ -61,7 +61,7 @@ public class ScanBuilder {
         if (!BluetoothAdapter.checkBluetoothAddress(address)) {
             throw new IllegalArgumentException("Invalid address:" + address);
         }
-        scanConfiguration.addDeviceAddress(address);
+        scannerConfiguration.addDeviceAddress(address);
         return null;
     }
 }
