@@ -28,9 +28,6 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.support.annotation.CallSuper;
-import android.support.annotation.RestrictTo;
-
-import java.util.UUID;
 
 import si.inova.neatle.monitor.Connection;
 
@@ -91,7 +88,9 @@ public abstract class Command {
      *
      * @param result the results of the command
      */
-    protected void onFinished(CommandResult result) {}
+    protected void onFinished(CommandResult result) {
+        //does nothing on it's own
+    }
 
     protected abstract void onError(int error);
 
