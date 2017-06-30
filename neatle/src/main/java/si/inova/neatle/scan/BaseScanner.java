@@ -61,7 +61,16 @@ abstract class BaseScanner implements Scanner {
 
     @Override
     public void setMode(ScanMode mode) {
+        boolean wasScanning = scanning;
+        stopScanning();
 
+        scanMode = mode.getScanMode();
+        scanInterval = mode.getScanInterval();
+        scanDuration = mode.getScanDuration();
+
+        if (wasScanning) {
+            startScanning(context);
+        }
     }
 
     @Override

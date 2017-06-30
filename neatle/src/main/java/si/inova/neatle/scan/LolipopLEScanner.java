@@ -66,6 +66,7 @@ class LolipopLEScanner extends BaseScanner {
     @Override
     protected void onStop(BluetoothAdapter adapter) {
         adapter.stopLeScan(callback);
+        seenDevices.clear();
         NeatleLogger.d("Bluetooth LE scan stopped");
     }
 

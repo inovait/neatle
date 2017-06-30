@@ -28,6 +28,8 @@ import android.content.Context;
 public interface Scanner {
     /**
      * Starts scanning until stop scan is invoked.
+     *
+     * @param context the context object
      */
     void startScanning(Context context);
 
@@ -49,7 +51,7 @@ public interface Scanner {
         /**
          * Invoked the first that the scanner sees the device.
          *
-         * @param e
+         * @param e holds the information about the newly discovered device
          */
         void onNewDeviceFound(ScanEvent e);
     }
@@ -59,7 +61,7 @@ public interface Scanner {
         /**
          * Invoked on every scan event.
          *
-         * @param e
+         * @param e holds the information about the scan event
          */
         void onScanEvent(ScanEvent e);
     }

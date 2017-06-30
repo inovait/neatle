@@ -83,7 +83,7 @@ public class ScannerFragment extends Fragment implements Scanner.ScanEventListen
     public void onResume() {
         super.onResume();
 
-        scanner.startScanning();
+        scanner.startScanning(getContext());
     }
 
 

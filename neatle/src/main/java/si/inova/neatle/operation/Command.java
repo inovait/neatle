@@ -66,8 +66,8 @@ public abstract class Command {
      * When the method is called, the connection will be already established and all services
      * will be already discovered.
      *
-     * @param connection
-     * @param gatt
+     * @param connection the connection on which the command will operate
+     * @param gatt bluettoth gat
      */
     abstract protected void start(Connection connection, BluetoothGatt gatt);
 
@@ -89,7 +89,7 @@ public abstract class Command {
     /**
      * Called when the command finished, either successfully or not but.
      *
-     * @param result
+     * @param result the results of the command
      */
     protected void onFinished(CommandResult result) {}
 

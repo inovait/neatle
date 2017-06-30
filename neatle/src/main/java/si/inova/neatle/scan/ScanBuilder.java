@@ -39,7 +39,7 @@ public class ScanBuilder {
      * Adds a service UUID used for service discovery. When used, only
      * devices advertising the service will be reported.
      *
-     * @see https://www.bluetooth.com/specifications/assigned-numbers/service-discovery
+     * @link https://www.bluetooth.com/specifications/assigned-numbers/service-discovery
      *
      * @param serviceUUID the serviceUUID that will
      */

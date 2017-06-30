@@ -132,7 +132,7 @@ public class CommandResult {
 
     /**
      * Return the stored value of this characteristic.
-     * <p>
+     *
      * <p>The formatType parameter determines how the characteristic value
      * is to be interpreted. For example, settting formatType to
      * {@link BluetoothGattCharacteristic#FORMAT_UINT16} specifies that the first two bytes of the
