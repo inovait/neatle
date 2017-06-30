@@ -386,8 +386,10 @@ public class Device implements Connection {
 
             oldState = state;
             if (!adapterEnabled) {
-                newState = BluetoothAdapter.STATE_OFF;
+                //newState = BluetoothAdapter.STATE_OFF;
                 NeatleLogger.d("BT off. Won't connect to " + device.getName() + "[" + device.getAddress() + "]");
+                connectionFailed(BluetoothGatt.GATT_FAILURE);
+                return;
             } else {
                 newState = BluetoothGatt.STATE_CONNECTING;
                 if (device.getType() == BluetoothDevice.DEVICE_TYPE_UNKNOWN) {
