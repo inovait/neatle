@@ -54,16 +54,16 @@ abstract class BaseScanner implements Scanner {
         handler = new Handler();
         //get default values
         ScanMode defaults = new ScanMode();
-        scanDuration = defaults.getScanDuration();
-        scanInterval = defaults.getScanInterval();
-        scanMode = defaults.getScanMode();
+        scanDuration = defaults.getDuration();
+        scanInterval = defaults.getInterval();
+        scanMode = defaults.getMode();
     }
 
     @Override
     public void setMode(ScanMode mode) {
-        if (mode.getScanDuration() == scanDuration
-                && mode.getScanInterval() == scanInterval
-                && mode.getScanMode() == scanMode) {
+        if (mode.getDuration() == scanDuration
+                && mode.getInterval() == scanInterval
+                && mode.getMode() == scanMode) {
             return;
         }
         boolean wasScanning = scanning;
@@ -71,9 +71,9 @@ abstract class BaseScanner implements Scanner {
         stopScanning();
 
 
-        scanMode = mode.getScanMode();
-        scanInterval = mode.getScanInterval();
-        scanDuration = mode.getScanDuration();
+        scanMode = mode.getMode();
+        scanInterval = mode.getInterval();
+        scanDuration = mode.getDuration();
 
         if (wasScanning) {
             startScanning(oldContext);

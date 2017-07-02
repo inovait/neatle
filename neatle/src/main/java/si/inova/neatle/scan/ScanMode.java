@@ -43,11 +43,10 @@ public class ScanMode {
      * @see ScanSettings#SCAN_MODE_LOW_POWER
      */
     public static final int SCAN_MODE_LOW_LATENCY = 2;
-    private long interval;
-    private int mode;
-    private long duration;
-    private Object scanDuration;
-    private int scanMode;
+    private long interval = -1;
+    private int mode = SCAN_MODE_LOW_POWER;
+    private long duration = -1;
+
 
     public ScanMode() {
 
@@ -62,8 +61,8 @@ public class ScanMode {
         this.mode = mode;
     }
 
-    public int getScanMode() {
-        return scanMode;
+    public int getMode() {
+        return mode;
     }
 
     /**
@@ -72,11 +71,11 @@ public class ScanMode {
      *
      * @param duration the duration in milliseconds on -1 to scan indefinitely.
      */
-    public void setScanDuration(long duration) {
+    public void setDuration(long duration) {
         this.duration = duration;
     }
 
-    public long getScanDuration() {
+    public long getDuration() {
         return duration;
     }
 
@@ -89,11 +88,11 @@ public class ScanMode {
      *
      * @param interval the interval in milliseconds.
      */
-    public void setScanInterval(long interval) {
+    public void setInterval(long interval) {
         this.interval = interval;
     }
 
-    public long getScanInterval() {
+    public long getInterval() {
         return interval;
     }
 
