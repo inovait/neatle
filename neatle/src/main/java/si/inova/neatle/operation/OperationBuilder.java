@@ -30,9 +30,12 @@ import android.content.Context;
 import android.support.annotation.CheckResult;
 import android.support.annotation.RestrictTo;
 
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
+import si.inova.neatle.source.CalllableInputSource;
 import si.inova.neatle.source.InputSource;
 
 public class OperationBuilder {
@@ -86,6 +89,20 @@ public class OperationBuilder {
     }
 
     /**
+     * Writes data provided by callable. The callable will be evaluated when it is time to
+     * write. The callable will be re-evaluated if the operation is retried.
+     *
+     * @param serviceUUID the UUID of the service
+     * @param characteristicsUUID the UUID of the characteristic.
+     * @param callable the callable implantation that will be evaluated when it's time to write the value.
+     *
+     * @return this object
+     */
+    public OperationBuilder write(UUID serviceUUID, UUID characteristicsUUID, Callable<ByteBuffer> callable) {
+        return write(serviceUUID, characteristicsUUID, new CalllableInputSource(callable));
+    }
+
+    /**
      * Writes data to a characteristic of a service.
      *
      * @param serviceUUID         the UUID of the service
@@ -130,6 +147,18 @@ public class OperationBuilder {
     }
 
     /**
+     * Executes the given custom command.
+     *
+     * @param cmd a custom command implementation.
+     *
+     * @return this object
+     */
+    public OperationBuilder executeCommand(Command cmd) {
+        commands.add(cmd);
+        return this;
+    }
+
+    /**
      * Sets an {@link OperationObserver} that is triggered when all operations have been executed.
      *
      * @param operationObserver the operation observer
@@ -151,13 +180,13 @@ public class OperationBuilder {
         return this;
     }
 
-    OperationBuilder subscribeNotification(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
+    protected OperationBuilder subscribeNotification(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
         SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.Type.SUBSCRIBE_NOTIFICATION, serviceUUID, characteristicsUUID, observer);
         commands.add(cmd);
         return this;
     }
 
-    OperationBuilder unsubscribeNotification(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
+    protected OperationBuilder unsubscribeNotification(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
         SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.Type.UNSUBSCRIBE, serviceUUID, characteristicsUUID, observer);
         commands.add(cmd);
         return this;
