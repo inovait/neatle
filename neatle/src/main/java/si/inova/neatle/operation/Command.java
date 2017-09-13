@@ -31,6 +31,14 @@ import android.support.annotation.CallSuper;
 
 import si.inova.neatle.monitor.Connection;
 
+/**
+ * Represents a Neatle command. A command is low level building block that interacts directly with
+ * {@link BluetoothGatt}.
+ *
+ * <b>Note: callback methods can and will be called from different threads.</b>
+ *
+ * @see OperationBuilder#executeCommand(Command)
+ */
 public abstract class Command {
 
     public static final int SERVICE_NOT_FOUND = BluetoothGatt.GATT_FAILURE + 10;
@@ -135,14 +143,24 @@ public abstract class Command {
         //do nothing by default
     }
 
+    /**
+     * @see android.bluetooth.BluetoothGattCallback#onReliableWriteCompleted(BluetoothGatt, int)
+     */
     protected void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
+        //do nothing by default
     }
 
+    /**
+     * @see android.bluetooth.BluetoothGattCallback#onReliableWriteCompleted(BluetoothGatt, int)
+     */
     protected void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-
+        //do nothing by default
     }
 
+    /**
+     * @see android.bluetooth.BluetoothGattCallback#onMtuChanged(BluetoothGatt, int, int)
+     */
     protected void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-
+        //do nothing by default
     }
 }

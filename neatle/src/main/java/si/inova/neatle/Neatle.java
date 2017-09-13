@@ -119,7 +119,7 @@ public class Neatle {
      * @param mac the mac address to validate
      * @return true if it's a valid address, otherwise false
      */
-    public static boolean isMacValid(@NotNull String mac) {
+    public static boolean isMacValid(@NonNull String mac) {
         return BluetoothAdapter.checkBluetoothAddress(mac.toUpperCase());
     }
 

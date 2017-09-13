@@ -239,6 +239,7 @@ class OperationImpl implements Operation {
 
         @Override
         protected void onError(int error) {
+            //do nothing
         }
     }
 
@@ -273,6 +274,7 @@ class OperationImpl implements Operation {
     private class GattCallback extends BluetoothGattCallback {
 
         @Override
+        @SuppressWarnings("PMD.CompareObjectsWithEquals")
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             NeatleLogger.i("OperationImpl: onConnectionStateChange, state:" + status + ", newState: " + newState);
 

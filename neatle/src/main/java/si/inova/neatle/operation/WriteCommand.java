@@ -188,7 +188,14 @@ class WriteCommand extends SingleCharacteristicsCommand {
         }
 
         private void fail(Exception ex) {
-            //TODO: Handle failure
+            NeatleLogger.e("Failed to read", ex);
+            try {
+              buffer.close();
+            } catch (IOException closeEx) {
+                NeatleLogger.e("Failed to close input source", closeEx);
+            } finally {
+                finish(CommandResult.createErrorResult(characteristicUUID, BluetoothGatt.GATT_FAILURE));
+            }
         }
     }
 }

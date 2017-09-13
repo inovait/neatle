@@ -146,6 +146,13 @@ public class OperationBuilder {
         return this;
     }
 
+    /**
+     * Executes the given custom command.
+     *
+     * @param cmd a custom command implementation.
+     *
+     * @return this object
+     */
     public OperationBuilder executeCommand(Command cmd) {
         commands.add(cmd);
         return this;
@@ -173,13 +180,13 @@ public class OperationBuilder {
         return this;
     }
 
-    OperationBuilder subscribeNotification(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
+    protected OperationBuilder subscribeNotification(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
         SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.Type.SUBSCRIBE_NOTIFICATION, serviceUUID, characteristicsUUID, observer);
         commands.add(cmd);
         return this;
     }
 
-    OperationBuilder unsubscribeNotification(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
+    protected OperationBuilder unsubscribeNotification(UUID serviceUUID, UUID characteristicsUUID, CommandObserver observer) {
         SubscribeCommand cmd = new SubscribeCommand(SubscribeCommand.Type.UNSUBSCRIBE, serviceUUID, characteristicsUUID, observer);
         commands.add(cmd);
         return this;

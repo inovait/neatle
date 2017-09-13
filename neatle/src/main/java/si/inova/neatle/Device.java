@@ -334,7 +334,7 @@ public class Device implements Connection {
         }
     }
 
-    private void deviceDiscovered(BluetoothDevice device) {
+    private void deviceDiscovered() {
         stopDiscovery();
 
         int state = getState();
@@ -353,6 +353,7 @@ public class Device implements Connection {
         handler.removeCallbacks(discoverWatchdog);
     }
 
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public void executeFinished(BluetoothGattCallback callback) {
         synchronized (lock) {
             if (callback == currentCallback) {
@@ -672,7 +673,7 @@ public class Device implements Connection {
         @Override
         public void onLeScan(BluetoothDevice found, int rssi, byte[] scanRecord) {
             if (found.getAddress().equals(device.getAddress())) {
-                deviceDiscovered(found);
+                deviceDiscovered();
             }
         }
     }
