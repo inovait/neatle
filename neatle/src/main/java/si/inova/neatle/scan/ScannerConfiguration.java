@@ -31,27 +31,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Holds the initial scanner configuration.
+ *
+ * @see ScanMode for the runtime configurations.
+ */
 class ScannerConfiguration {
-
-    /**
-     * @see android.bluetooth.le.ScanSettings#SCAN_MODE_BALANCED
-     */
-    int SCAN_MODE_BALANCED = 1;
-
-    /**
-     * @see android.bluetooth.le.ScanSettings#SCAN_MODE_BALANCED
-     */
-    int SCAN_MODE_LOW_LATENCY = 2;
-
-    /**
-     * @see android.bluetooth.le.ScanSettings#SCAN_MODE_BALANCED
-     */
-    int SCAN_MODE_LOW_POWER = 0;
-
-    /**
-     * @see android.bluetooth.le.ScanSettings#SCAN_MODE_BALANCED
-     */
-    int SCAN_MODE_OPPORTUNISTIC = -1;
 
     private Scanner.NewDeviceFoundListener newDeviceFoundListener;
     private Scanner.ScanEventListener scanEventListener;

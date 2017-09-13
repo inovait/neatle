@@ -25,7 +25,10 @@ package si.inova.neatle.scan;
 
 import android.bluetooth.le.ScanSettings;
 
-public class ScanMode {
+/**
+ * This class represents the scanning mode of a {@link Scanner} object.
+ */
+public final class ScanMode {
     /**
      * @see ScanSettings#SCAN_MODE_OPPORTUNISTIC
      */
@@ -43,14 +46,10 @@ public class ScanMode {
      * @see ScanSettings#SCAN_MODE_LOW_POWER
      */
     public static final int SCAN_MODE_LOW_LATENCY = 2;
+
     private long interval = -1;
     private int mode = SCAN_MODE_LOW_POWER;
     private long duration = -1;
-
-
-    public ScanMode() {
-
-    }
 
     /**
      * Sets the scan mode, by default it's set to SCAN_MODE_LOW_POWER.
@@ -61,6 +60,12 @@ public class ScanMode {
         this.mode = mode;
     }
 
+    /**
+     * Gets the scan mode.
+     *
+     * @return @{link #SCAN_MODE_OPPORTUNISTIC}, {@link #SCAN_MODE_LOW_POWER},
+     * {@link #SCAN_MODE_BALANCED} or  {@link #SCAN_MODE_LOW_LATENCY}
+     */
     public int getMode() {
         return mode;
     }
@@ -75,6 +80,11 @@ public class ScanMode {
         this.duration = duration;
     }
 
+    /**
+     * Gets the scan duration.
+     *
+     * @return the scan duration or a negative number when the scan duration is indefinitely.
+     */
     public long getDuration() {
         return duration;
     }
@@ -92,6 +102,12 @@ public class ScanMode {
         this.interval = interval;
     }
 
+
+    /**
+     * Gets the interval between subsequent scans.
+     *
+     * @return return the interval value or a negative value when the interval is not set.
+     */
     public long getInterval() {
         return interval;
     }

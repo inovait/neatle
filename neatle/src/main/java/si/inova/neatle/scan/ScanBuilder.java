@@ -27,10 +27,18 @@ import android.bluetooth.BluetoothAdapter;
 
 import java.util.UUID;
 
-public class ScanBuilder {
+/**
+ * Builder class for {@klink Scanner} objects. The actuall scanner implementation will be selected
+ * based on device OS.
+ */
+public final class ScanBuilder {
     private ScannerConfiguration scannerConfiguration = new ScannerConfiguration();
-    private Scanner.ScanEventListener scanEventListener;
 
+    /**
+     * Combine all the options and return a new {@link Scanner} object.
+     *
+     * @return a new Scanner object.
+     */
     public Scanner build() {
         return new LolipopLEScanner(scannerConfiguration);
     }
@@ -47,16 +55,38 @@ public class ScanBuilder {
         scannerConfiguration.addServiceUUID(serviceUUID);
     }
 
+    /**
+     * Sets the listener that will be called once per discovered device.
+     *
+     * @param listener the listener to be notified.
+     *
+     * @return this builder instance.
+     */
     public ScanBuilder setNewDeviceFoundListener(Scanner.NewDeviceFoundListener listener) {
         scannerConfiguration.setNewDeviceFoundListener(listener);
         return this;
     }
 
-    public ScanBuilder setScanEventListener(Scanner.ScanEventListener scanEventListener) {
-        scannerConfiguration.setScanEventListener(scanEventListener);
+    /**
+     * Sets the listener that will be called for every scan response.
+     *
+     * @param listener the listener to be notified.
+     *
+     * @return this builder instance.
+     */
+    public ScanBuilder setScanEventListener(Scanner.ScanEventListener listener) {
+        scannerConfiguration.setScanEventListener(listener);
         return this;
     }
 
+    /**
+     * Add a MAC address to the filter list and enables filtering of events by device MAC address.
+     *
+     * @param address device mac address. If the address is not valid {@link IllegalArgumentException}
+     *                will be thrown.
+     *
+     * @return this builder instance.
+     */
     public ScanBuilder addDeviceAddress(String address) {
         if (!BluetoothAdapter.checkBluetoothAddress(address)) {
             throw new IllegalArgumentException("Invalid address:" + address);

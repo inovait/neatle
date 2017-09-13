@@ -24,9 +24,12 @@
 package si.inova.neatle.scan;
 
 import android.bluetooth.BluetoothDevice;
-import android.provider.Settings;
 
-public class ScanEvent {
+/**
+ * This class represents a {@link Scanner} event and holds information associted with it. For
+ * example RSSI, the scan record.
+ */
+public final class ScanEvent {
 
     private final BluetoothDevice device;
     private final int rssi;
@@ -45,18 +48,35 @@ public class ScanEvent {
         this.when = System.currentTimeMillis();
     }
 
+    /**
+     * @return the device that emitted this events.
+     */
     public BluetoothDevice getDevice() {
         return device;
     }
 
+    /**
+     * Gets the "received strength indication".
+     *
+     * @return events RSSI value.
+     */
     public int getRssi() {
         return rssi;
     }
 
+    /**
+     * Gets the advertisement data.
+     *
+     * @return the ScanRecord or null if data is not available.
+     */
     public ScanRecord getScanRecord() {
         return scanRecord;
     }
 
+
+    /**
+     * @return the timestamp when this event was reported.
+     */
     public long getWhen() {
         return when;
     }

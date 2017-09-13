@@ -34,7 +34,12 @@ import java.util.UUID;
 import si.inova.neatle.Neatle;
 import si.inova.neatle.util.NeatleLogger;
 
-public class ScanRecord {
+/**
+ * Represents a scan record from a Bluetooth LE scan.
+ *
+ * @see android.bluetooth.le.ScanRecord
+ */
+public final class ScanRecord {
 
     private static final int FLAGS = 0x1;
 
@@ -56,10 +61,9 @@ public class ScanRecord {
     private final List<UUID> serviceUUIDs;
 
     private int flags = 0;
-//    private byte[] rawData;
 
 
-    public ScanRecord(int flags, SparseArray<byte[]> manufacturerData, List<UUID> serviceUUIDs, byte[] data) {
+    private ScanRecord(int flags, SparseArray<byte[]> manufacturerData, List<UUID> serviceUUIDs) {
         this.flags = flags;
         this.manufacturerData = manufacturerData;
         this.serviceUUIDs = serviceUUIDs;
@@ -75,6 +79,15 @@ public class ScanRecord {
         return serviceUUIDs;
     }
 
+    /**
+     * Create a scan record from the LE data payload.
+     *
+     * @param data scan record data reported by a BLE device.
+     *
+     * @return a parsed ScanRecord instance.
+     *
+     * @see  android.bluetooth.BluetoothAdapter.LeScanCallback
+     */
     public static ScanRecord createFromBytes(byte[] data) {
         SparseArray<byte[]> mfgData = new SparseArray<>();
         List<UUID> serviceUUIDs = new ArrayList<>();
@@ -144,7 +157,7 @@ public class ScanRecord {
             index += len;
         } while (index < data.length);
 
-        return new ScanRecord(flags, mfgData,serviceUUIDs, data);
+        return new ScanRecord(flags, mfgData,serviceUUIDs);
     }
 
     private static String bufferToString(byte bb[]) {
