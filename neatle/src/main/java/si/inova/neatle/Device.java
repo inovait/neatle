@@ -164,6 +164,7 @@ public class Device implements Connection {
     }
 
     @Override
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public void removeCharacteristicsChangedListener(UUID characteristicsUUID, CharacteristicsChangedListener listener) {
         boolean checkIdle;
         synchronized (lock) {
@@ -200,6 +201,7 @@ public class Device implements Connection {
         });
     }
 
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public void execute(BluetoothGattCallback callback) {
         NeatleLogger.d("Execute " + callback);
         boolean wasIdle;
@@ -219,6 +221,7 @@ public class Device implements Connection {
         }
     }
 
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     private void disconnectOnIdle() {
         handler.post(new Runnable() {
             @Override
@@ -411,6 +414,7 @@ public class Device implements Connection {
         notifyConnectionStateChange(oldState, newState);
 
         if (doDiscovery) {
+            NeatleLogger.d("Device unknown, let's discover it" + device.getName() + "[" + device.getAddress() + "]");
             discoverDevice();
         }
     }
