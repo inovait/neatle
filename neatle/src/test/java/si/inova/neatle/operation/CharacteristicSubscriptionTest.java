@@ -25,29 +25,35 @@
 package si.inova.neatle.operation;
 
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.os.Build;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-
-import java.util.UUID;
-
 import si.inova.neatle.BuildConfig;
 import si.inova.neatle.Device;
 import si.inova.neatle.Neatle;
 import si.inova.neatle.util.DeviceManager;
 
+import java.util.UUID;
+
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
@@ -103,5 +109,32 @@ public class CharacteristicSubscriptionTest {
         assertTrue(subscription.isStarted());
         subscription.stop();
         assertFalse(subscription.isStarted());
+    }
+
+    @Test
+    public void testStopWhileStillStarting() {
+        final BluetoothGatt bluetoothGatt = Mockito.mock(BluetoothGatt.class, Answers.RETURNS_DEEP_STUBS);
+
+        when(device.isConnected()).thenReturn(true);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) {
+                BluetoothGattCallback callback = invocationOnMock.getArgument(0);
+                callback.onServicesDiscovered(bluetoothGatt, BluetoothGatt.GATT_SUCCESS);
+
+                return null;
+            }
+        }).when(device).execute(Mockito.<BluetoothGattCallback>any());
+
+        subscription.start();
+
+        Robolectric.getForegroundThreadScheduler().pause();
+
+        subscription.stop();
+        subscription.start();
+
+        Robolectric.getForegroundThreadScheduler().unPause();
+
+        assertTrue(subscription.isStarted());
     }
 }
