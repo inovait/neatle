@@ -51,7 +51,7 @@ public final class ScanBuilder {
      *
      * @param serviceUUID the serviceUUID that will
      */
-    public void addServiceUUID(UUID serviceUUID) {
+    public ScanBuilder addServiceUUID(UUID serviceUUID) {
         scannerConfiguration.addServiceUUID(serviceUUID);
         return this;
     }
