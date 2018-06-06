@@ -160,7 +160,7 @@ class OperationImpl implements Operation {
         Device targetDevice;
         synchronized (this) {
             targetDevice = connection;
-            if (yielded) {
+            if (yielded || canceled) {
                 return;
             }
             if (lastResult != null && !lastResult.wasSuccessful()) {
