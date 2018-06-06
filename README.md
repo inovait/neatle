@@ -23,6 +23,40 @@ Replace `X.Y.Z` above with latest version: ![Download](https://api.bintray.com/p
 
 ## Examples
 
+### Scan for nearby devices
+
+`Scanner` can be used to scan for all nearby BTLE devices that advertise specific service.
+
+```java
+if (ContextCompat.checkSelfPermission(context,
+        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+    // We cannot scan as we do not have location permission
+    // TODO notify user
+
+    return;
+}
+
+// Scan for devices that can report battery status
+UUID batteryService = Neatle.createUUID(0x180f);
+
+ScanBuilder builder = Neatle.createScannerBuilder();
+builder.addServiceUUID(batteryService);
+
+builder.setNewDeviceFoundListener(new Scanner.NewDeviceFoundListener() {
+    @Override
+    public void onNewDeviceFound(ScanEvent e) {
+        System.out.println("Device " + e.getDevice() + " found!");
+    }
+});
+
+scanner = builder.build();
+scanner.startScanning(context);
+
+...
+
+scanner.stopScanning();
+```
+
 ### Monitor for connections:
 
 A `ConnectionMonitor` tries to connect to a specific BTLE device, and if configured with `setKeepAlive(true)`, will try to maintain that connection until the monitor is stopped.
@@ -50,6 +84,8 @@ It can have multiple read **and** write operations, that will be executed on the
 
 An operation can also be executed more than once.
 
+#### Read operation
+
 ```java
 BluetoothDevice device = Neatle.getDevice("00:11:22:33:44:55");
 UUID batteryService = Neatle.createUUID(0x180f);
@@ -69,6 +105,31 @@ Operation operation = Neatle.createOperationBuilder(context)
 operation.execute();
 ```
 
+#### Write operation
+
+```java
+BluetoothDevice device = Neatle.getDevice("00:11:22:33:44:55");
+UUID serviceToWrite = ...
+final UUID characteristicToWrite = ...
+byte[] dataToWrite = ...
+
+InputSource inputSource = new ByteArrayInputSource(dataToWrite);
+
+Operation operation = Neatle.createOperationBuilder(context)
+        .write(serviceToWrite, characteristicToWrite, inputSource)
+        .onFinished(new SimpleOperationObserver() {
+            @Override
+            public void onOperationFinished(Operation op, OperationResults results) {
+                if (results.wasSuccessful()) {
+                    System.out.println("Write was successful!");
+                } else {
+                    System.out.println("Write failed! ");
+                }
+            }
+        })
+        .build(device);
+operation.execute();
+```
 
 ### Create a subscription:
 
