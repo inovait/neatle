@@ -136,6 +136,11 @@ class WriteCommand extends SingleCharacteristicsCommand {
                 return;
             }
             if (chunk == null) {
+                try {
+                    buffer.close();
+                } catch (IOException e) {
+                    // Closing, ignore exception
+                }
                 finish(CommandResult.createEmptySuccess(characteristicUUID));
                 return;
             }
@@ -177,6 +182,7 @@ class WriteCommand extends SingleCharacteristicsCommand {
                     });
 
                     if (chunk == null) {
+                        buffer.close();
                         return;
                     }
 

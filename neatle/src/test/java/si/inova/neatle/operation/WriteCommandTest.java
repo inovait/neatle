@@ -249,6 +249,7 @@ public class WriteCommandTest {
         CommandResult result = CommandResult.createEmptySuccess(characteristicUUID);
         verify(commandObserver, times(1)).finished(eq(writeCommand), refEq(result, "timestamp"));
         verify(operationCommandObserver, times(1)).finished(eq(writeCommand), refEq(result, "timestamp"));
+        verify(inputSource).close();
     }
 
     @Test(timeout = 1000)
@@ -281,6 +282,7 @@ public class WriteCommandTest {
         CommandResult result = CommandResult.createEmptySuccess(characteristicUUID);
         verify(commandObserver, only()).finished(eq(writeCommand), refEq(result, "timestamp"));
         verify(operationCommandObserver, only()).finished(eq(writeCommand), refEq(result, "timestamp"));
+        verify(inputSource).close();
     }
 
     @Test
