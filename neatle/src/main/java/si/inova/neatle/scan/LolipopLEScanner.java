@@ -25,7 +25,9 @@ package si.inova.neatle.scan;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.os.Build;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -49,7 +51,7 @@ class LolipopLEScanner extends BaseScanner {
     protected void onStart(BluetoothAdapter adapter, int scanMode) {
         boolean ret;
         UUID uuids[] = scannerConfiguration.getServiceUUIDs();
-        if (uuids.length > 0) {
+        if (uuids.length > 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ret = adapter.startLeScan(uuids, callback);
         } else {
             ret = adapter.startLeScan(callback);
@@ -94,6 +96,11 @@ class LolipopLEScanner extends BaseScanner {
                 return;
             }
             ScanEvent se = new ScanEvent(device, rssi, scanRecord);
+            if (!se.getScanRecord().getServiceUUIDs()
+                    .containsAll(Arrays.asList(scannerConfiguration.getServiceUUIDs()))) {
+                return;
+            }
+
             onScanEvent(se);
         }
     }
