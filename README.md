@@ -15,9 +15,11 @@ It provides a single entry point for all BTLE related operations.
 Include the NeatLE library in your Android project as a Gradle dependency:
 ```groovy
 dependencies {
-    compile 'si.inova:neatle:0.9.4'
+    compile 'si.inova:neatle:X.Y.Z'
 }
 ```
+
+Replace `X.Y.Z` above with latest version: ![Download](https://api.bintray.com/packages/inovait/NeatLE/neatle/images/download.svg)
 
 ## Examples
 

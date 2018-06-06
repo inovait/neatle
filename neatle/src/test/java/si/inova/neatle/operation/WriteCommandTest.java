@@ -35,15 +35,18 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import si.inova.neatle.BuildConfig;
 import si.inova.neatle.Device;
 import si.inova.neatle.Neatle;
+import si.inova.neatle.source.AsyncInputSource;
 import si.inova.neatle.source.InputSource;
 import si.inova.neatle.source.StringInputSource;
 
@@ -52,6 +55,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -245,6 +249,40 @@ public class WriteCommandTest {
         CommandResult result = CommandResult.createEmptySuccess(characteristicUUID);
         verify(commandObserver, times(1)).finished(eq(writeCommand), refEq(result, "timestamp"));
         verify(operationCommandObserver, times(1)).finished(eq(writeCommand), refEq(result, "timestamp"));
+        verify(inputSource).close();
+    }
+
+    @Test(timeout = 1000)
+    public void testOnCharacteristicWriteFinishedAsyncSource() throws IOException {
+        when(gatt.getService(eq(serviceUUID))).thenReturn(gattService);
+        when(gattService.getCharacteristic(characteristicUUID)).thenReturn(gattCharacteristic);
+        when(gatt.writeCharacteristic(eq(gattCharacteristic))).thenReturn(true);
+        AsyncInputSource inputSource = Mockito.mock(AsyncInputSource.class);
+        when(inputSource.nextChunk()).thenReturn(new byte[]{12, 21});
+
+        writeCommand = new WriteCommand(
+                serviceUUID,
+                characteristicUUID,
+                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT,
+                inputSource,
+                commandObserver);
+
+        writeCommand.execute(device, operationCommandObserver, gatt);
+
+        when(inputSource.nextChunk()).thenReturn(null);
+        writeCommand.onCharacteristicWrite(gatt, gattCharacteristic, BluetoothGatt.GATT_SUCCESS);
+
+        while (writeCommand.readerThread.isAlive()) {
+            Robolectric.getForegroundThreadScheduler().advanceBy(0, TimeUnit.MILLISECONDS);
+            Thread.yield();
+        }
+
+        Robolectric.getForegroundThreadScheduler().advanceBy(0, TimeUnit.MILLISECONDS);
+
+        CommandResult result = CommandResult.createEmptySuccess(characteristicUUID);
+        verify(commandObserver, only()).finished(eq(writeCommand), refEq(result, "timestamp"));
+        verify(operationCommandObserver, only()).finished(eq(writeCommand), refEq(result, "timestamp"));
+        verify(inputSource).close();
     }
 
     @Test
