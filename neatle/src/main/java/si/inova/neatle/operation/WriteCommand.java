@@ -28,6 +28,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.Handler;
+import android.support.annotation.VisibleForTesting;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -48,7 +49,8 @@ class WriteCommand extends SingleCharacteristicsCommand {
     private final Handler handler = new Handler();
     private final Object bufferReadLock = new Object();
     private final boolean asyncMode;
-    private Thread readerThread;
+    @VisibleForTesting
+    Thread readerThread;
 
     WriteCommand(UUID serviceUUID, UUID characteristicsUUID, int writeType, InputSource buffer, CommandObserver observer) {
         super(serviceUUID, characteristicsUUID, observer);
@@ -134,6 +136,11 @@ class WriteCommand extends SingleCharacteristicsCommand {
                 return;
             }
             if (chunk == null) {
+                try {
+                    buffer.close();
+                } catch (IOException e) {
+                    // Closing, ignore exception
+                }
                 finish(CommandResult.createEmptySuccess(characteristicUUID));
                 return;
             }
@@ -174,12 +181,13 @@ class WriteCommand extends SingleCharacteristicsCommand {
                         }
                     });
 
-                    synchronized (bufferReadLock) {
-                        bufferReadLock.wait();
+                    if (chunk == null) {
+                        buffer.close();
+                        return;
                     }
 
-                    if (chunk == null) {
-                        break;
+                    synchronized (bufferReadLock) {
+                        bufferReadLock.wait();
                     }
                 }
             } catch (IOException | InterruptedException ex) {
