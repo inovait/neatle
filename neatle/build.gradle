@@ -61,6 +61,8 @@ android {
                 includeNoLocationClasses = true
             }
         }
+
+        unitTests.returnDefaultValues = true
     }
 
     libraryVariants.all { variant ->
