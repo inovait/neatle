@@ -51,8 +51,9 @@ public final class ScanBuilder {
      *
      * @param serviceUUID the serviceUUID that will
      */
-    public void addServiceUUID(UUID serviceUUID) {
+    public ScanBuilder addServiceUUID(UUID serviceUUID) {
         scannerConfiguration.addServiceUUID(serviceUUID);
+        return this;
     }
 
     /**
@@ -92,6 +93,6 @@ public final class ScanBuilder {
             throw new IllegalArgumentException("Invalid address:" + address);
         }
         scannerConfiguration.addDeviceAddress(address);
-        return null;
+        return this;
     }
 }
