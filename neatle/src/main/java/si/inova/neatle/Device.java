@@ -384,9 +384,6 @@ public class Device implements Connection {
             if (isConnected() || isConnecting()) {
                 return;
             }
-            if (this.gatt != null) {
-                throw new IllegalStateException();
-            }
 
             oldState = state;
             if (!adapterEnabled) {
@@ -423,6 +420,12 @@ public class Device implements Connection {
     private void connectWithGatt() {
         int oldState;
         int newState = BluetoothGatt.STATE_CONNECTING;
+
+        if (this.gatt != null) {
+            gatt.connect();
+            return;
+        }
+
         synchronized (lock) {
             oldState = state;
             state = BluetoothGatt.STATE_CONNECTING;
@@ -484,6 +487,10 @@ public class Device implements Connection {
     }
 
     private void connectionFailed(int status) {
+        connectionFailed(status, true);
+    }
+
+    private void connectionFailed(int status, boolean disconnect) {
         BluetoothGattCallback current;
         int oldState;
         int newState;
@@ -506,8 +513,11 @@ public class Device implements Connection {
         for (BluetoothGattCallback cb : queueCopy) {
             cb.onConnectionStateChange(gatt, status, BluetoothGatt.STATE_DISCONNECTED);
         }
-        synchronized (lock) {
-            this.gatt = null;
+
+        if (disconnect) {
+            synchronized (lock) {
+                this.gatt = null;
+            }
         }
 
         notifyConnectionStateChange(oldState, newState);
@@ -569,8 +579,12 @@ public class Device implements Connection {
             }
 
             if (!didConnect) {
-                gatt.close();
-                connectionFailed(status);
+                // status code 19 should not be handled like a true disconnect
+                if (status != 19) {
+                  gatt.close();
+                }
+
+                connectionFailed(status, status != 19);
             } else {
                 connectionSuccess();
             }
