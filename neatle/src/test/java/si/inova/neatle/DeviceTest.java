@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.content.Context;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -57,7 +58,8 @@ public class DeviceTest {
         // 2. Immediatelly try to connect again
         device.connect();
 
-        // We should not get any exceptions
+        // This test checks for the exception. If we got so far, test passed
+        Assert.assertTrue(true);
     }
 
     @Test
@@ -114,6 +116,7 @@ public class DeviceTest {
         // 3. Immediatelly try to connect again
         device.connect();
 
-        // We should not get any exceptions
+        // This test checks for the exception. If we got so far, test passed
+        Assert.assertTrue(true);
     }
 }
