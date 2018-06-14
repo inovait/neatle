@@ -36,6 +36,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -420,7 +421,8 @@ public class Device implements Connection {
         }
     }
 
-    private void connectWithGatt() {
+    @VisibleForTesting
+    void connectWithGatt() {
         int oldState;
         int newState = BluetoothGatt.STATE_CONNECTING;
         synchronized (lock) {
@@ -432,6 +434,10 @@ public class Device implements Connection {
         BluetoothGatt gatt = device.connectGatt(context, false, callback);
 
         synchronized (lock) {
+            if (state == BluetoothGatt.STATE_DISCONNECTED) {
+                gatt = null;
+            }
+
             this.gatt = gatt;
             if (gatt == null) {
                 state = BluetoothGatt.STATE_DISCONNECTED;
@@ -489,7 +495,7 @@ public class Device implements Connection {
         int newState;
         LinkedList<BluetoothGattCallback> queueCopy;
 
-
+        BluetoothGatt oldGatt;
         synchronized (lock) {
             oldState = state;
             state = BluetoothGatt.STATE_DISCONNECTED;
@@ -497,17 +503,17 @@ public class Device implements Connection {
             serviceDiscovered = false;
             current = currentCallback;
             queueCopy = new LinkedList<>(queue);
+
+            oldGatt = this.gatt;
+            this.gatt = null;
         }
 
         NeatleLogger.i("Connection attempt failed. Notifying all pending operations");
 
-        current.onConnectionStateChange(this.gatt, status, BluetoothGatt.STATE_DISCONNECTED);
+        current.onConnectionStateChange(oldGatt, status, BluetoothGatt.STATE_DISCONNECTED);
 
         for (BluetoothGattCallback cb : queueCopy) {
-            cb.onConnectionStateChange(gatt, status, BluetoothGatt.STATE_DISCONNECTED);
-        }
-        synchronized (lock) {
-            this.gatt = null;
+            cb.onConnectionStateChange(oldGatt, status, BluetoothGatt.STATE_DISCONNECTED);
         }
 
         notifyConnectionStateChange(oldState, newState);

@@ -35,6 +35,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -286,6 +288,54 @@ public class WriteCommandTest {
     }
 
     @Test
+    public void testInputSourceClosesOnError() throws IOException {
+        when(gatt.getService(eq(serviceUUID))).thenReturn(gattService);
+        when(gattService.getCharacteristic(characteristicUUID)).thenReturn(gattCharacteristic);
+        when(gatt.writeCharacteristic(eq(gattCharacteristic))).thenReturn(true);
+        InputSource inputSource = Mockito.mock(InputSource.class);
+        when(inputSource.nextChunk()).thenThrow(new IOException());
+
+        writeCommand = new WriteCommand(
+                serviceUUID,
+                characteristicUUID,
+                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT,
+                inputSource,
+                commandObserver);
+
+        writeCommand.execute(device, operationCommandObserver, gatt);
+        writeCommand.onCharacteristicWrite(gatt, gattCharacteristic, BluetoothGatt.GATT_SUCCESS);
+
+        verify(inputSource).close();
+    }
+
+    @Test(timeout = 1000)
+    public void testAsyncInputSourceClosesOnError() throws IOException {
+        when(gatt.getService(eq(serviceUUID))).thenReturn(gattService);
+        when(gattService.getCharacteristic(characteristicUUID)).thenReturn(gattCharacteristic);
+        when(gatt.writeCharacteristic(eq(gattCharacteristic))).thenReturn(true);
+        AsyncInputSource inputSource = Mockito.mock(AsyncInputSource.class);
+        when(inputSource.nextChunk()).thenThrow(new IOException());
+
+        writeCommand = new WriteCommand(
+                serviceUUID,
+                characteristicUUID,
+                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT,
+                inputSource,
+                commandObserver);
+
+        writeCommand.execute(device, operationCommandObserver, gatt);
+        writeCommand.onCharacteristicWrite(gatt, gattCharacteristic, BluetoothGatt.GATT_SUCCESS);
+
+        while (writeCommand.readerThread.isAlive()) {
+            Robolectric.getForegroundThreadScheduler().advanceBy(0, TimeUnit.MILLISECONDS);
+            Thread.yield();
+        }
+        Robolectric.getForegroundThreadScheduler().advanceBy(0, TimeUnit.MILLISECONDS);
+
+        verify(inputSource).close();
+    }
+
+    @Test
     public void testOnCharacteristicWriteNextChunk() throws IOException {
         when(gatt.getService(eq(serviceUUID))).thenReturn(gattService);
         when(gattService.getCharacteristic(characteristicUUID)).thenReturn(gattCharacteristic);
@@ -315,6 +365,40 @@ public class WriteCommandTest {
         writeCommand.onError(BluetoothGatt.GATT_FAILURE);
         verifyCommandFail();
     }
+    @Test
+    public void testAsyncOnError() throws Exception {
+        when(gatt.getService(eq(serviceUUID))).thenReturn(gattService);
+        when(gattService.getCharacteristic(characteristicUUID)).thenReturn(gattCharacteristic);
+        when(gatt.writeCharacteristic(eq(gattCharacteristic))).thenReturn(true);
+
+        AsyncInputSource inputSource = Mockito.mock(AsyncInputSource.class);
+        when(inputSource.nextChunk()).thenAnswer(new Answer<byte[]>()
+        {
+            @Override
+            public byte[] answer(InvocationOnMock invocationOnMock) {
+                writeCommand.onError(BluetoothGatt.GATT_FAILURE);
+                return new byte[]{12, 21};
+            }
+        });
+
+        writeCommand = new WriteCommand(
+                serviceUUID,
+                characteristicUUID,
+                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT,
+                inputSource,
+                commandObserver);
+
+        writeCommand.execute(device, operationCommandObserver, gatt);
+
+        while (writeCommand.readerThread.isAlive()) {
+            Robolectric.getForegroundThreadScheduler().advanceBy(0, TimeUnit.MILLISECONDS);
+            Thread.yield();
+        }
+        Robolectric.getForegroundThreadScheduler().advanceBy(0, TimeUnit.MILLISECONDS);
+
+        verifyCommandFail();
+        verify(inputSource).close();
+    }
 
     @Test
     public void testToStringBecauseWhyNot() {
@@ -323,7 +407,7 @@ public class WriteCommandTest {
 
     private void verifyCommandFail() {
         CommandResult result = CommandResult.createErrorResult(characteristicUUID, BluetoothGatt.GATT_FAILURE);
-        verify(commandObserver, times(1)).finished(eq(writeCommand), refEq(result, "timestamp"));
-        verify(operationCommandObserver, times(1)).finished(eq(writeCommand), refEq(result, "timestamp"));
+        verify(commandObserver, only()).finished(eq(writeCommand), refEq(result, "timestamp"));
+        verify(operationCommandObserver, only()).finished(eq(writeCommand), refEq(result, "timestamp"));
     }
 }
