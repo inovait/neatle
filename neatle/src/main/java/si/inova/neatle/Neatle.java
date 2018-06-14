@@ -37,6 +37,7 @@ import si.inova.neatle.monitor.ConnectionMonitorImpl;
 import si.inova.neatle.operation.CharacteristicSubscription;
 import si.inova.neatle.operation.CharacteristicSubscriptionImpl;
 import si.inova.neatle.operation.OperationBuilder;
+import si.inova.neatle.scan.ScanBuilder;
 import si.inova.neatle.util.DeviceManager;
 
 /**
@@ -118,7 +119,7 @@ public class Neatle {
      * @param mac the mac address to validate
      * @return true if it's a valid address, otherwise false
      */
-    public static boolean isMacValid(String mac) {
+    public static boolean isMacValid(@NonNull String mac) {
         return BluetoothAdapter.checkBluetoothAddress(mac.toUpperCase());
     }
 
@@ -129,10 +130,14 @@ public class Neatle {
      * @return the created BT device.
      */
     public static BluetoothDevice getDevice(@NonNull String mac) {
-        mac = mac.toUpperCase();
-        if (isMacValid(mac)) {
-            return BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
+        String upperMac = mac.toUpperCase();
+        if (isMacValid(upperMac)) {
+            return BluetoothAdapter.getDefaultAdapter().getRemoteDevice(upperMac);
         }
         throw new UnsupportedOperationException("Device mac not recognized.");
+    }
+
+    public static ScanBuilder createScannerBuilder() {
+        return new ScanBuilder();
     }
 }

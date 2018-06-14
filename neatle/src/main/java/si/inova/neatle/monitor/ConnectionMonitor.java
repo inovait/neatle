@@ -26,6 +26,8 @@ package si.inova.neatle.monitor;
 
 import android.bluetooth.BluetoothDevice;
 
+import si.inova.neatle.ServicesDiscoveredListener;
+
 /**
  * Monitors the state of a connection with a bluetooth device.
  */
@@ -45,12 +47,23 @@ public interface ConnectionMonitor {
      * Adds a connection state listener to this monitor. The listener will be triggered on any
      * changes to the connection (e.g. connect / disconnect).
      *
-     * @param connectionStateListener the lsitener.
+     * @param connectionStateListener the connectionStateListener.
      */
     void setOnConnectionStateListener(ConnectionStateListener connectionStateListener);
 
     /**
-     * Starts this connection monitor, if it's not already running.
+     * Sets the services discovered listener. The listener will be triggered after the device
+     * is connected and service have been discovered.
+     *
+     * @see Connection#getServices()
+     *
+     * @param serviceDiscoveredListener
+     */
+    void setOnServiceDiscoveredListener(ServicesDiscoveredListener serviceDiscoveredListener);
+
+    /**
+     * Starts this connection monitor, if it's not already running. If keepAlive is set this will
+     * also initiate a connection request.
      */
     void start();
 
@@ -65,4 +78,9 @@ public interface ConnectionMonitor {
      * @return the bluetooth device.
      */
     BluetoothDevice getDevice();
+
+    /**
+     * Gets the connection object which is being monitored.
+     */
+    Connection getConnection();
 }

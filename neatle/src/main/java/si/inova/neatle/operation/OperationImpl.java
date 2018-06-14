@@ -229,17 +229,17 @@ class OperationImpl implements Operation {
     private static class EmptyCommand extends Command {
 
         private EmptyCommand() {
-            super(null, null, null);
+            super(null);
         }
 
         @Override
-        protected void execute(Connection connection, CommandObserver observer, BluetoothGatt gatt) {
-            super.execute(connection, observer, gatt);
-            throw new IllegalStateException("Should not be called");
+        protected void start(Connection connection, BluetoothGatt gatt) {
+            //finish();
         }
 
         @Override
         protected void onError(int error) {
+            //do nothing
         }
     }
 
@@ -274,6 +274,7 @@ class OperationImpl implements Operation {
     private class GattCallback extends BluetoothGattCallback {
 
         @Override
+        @SuppressWarnings("PMD.CompareObjectsWithEquals")
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             NeatleLogger.i("OperationImpl: onConnectionStateChange, state:" + status + ", newState: " + newState);
 
@@ -319,6 +320,26 @@ class OperationImpl implements Operation {
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             currentCommand.onDescriptorWrite(gatt, descriptor, status);
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            currentCommand.onCharacteristicChanged(gatt, characteristic);
+        }
+
+        @Override
+        public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
+            currentCommand.onReliableWriteCompleted(gatt, status);
+        }
+
+        @Override
+        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
+            currentCommand.onReadRemoteRssi(gatt, rssi, status);
+        }
+
+        @Override
+        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
+            currentCommand.onMtuChanged(gatt, mtu, status);
         }
 
         @Override

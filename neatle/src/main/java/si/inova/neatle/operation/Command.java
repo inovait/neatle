@@ -28,12 +28,17 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.support.annotation.CallSuper;
-import android.support.annotation.RestrictTo;
-
-import java.util.UUID;
 
 import si.inova.neatle.monitor.Connection;
 
+/**
+ * Represents a Neatle command. A command is low level building block that interacts directly with
+ * {@link BluetoothGatt}.
+ *
+ * <b>Note: callback methods can and will be called from different threads.</b>
+ *
+ * @see OperationBuilder#executeCommand(Command)
+ */
 public abstract class Command {
 
     public static final int SERVICE_NOT_FOUND = BluetoothGatt.GATT_FAILURE + 10;
@@ -42,31 +47,43 @@ public abstract class Command {
 
     private final Object lock = new Object();
 
-    protected final UUID serviceUUID;
-    protected final UUID characteristicUUID;
-
     private final CommandObserver observer;
     private CommandObserver operationCommandObserver;
 
-    Command(UUID serviceUUID, UUID characteristicUUID, CommandObserver observer) {
-        this.serviceUUID = serviceUUID;
-        this.characteristicUUID = characteristicUUID;
+    protected Command(CommandObserver observer) {
         this.observer = observer;
     }
 
     @CallSuper
-    protected void execute(Connection connection, CommandObserver operationCommandObserver, BluetoothGatt gatt) {
+    protected final void execute(Connection connection, CommandObserver operationCommandObserver, BluetoothGatt gatt) {
         synchronized (lock) {
             this.operationCommandObserver = operationCommandObserver;
         }
+        start(connection, gatt);
     }
 
+    /**
+     * Called when the command should start executing. When a command
+     * is done with processing, it must call finish to release
+     * control of the "gatt", so other commands that need it can
+     * execute.
+     *
+     * When the method is called, the connection will be already established and all services
+     * will be already discovered.
+     *
+     * @param connection the connection on which the command will operate
+     * @param gatt bluettoth gat
+     */
+    abstract protected void start(Connection connection, BluetoothGatt gatt);
+
     @CallSuper
-    protected void finish(CommandResult result) {
+    protected final void finish(CommandResult result) {
         CommandObserver oco;
         synchronized (lock) {
             oco = operationCommandObserver;
         }
+
+        onFinished(result);
 
         oco.finished(this, result);
         if (observer != null) {
@@ -74,33 +91,76 @@ public abstract class Command {
         }
     }
 
+    /**
+     * Called when the command finished, either successfully or not but.
+     *
+     * @param result the results of the command
+     */
+    protected void onFinished(CommandResult result) {
+        //does nothing on it's own
+    }
+
     protected abstract void onError(int error);
 
-    void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+    protected void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         if (status != BluetoothGatt.GATT_SUCCESS || newState != BluetoothGatt.STATE_CONNECTED) {
             onError(BluetoothGatt.GATT_FAILURE);
         }
     }
 
-    void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+    /**
+     * @see android.bluetooth.BluetoothGattCallback#onCharacteristicRead(BluetoothGatt, BluetoothGattCharacteristic, int)
+     */
+    protected void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        //do nothing by default
     }
 
-    void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+    /**
+     * @see android.bluetooth.BluetoothGattCallback#onCharacteristicWrite(BluetoothGatt, BluetoothGattCharacteristic, int)
+     */
+    protected void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        //do nothing by default
     }
 
-    void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+    /**
+     * @see android.bluetooth.BluetoothGattCallback#onDescriptorRead(BluetoothGatt, BluetoothGattDescriptor, int)
+     */
+    protected void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+        //do nothing by default
     }
 
-    void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+    /**
+     * @see android.bluetooth.BluetoothGattCallback#onDescriptorWrite(BluetoothGatt, BluetoothGattDescriptor, int)
+     */
+    protected void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+        //do nothing by default
     }
 
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    UUID getServiceUUID() {
-        return serviceUUID;
+    /**
+     * @see android.bluetooth.BluetoothGattCallback#onCharacteristicChanged(BluetoothGatt, BluetoothGattCharacteristic)
+     */
+    protected void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        //do nothing by default
     }
 
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    UUID getCharacteristicUUID() {
-        return characteristicUUID;
+    /**
+     * @see android.bluetooth.BluetoothGattCallback#onReliableWriteCompleted(BluetoothGatt, int)
+     */
+    protected void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
+        //do nothing by default
+    }
+
+    /**
+     * @see android.bluetooth.BluetoothGattCallback#onReliableWriteCompleted(BluetoothGatt, int)
+     */
+    protected void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
+        //do nothing by default
+    }
+
+    /**
+     * @see android.bluetooth.BluetoothGattCallback#onMtuChanged(BluetoothGatt, int, int)
+     */
+    protected void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
+        //do nothing by default
     }
 }

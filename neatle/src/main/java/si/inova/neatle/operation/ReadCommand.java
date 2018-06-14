@@ -33,16 +33,14 @@ import java.util.UUID;
 import si.inova.neatle.monitor.Connection;
 import si.inova.neatle.util.NeatleLogger;
 
-class ReadCommand extends Command {
+class ReadCommand extends SingleCharacteristicsCommand {
 
     ReadCommand(UUID serviceUUID, UUID characteristicUUID, CommandObserver observer) {
         super(serviceUUID, characteristicUUID, observer);
     }
 
     @Override
-    public void execute(Connection connection, CommandObserver commandObserver, BluetoothGatt gatt) {
-        super.execute(connection, commandObserver, gatt);
-
+    protected void start(Connection connection, BluetoothGatt gatt) {
         BluetoothGattService service = gatt.getService(serviceUUID);
         if (service != null) {
             BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);

@@ -73,6 +73,7 @@ public class Device implements Connection {
     private final CopyOnWriteArrayList<ConnectionHandler> connectionHandlers = new CopyOnWriteArrayList<>();
     private final HashMap<UUID, CopyOnWriteArrayList<CharacteristicsChangedListener>> changeListeners = new HashMap<>();
     private final CopyOnWriteArrayList<ConnectionStateListener> connectionStateListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<ServicesDiscoveredListener> servicesDiscoveredListeners = new CopyOnWriteArrayList<>();
 
     private BluetoothAdapter.LeScanCallback discoverCallback = new ScanForDeviceCallback();
     private Runnable discoverWatchdog = new ScanForDeviceTimeout();
@@ -103,6 +104,14 @@ public class Device implements Connection {
     @Override
     public void removeConnectionStateListener(ConnectionStateListener connectionStateListener) {
         connectionStateListeners.remove(connectionStateListener);
+    }
+
+    public void addServicesDiscoveredListener(ServicesDiscoveredListener listener) {
+        servicesDiscoveredListeners.add(listener);
+    }
+
+    public void removeServicesDiscoveredListener(ServicesDiscoveredListener listener) {
+        servicesDiscoveredListeners.remove(listener);
     }
 
     @Override
@@ -155,6 +164,7 @@ public class Device implements Connection {
     }
 
     @Override
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public void removeCharacteristicsChangedListener(UUID characteristicsUUID, CharacteristicsChangedListener listener) {
         boolean checkIdle;
         synchronized (lock) {
@@ -181,7 +191,7 @@ public class Device implements Connection {
                     list = changeListeners.get(change.getUUID());
                 }
                 if (list == null) {
-                    NeatleLogger.d("Got a characteristic change, but nobody is interested");
+                    //a command could have enable a notification by it's own
                     return;
                 }
                 for (CharacteristicsChangedListener listener : list) {
@@ -191,6 +201,7 @@ public class Device implements Connection {
         });
     }
 
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public void execute(BluetoothGattCallback callback) {
         NeatleLogger.d("Execute " + callback);
         boolean wasIdle;
@@ -210,6 +221,7 @@ public class Device implements Connection {
         }
     }
 
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     private void disconnectOnIdle() {
         handler.post(new Runnable() {
             @Override
@@ -322,21 +334,16 @@ public class Device implements Connection {
         }
     }
 
-    private void deviceDiscovered(BluetoothDevice device) {
+    private void deviceDiscovered() {
         stopDiscovery();
 
         int state = getState();
-//        if (device.getType() != BluetoothDevice.DEVICE_TYPE_UNKNOWN) {
         if (state == BluetoothGatt.STATE_CONNECTING) {
             NeatleLogger.i("Device discovered. Continuing with connecting");
             connectWithGatt();
         } else {
             NeatleLogger.e("Device discovered but no longer connecting");
         }
-//        } else {
-//            NeatleLogger.e("Device discovered but is of unknown type.");
-//            connectionFailed(BluetoothGatt.GATT_FAILURE);
-//        }
     }
 
     private void stopDiscovery() {
@@ -346,6 +353,7 @@ public class Device implements Connection {
         handler.removeCallbacks(discoverWatchdog);
     }
 
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     public void executeFinished(BluetoothGattCallback callback) {
         synchronized (lock) {
             if (callback == currentCallback) {
@@ -382,8 +390,10 @@ public class Device implements Connection {
 
             oldState = state;
             if (!adapterEnabled) {
-                newState = BluetoothAdapter.STATE_OFF;
+                //newState = BluetoothAdapter.STATE_OFF;
                 NeatleLogger.d("BT off. Won't connect to " + device.getName() + "[" + device.getAddress() + "]");
+                connectionFailed(BluetoothGatt.GATT_FAILURE);
+                return;
             } else {
                 newState = BluetoothGatt.STATE_CONNECTING;
                 if (device.getType() == BluetoothDevice.DEVICE_TYPE_UNKNOWN) {
@@ -405,6 +415,7 @@ public class Device implements Connection {
         notifyConnectionStateChange(oldState, newState);
 
         if (doDiscovery) {
+            NeatleLogger.d("Device unknown, let's discover it" + device.getName() + "[" + device.getAddress() + "]");
             discoverDevice();
         }
     }
@@ -429,6 +440,24 @@ public class Device implements Connection {
         }
 
         notifyConnectionStateChange(oldState, newState);
+    }
+
+    private void notifyServicesDiscovered() {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (Device.this.lock) {
+                    //state has changed after we scheduled this runnable
+                    if (!areServicesDiscovered()) {
+                        NeatleLogger.d("notifyServicesDiscovered expired.");
+                        return;
+                    }
+                }
+                for (ServicesDiscoveredListener l : servicesDiscoveredListeners) {
+                    l.onServicesDiscovered(Device.this);
+                }
+            }
+        });
     }
 
     private void notifyConnectionStateChange(final int oldState, final int newState) {
@@ -557,6 +586,7 @@ public class Device implements Connection {
             synchronized (lock) {
                 serviceDiscovered = true;
             }
+            notifyServicesDiscovered();
             resume();
         }
 
@@ -643,7 +673,7 @@ public class Device implements Connection {
         @Override
         public void onLeScan(BluetoothDevice found, int rssi, byte[] scanRecord) {
             if (found.getAddress().equals(device.getAddress())) {
-                deviceDiscovered(found);
+                deviceDiscovered();
             }
         }
     }

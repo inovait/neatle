@@ -38,7 +38,7 @@ import java.util.UUID;
 import si.inova.neatle.monitor.Connection;
 import si.inova.neatle.util.NeatleLogger;
 
-class SubscribeCommand extends Command {
+class SubscribeCommand extends SingleCharacteristicsCommand {
 
     private static final UUID CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
@@ -51,9 +51,7 @@ class SubscribeCommand extends Command {
     }
 
     @Override
-    protected void execute(Connection connection, CommandObserver commandObserver, BluetoothGatt gatt) {
-        super.execute(connection, commandObserver, gatt);
-
+    protected void start(Connection connection, BluetoothGatt gatt) {
         if (type == Type.UNSUBSCRIBE && connection.getCharacteristicsChangedListenerCount(characteristicUUID) > 0) {
             NeatleLogger.d("Won't unsubscribe on " + characteristicUUID + " since it has registered listeners");
             finish(CommandResult.createEmptySuccess(characteristicUUID));
