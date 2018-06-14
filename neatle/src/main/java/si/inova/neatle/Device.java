@@ -495,7 +495,7 @@ public class Device implements Connection {
         int newState;
         LinkedList<BluetoothGattCallback> queueCopy;
 
-
+        BluetoothGatt oldGatt;
         synchronized (lock) {
             oldState = state;
             state = BluetoothGatt.STATE_DISCONNECTED;
@@ -503,17 +503,17 @@ public class Device implements Connection {
             serviceDiscovered = false;
             current = currentCallback;
             queueCopy = new LinkedList<>(queue);
+
+            oldGatt = this.gatt;
+            this.gatt = null;
         }
 
         NeatleLogger.i("Connection attempt failed. Notifying all pending operations");
 
-        current.onConnectionStateChange(this.gatt, status, BluetoothGatt.STATE_DISCONNECTED);
+        current.onConnectionStateChange(oldGatt, status, BluetoothGatt.STATE_DISCONNECTED);
 
         for (BluetoothGattCallback cb : queueCopy) {
-            cb.onConnectionStateChange(gatt, status, BluetoothGatt.STATE_DISCONNECTED);
-        }
-        synchronized (lock) {
-            this.gatt = null;
+            cb.onConnectionStateChange(oldGatt, status, BluetoothGatt.STATE_DISCONNECTED);
         }
 
         notifyConnectionStateChange(oldState, newState);
