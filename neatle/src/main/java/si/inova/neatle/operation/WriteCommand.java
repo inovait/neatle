@@ -133,13 +133,18 @@ class WriteCommand extends SingleCharacteristicsCommand {
             } catch (IOException ex) {
                 NeatleLogger.e("Failed to get the first chunk", ex);
                 finish(CommandResult.createErrorResult(characteristicUUID, BluetoothGatt.GATT_FAILURE));
+                try {
+                    buffer.close();
+                } catch (IOException e) {
+                    NeatleLogger.e("Failed to close input source", e);
+                }
                 return;
             }
             if (chunk == null) {
                 try {
                     buffer.close();
                 } catch (IOException e) {
-                    // Closing, ignore exception
+                    NeatleLogger.e("Failed to close input source", e);
                 }
                 finish(CommandResult.createEmptySuccess(characteristicUUID));
                 return;

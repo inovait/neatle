@@ -286,6 +286,54 @@ public class WriteCommandTest {
     }
 
     @Test
+    public void testInputSourceClosesOnError() throws IOException {
+        when(gatt.getService(eq(serviceUUID))).thenReturn(gattService);
+        when(gattService.getCharacteristic(characteristicUUID)).thenReturn(gattCharacteristic);
+        when(gatt.writeCharacteristic(eq(gattCharacteristic))).thenReturn(true);
+        InputSource inputSource = Mockito.mock(InputSource.class);
+        when(inputSource.nextChunk()).thenThrow(new IOException());
+
+        writeCommand = new WriteCommand(
+                serviceUUID,
+                characteristicUUID,
+                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT,
+                inputSource,
+                commandObserver);
+
+        writeCommand.execute(device, operationCommandObserver, gatt);
+        writeCommand.onCharacteristicWrite(gatt, gattCharacteristic, BluetoothGatt.GATT_SUCCESS);
+
+        verify(inputSource).close();
+    }
+
+    @Test(timeout = 1000)
+    public void testAsyncInputSourceClosesOnError() throws IOException {
+        when(gatt.getService(eq(serviceUUID))).thenReturn(gattService);
+        when(gattService.getCharacteristic(characteristicUUID)).thenReturn(gattCharacteristic);
+        when(gatt.writeCharacteristic(eq(gattCharacteristic))).thenReturn(true);
+        AsyncInputSource inputSource = Mockito.mock(AsyncInputSource.class);
+        when(inputSource.nextChunk()).thenThrow(new IOException());
+
+        writeCommand = new WriteCommand(
+                serviceUUID,
+                characteristicUUID,
+                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT,
+                inputSource,
+                commandObserver);
+
+        writeCommand.execute(device, operationCommandObserver, gatt);
+        writeCommand.onCharacteristicWrite(gatt, gattCharacteristic, BluetoothGatt.GATT_SUCCESS);
+
+        while (writeCommand.readerThread.isAlive()) {
+            Robolectric.getForegroundThreadScheduler().advanceBy(0, TimeUnit.MILLISECONDS);
+            Thread.yield();
+        }
+        Robolectric.getForegroundThreadScheduler().advanceBy(0, TimeUnit.MILLISECONDS);
+
+        verify(inputSource).close();
+    }
+
+    @Test
     public void testOnCharacteristicWriteNextChunk() throws IOException {
         when(gatt.getService(eq(serviceUUID))).thenReturn(gattService);
         when(gattService.getCharacteristic(characteristicUUID)).thenReturn(gattCharacteristic);
