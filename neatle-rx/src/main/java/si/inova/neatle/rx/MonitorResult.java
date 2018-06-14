@@ -22,4 +22,25 @@
  * SOFTWARE.
  */
 
-include ':neatle', ':sample', ':neatle-rx'
+package si.inova.neatle.rx;
+
+import si.inova.neatle.monitor.Connection;
+
+public class MonitorResult {
+
+    private Connection connection;
+    private int newState;
+
+    public MonitorResult(Connection connection, int newState) {
+        this.connection = connection;
+        this.newState = newState;
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
+
+    public int getNewState() {
+        return newState;
+    }
+}
