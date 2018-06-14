@@ -187,7 +187,6 @@ class WriteCommand extends SingleCharacteristicsCommand {
                     });
 
                     if (chunk == null) {
-                        buffer.close();
                         return;
                     }
 
@@ -195,20 +194,22 @@ class WriteCommand extends SingleCharacteristicsCommand {
                         bufferReadLock.wait();
                     }
                 }
-            } catch (IOException | InterruptedException ex) {
+            } catch (InterruptedException ignored) {
+                // We got interrupted. Error was already handled elsewhere.
+            } catch (IOException ex) {
                 fail(ex);
+            } finally {
+                try {
+                    buffer.close();
+                } catch (IOException closeEx) {
+                    NeatleLogger.e("Failed to close input source", closeEx);
+                }
             }
         }
 
         private void fail(Exception ex) {
             NeatleLogger.e("Failed to read", ex);
-            try {
-              buffer.close();
-            } catch (IOException closeEx) {
-                NeatleLogger.e("Failed to close input source", closeEx);
-            } finally {
-                finish(CommandResult.createErrorResult(characteristicUUID, BluetoothGatt.GATT_FAILURE));
-            }
+            finish(CommandResult.createErrorResult(characteristicUUID, BluetoothGatt.GATT_FAILURE));
         }
     }
 }
