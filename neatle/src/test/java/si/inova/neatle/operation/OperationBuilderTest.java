@@ -120,7 +120,8 @@ public class OperationBuilderTest {
     }
 
     private void assertUuids(Command command, int serUuid, int chUuid) {
-        assertEquals(Neatle.createUUID(serUuid), command.getServiceUUID());
-        assertEquals(Neatle.createUUID(chUuid), command.getCharacteristicUUID());
+        SingleCharacteristicsCommand cmd = (SingleCharacteristicsCommand) command;
+        assertEquals(Neatle.createUUID(serUuid), cmd.getServiceUUID());
+        assertEquals(Neatle.createUUID(chUuid), cmd.getCharacteristicUUID());
     }
 }

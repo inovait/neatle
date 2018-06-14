@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.UUID;
 
 import si.inova.neatle.Neatle;
+import si.inova.neatle.ServicesDiscoveredListener;
 import si.inova.neatle.operation.CharacteristicsChangedListener;
 
 public interface Connection {
@@ -155,4 +156,7 @@ public interface Connection {
      */
     List<BluetoothGattService> getServices();
 
+    void addServicesDiscoveredListener(ServicesDiscoveredListener listener);
+
+    void removeServicesDiscoveredListener(ServicesDiscoveredListener listener);
 }

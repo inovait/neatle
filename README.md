@@ -15,11 +15,47 @@ It provides a single entry point for all BTLE related operations.
 Include the NeatLE library in your Android project as a Gradle dependency:
 ```groovy
 dependencies {
-    compile 'si.inova:neatle:0.9.3'
+    compile 'si.inova:neatle:X.Y.Z'
 }
 ```
 
+Replace `X.Y.Z` above with latest version: ![Download](https://api.bintray.com/packages/inovait/NeatLE/neatle/images/download.svg)
+
 ## Examples
+
+### Scan for nearby devices
+
+`Scanner` can be used to scan for all nearby BTLE devices that advertise specific service.
+
+```java
+if (ContextCompat.checkSelfPermission(context,
+        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+    // We cannot scan as we do not have location permission
+    // TODO notify user
+
+    return;
+}
+
+// Scan for devices that can report battery status
+UUID batteryService = Neatle.createUUID(0x180f);
+
+ScanBuilder builder = Neatle.createScannerBuilder();
+builder.addServiceUUID(batteryService);
+
+builder.setNewDeviceFoundListener(new Scanner.NewDeviceFoundListener() {
+    @Override
+    public void onNewDeviceFound(ScanEvent e) {
+        System.out.println("Device " + e.getDevice() + " found!");
+    }
+});
+
+scanner = builder.build();
+scanner.startScanning(context);
+
+...
+
+scanner.stopScanning();
+```
 
 ### Monitor for connections:
 
@@ -48,6 +84,8 @@ It can have multiple read **and** write operations, that will be executed on the
 
 An operation can also be executed more than once.
 
+#### Read operation
+
 ```java
 BluetoothDevice device = Neatle.getDevice("00:11:22:33:44:55");
 UUID batteryService = Neatle.createUUID(0x180f);
@@ -67,6 +105,31 @@ Operation operation = Neatle.createOperationBuilder(context)
 operation.execute();
 ```
 
+#### Write operation
+
+```java
+BluetoothDevice device = Neatle.getDevice("00:11:22:33:44:55");
+UUID serviceToWrite = ...
+final UUID characteristicToWrite = ...
+byte[] dataToWrite = ...
+
+InputSource inputSource = new ByteArrayInputSource(dataToWrite);
+
+Operation operation = Neatle.createOperationBuilder(context)
+        .write(serviceToWrite, characteristicToWrite, inputSource)
+        .onFinished(new SimpleOperationObserver() {
+            @Override
+            public void onOperationFinished(Operation op, OperationResults results) {
+                if (results.wasSuccessful()) {
+                    System.out.println("Write was successful!");
+                } else {
+                    System.out.println("Write failed! ");
+                }
+            }
+        })
+        .build(device);
+operation.execute();
+```
 
 ### Create a subscription:
 

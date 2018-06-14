@@ -28,6 +28,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.Handler;
+import android.support.annotation.VisibleForTesting;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -37,7 +38,7 @@ import si.inova.neatle.source.AsyncInputSource;
 import si.inova.neatle.source.InputSource;
 import si.inova.neatle.util.NeatleLogger;
 
-class WriteCommand extends Command {
+class WriteCommand extends SingleCharacteristicsCommand {
 
     private BluetoothGatt gatt;
     private BluetoothGattCharacteristic writeCharacteristic;
@@ -48,7 +49,8 @@ class WriteCommand extends Command {
     private final Handler handler = new Handler();
     private final Object bufferReadLock = new Object();
     private final boolean asyncMode;
-    private Thread readerThread;
+    @VisibleForTesting
+    Thread readerThread;
 
     WriteCommand(UUID serviceUUID, UUID characteristicsUUID, int writeType, InputSource buffer, CommandObserver observer) {
         super(serviceUUID, characteristicsUUID, observer);
@@ -58,9 +60,7 @@ class WriteCommand extends Command {
     }
 
     @Override
-    protected void execute(Connection connection, CommandObserver observer, BluetoothGatt gatt) {
-        super.execute(connection, observer, gatt);
-
+    protected void start(Connection connection, BluetoothGatt gatt) {
         BluetoothGattService service = gatt.getService(serviceUUID);
         if (service == null) {
             NeatleLogger.i("Service for write not found [" + serviceUUID + "]");
@@ -92,8 +92,8 @@ class WriteCommand extends Command {
     }
 
     @Override
-    protected void finish(CommandResult result) {
-        super.finish(result);
+    protected void onFinished(CommandResult result) {
+        super.onFinished(result);
         if (readerThread != null) {
             readerThread.interrupt();
         }
@@ -136,6 +136,11 @@ class WriteCommand extends Command {
                 return;
             }
             if (chunk == null) {
+                try {
+                    buffer.close();
+                } catch (IOException e) {
+                    // Closing, ignore exception
+                }
                 finish(CommandResult.createEmptySuccess(characteristicUUID));
                 return;
             }
@@ -176,12 +181,13 @@ class WriteCommand extends Command {
                         }
                     });
 
-                    synchronized (bufferReadLock) {
-                        bufferReadLock.wait();
+                    if (chunk == null) {
+                        buffer.close();
+                        return;
                     }
 
-                    if (chunk == null) {
-                        break;
+                    synchronized (bufferReadLock) {
+                        bufferReadLock.wait();
                     }
                 }
             } catch (IOException | InterruptedException ex) {
@@ -190,7 +196,14 @@ class WriteCommand extends Command {
         }
 
         private void fail(Exception ex) {
-            //TODO: Handle failure
+            NeatleLogger.e("Failed to read", ex);
+            try {
+              buffer.close();
+            } catch (IOException closeEx) {
+                NeatleLogger.e("Failed to close input source", closeEx);
+            } finally {
+                finish(CommandResult.createErrorResult(characteristicUUID, BluetoothGatt.GATT_FAILURE));
+            }
         }
     }
 }

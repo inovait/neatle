@@ -34,6 +34,7 @@ import android.os.Handler;
 import android.support.annotation.RestrictTo;
 
 import si.inova.neatle.Neatle;
+import si.inova.neatle.ServicesDiscoveredListener;
 import si.inova.neatle.util.NeatleLogger;
 
 /**
@@ -50,6 +51,7 @@ public class ConnectionMonitorImpl implements ConnectionMonitor {
 
     private Connection connection;
     private ConnectionStateListener connectionStateListener;
+    private ServicesDiscoveredListener serviceDiscoveredListener;
     private boolean keepAlive;
 
     private final Handler handler = new Handler();
@@ -70,6 +72,7 @@ public class ConnectionMonitorImpl implements ConnectionMonitor {
         }
     };
 
+
     public ConnectionMonitorImpl(Context context, BluetoothDevice device) {
         this.context = context.getApplicationContext();
         this.device = device;
@@ -86,6 +89,11 @@ public class ConnectionMonitorImpl implements ConnectionMonitor {
     }
 
     @Override
+    public void setOnServiceDiscoveredListener(ServicesDiscoveredListener serviceDiscoveredListener) {
+        this.serviceDiscoveredListener = serviceDiscoveredListener;
+    }
+
+    @Override
     public void start() {
         if (connection != null) {
             return;
@@ -96,6 +104,7 @@ public class ConnectionMonitorImpl implements ConnectionMonitor {
         connection = Neatle.getConnection(context, device);
         connection.addConnectionHandler(connectionHandler);
         connection.addConnectionStateListener(connectionHandler);
+        connection.addServicesDiscoveredListener(connectionHandler);
 
         if (keepAlive) {
             connection.connect();
@@ -113,6 +122,7 @@ public class ConnectionMonitorImpl implements ConnectionMonitor {
         if (connection != null) {
             connection.removeConnectionStateListener(connectionHandler);
             connection.removeConnectionHandler(connectionHandler);
+            connection.removeServicesDiscoveredListener(connectionHandler);
             connection = null;
         }
     }
@@ -122,13 +132,18 @@ public class ConnectionMonitorImpl implements ConnectionMonitor {
         return device;
     }
 
+    @Override
+    public Connection getConnection() {
+        return connection;
+    }
+
     private void onBluetoothTurnedOn() {
         if (keepAlive && connection != null) {
             connection.connect();
         }
     }
 
-    private class ConnHandler implements ConnectionHandler, ConnectionStateListener {
+    private class ConnHandler implements ConnectionHandler, ConnectionStateListener, ServicesDiscoveredListener {
 
         private long reconnectTimeout = DEFAULT_RECONNECT_TIMEOUT;
 
@@ -151,6 +166,13 @@ public class ConnectionMonitorImpl implements ConnectionMonitor {
                 reconnectTimeout = Math.min(reconnectTimeout * 2, MAX_RECONNECT_TIMEOUT);
             } else if (newState == BluetoothAdapter.STATE_CONNECTED) {
                 reconnectTimeout = DEFAULT_RECONNECT_TIMEOUT;
+            }
+        }
+
+        @Override
+        public void onServicesDiscovered(Connection connection) {
+            if (serviceDiscoveredListener != null) {
+                serviceDiscoveredListener.onServicesDiscovered(connection);
             }
         }
     }
