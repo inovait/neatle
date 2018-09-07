@@ -174,10 +174,9 @@ class OperationImpl implements Operation {
             }
 
             Command old = currentCommand;
-            currentCommand = commandQueue.poll();
+            currentCommand = commandQueue.isEmpty() ? EMPTY_COMMAND : commandQueue.poll();
             NeatleLogger.d("Continuing with " + currentCommand + " after " + old + " with " + lastResult);
-            if (currentCommand == null) {
-                currentCommand = EMPTY_COMMAND;
+            if (currentCommand == null || currentCommand.equals(EMPTY_COMMAND)) {
                 done();
                 return;
             }
@@ -304,47 +303,54 @@ class OperationImpl implements Operation {
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            currentCommand.onCharacteristicRead(gatt, characteristic, status);
+            current().onCharacteristicRead(gatt, characteristic, status);
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            currentCommand.onCharacteristicWrite(gatt, characteristic, status);
+            current().onCharacteristicWrite(gatt, characteristic, status);
         }
 
         @Override
         public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            currentCommand.onDescriptorRead(gatt, descriptor, status);
+            current().onDescriptorRead(gatt, descriptor, status);
         }
 
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            currentCommand.onDescriptorWrite(gatt, descriptor, status);
+            current().onDescriptorWrite(gatt, descriptor, status);
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            currentCommand.onCharacteristicChanged(gatt, characteristic);
+            current().onCharacteristicChanged(gatt, characteristic);
         }
 
         @Override
         public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
-            currentCommand.onReliableWriteCompleted(gatt, status);
+            current().onReliableWriteCompleted(gatt, status);
         }
 
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-            currentCommand.onReadRemoteRssi(gatt, rssi, status);
+            current().onReadRemoteRssi(gatt, rssi, status);
         }
 
         @Override
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            currentCommand.onMtuChanged(gatt, mtu, status);
+            current().onMtuChanged(gatt, mtu, status);
         }
 
         @Override
         public String toString() {
             return "Callback[" + OperationImpl.this.toString() + "]";
         }
+
+        private Command current() {
+            synchronized(OperationImpl.this) {
+                return currentCommand;
+            }
+        }
+
     }
 }
