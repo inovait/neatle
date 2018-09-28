@@ -174,9 +174,10 @@ class OperationImpl implements Operation {
             }
 
             Command old = currentCommand;
-            currentCommand = commandQueue.isEmpty() ? EMPTY_COMMAND : commandQueue.poll();
+            currentCommand = commandQueue.poll();
             NeatleLogger.d("Continuing with " + currentCommand + " after " + old + " with " + lastResult);
-            if (currentCommand == null || currentCommand.equals(EMPTY_COMMAND)) {
+            if (currentCommand == null) {
+                currentCommand = EMPTY_COMMAND;
                 done();
                 return;
             }
