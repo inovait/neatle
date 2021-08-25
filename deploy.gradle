@@ -24,6 +24,7 @@
 
 
 apply plugin: 'maven'
+apply plugin: 'signing'
 
 def groupId = "si.inova"
 def version = ext.getVersionName()
@@ -48,13 +49,52 @@ task androidSourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
 }
 
+signing {
+     sign configurations.archives
+}
+
 uploadArchives {
     repositories.mavenDeployer {
         pom.groupId = groupId
         pom.artifactId = project.artifactId
         pom.version = version
-        // Add other pom properties here if you want (developer details / licenses)
-        repository(url: "file://${localReleaseDest}")
+
+        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+        repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+           authentication(userName: ossrhUsername, password: ossrhPassword)
+        }
+        snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+            authentication(userName: ossrhUsername, password: ossrhPassword)
+        }  
+
+        pom.project {
+            name 'NeatLE'
+            description ' A Neat BluetoothLE library for Android '
+
+            url 'https://github.com/inovait/neatle'
+
+            licenses {
+                license {
+                    name 'MIT'
+                    url 'https://github.com/inovait/neatle/blob/master/LICENSE'
+                    distribution 'repo'
+                }
+            }
+
+            developers {
+                developer {
+                    id = 'inova'
+                    name = 'Inova IT'
+                    email = 'android@inova.si'
+                }
+            }
+
+            scm {
+                connection 'scm:git:https://github.com/inovait/neatle.git'
+                url 'https://github.com/inovait/neatle.git'
+            }
+        }
     }
 }
 
@@ -63,10 +103,6 @@ task zipRelease(type: Zip) {
     destinationDir buildDir
     archiveName "release-${version}.zip"
     println "Release ${version} zipped can be found ${buildDir}/release-${version}.zip"
-}
-
-task updateBintrayConfig << {
-    ant.replace(file: "bintray.json", token: "#VERSION_NAME", value: version)
 }
 
 task generateRelease << {
