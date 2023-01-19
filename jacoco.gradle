@@ -42,7 +42,7 @@ project.afterEvaluate {
             group = "Reporting"
             description = "Generate Jacoco coverage reports for the ${name.capitalize()} build."
 
-            classDirectories = fileTree(
+            classDirectories.setFrom(fileTree(
                     dir: "${project.buildDir}/intermediates/classes/${name}",
                     excludes: ['**/R.class',
                                '**/R$*.class',
@@ -50,10 +50,10 @@ project.afterEvaluate {
                                '**/*$ViewBinder*.*',
                                '**/BuildConfig.*',
                                '**/Manifest*.*']
-            )
+            ))
 
-            sourceDirectories = files(['src/main/java'] + android.sourceSets[name].java.srcDirs)
-            executionData = files("${project.buildDir}/jacoco/${testTaskName}.exec")
+            sourceDirectories.setFrom(files(['src/main/java'] + android.sourceSets[name].java.srcDirs))
+            executionData.setFrom(files("${project.buildDir}/jacoco/${testTaskName}.exec"))
 
             reports {
                 xml.enabled = true
