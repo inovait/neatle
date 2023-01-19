@@ -28,7 +28,7 @@ import android.bluetooth.BluetoothAdapter;
 import java.util.UUID;
 
 /**
- * Builder class for {@klink Scanner} objects. The actuall scanner implementation will be selected
+ * Builder class for {@link Scanner} objects. The actuall scanner implementation will be selected
  * based on device OS.
  */
 public final class ScanBuilder {
@@ -47,7 +47,7 @@ public final class ScanBuilder {
      * Adds a service UUID used for service discovery. When used, only
      * devices advertising the service will be reported.
      *
-     * @link https://www.bluetooth.com/specifications/assigned-numbers/service-discovery
+     * https://www.bluetooth.com/specifications/assigned-numbers/service-discovery
      *
      * @param serviceUUID the serviceUUID that will
      */
