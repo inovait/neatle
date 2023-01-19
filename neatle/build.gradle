@@ -23,7 +23,7 @@
  */
 
 apply plugin: 'com.android.library'
-apply from: '../jacoco.gradle'
+//apply from: '../jacoco.gradle'
 
 ext {
     artifactId = 'neatle'
@@ -56,9 +56,9 @@ android {
 
     testOptions {
         unitTests.all {
-            jacoco {
-                includeNoLocationClasses = true
-            }
+//            jacoco {
+//                includeNoLocationClasses = true
+//            }
         }
 
         unitTests.returnDefaultValues = true
