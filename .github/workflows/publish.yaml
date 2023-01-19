@@ -1,5 +1,5 @@
 name: publish
-run-name: "#${{ github.event.pull_request.number}} ${{ github.event.pull_request.title}}"
+run-name: "Publish ${{ github.event.inputs.version}} "
 on:
   workflow_dispatch:
     inputs:
@@ -34,13 +34,13 @@ jobs:
         run: 'echo "${{ secrets.GPG_SIGNING_KEY }}" | base64 -d > neatle/signing_key.gpg'
       - name: 'Publish'
         run: './gradlew neatle:uploadArchives 
-                -PossrhUsername=${{ secrets.OSSRH_USERNAME }} 
-                -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} 
+                -PossrhUsername=''${{ secrets.OSSRH_USERNAME }}''
+                -PossrhPassword=''${{ secrets.OSSRH_PASSWORD }}''
                 -Psigning.secretKeyRingFile=signing_key.gpg 
-                -Psigning.password=${{ secrets.GPG_SIGNING_PASSPHRASE }} 
+                -Psigning.password=''${{ secrets.GPG_SIGNING_PASSPHRASE }}'' 
                 -Psigning.keyId=${{ secrets.GPG_SIGNING_ID }}'
       - name: 'Push tag'
-        run: 'git push ${{ github.event.inputs.version }}'
+        run: 'git push origin ${{ github.event.inputs.version }}'
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always()
