@@ -50,49 +50,53 @@ task androidSourcesJar(type: Jar) {
 }
 
 signing {
-     sign configurations.archives
+    sign configurations.archives
 }
 
-uploadArchives {
-    repositories.mavenDeployer {
-        pom.groupId = groupId
-        pom.artifactId = project.artifactId
-        pom.version = version
+if (project.hasProperty('ossrhUsername')) {
+    uploadArchives {
+        repositories.mavenDeployer {
+            pom.groupId = groupId
+            pom.artifactId = project.artifactId
+            pom.version = version
 
-        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            beforeDeployment { deployment -> signing.signPom(deployment) }
 
-        repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-           authentication(userName: ossrhUsername, password: ossrhPassword)
-        }
-        snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-            authentication(userName: ossrhUsername, password: ossrhPassword)
-        }  
-
-        pom.project {
-            name 'NeatLE'
-            description ' A Neat BluetoothLE library for Android '
-
-            url 'https://github.com/inovait/neatle'
-
-            licenses {
-                license {
-                    name 'MIT'
-                    url 'https://github.com/inovait/neatle/blob/master/LICENSE'
-                    distribution 'repo'
+            uploadArchives {
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
                 }
             }
 
-            developers {
-                developer {
-                    id = 'inova'
-                    name = 'Inova IT'
-                    email = 'android@inova.si'
-                }
-            }
+            pom.project {
+                name 'NeatLE'
+                description ' A Neat BluetoothLE library for Android '
 
-            scm {
-                connection 'scm:git:https://github.com/inovait/neatle.git'
-                url 'https://github.com/inovait/neatle.git'
+                url 'https://github.com/inovait/neatle'
+
+                licenses {
+                    license {
+                        name 'MIT'
+                        url 'https://github.com/inovait/neatle/blob/master/LICENSE'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'inova'
+                        name = 'Inova IT'
+                        email = 'android@inova.si'
+                    }
+                }
+
+                scm {
+                    connection 'scm:git:https://github.com/inovait/neatle.git'
+                    url 'https://github.com/inovait/neatle.git'
+                }
             }
         }
     }
@@ -105,7 +109,7 @@ task zipRelease(type: Zip) {
     println "Release ${version} zipped can be found ${buildDir}/release-${version}.zip"
 }
 
-task generateRelease << {
+task generateRelease {
     println "Release ${version} can be found at ${localReleaseDest}/"
 }
 

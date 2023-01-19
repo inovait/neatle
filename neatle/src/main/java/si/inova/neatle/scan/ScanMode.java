@@ -63,7 +63,7 @@ public final class ScanMode {
     /**
      * Gets the scan mode.
      *
-     * @return @{link #SCAN_MODE_OPPORTUNISTIC}, {@link #SCAN_MODE_LOW_POWER},
+     * @return {@link #SCAN_MODE_OPPORTUNISTIC}, {@link #SCAN_MODE_LOW_POWER},
      * {@link #SCAN_MODE_BALANCED} or  {@link #SCAN_MODE_LOW_LATENCY}
      */
     public int getMode() {
