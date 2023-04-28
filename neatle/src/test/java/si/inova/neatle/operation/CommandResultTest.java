@@ -47,7 +47,7 @@ import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.N_MR1)
+@Config(sdk = Build.VERSION_CODES.N_MR1)
 public class CommandResultTest {
 
     @Test

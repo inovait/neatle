@@ -27,7 +27,7 @@ package si.inova.neatle.operation;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
-import android.support.annotation.CallSuper;
+import androidx.annotation.CallSuper;
 
 import si.inova.neatle.monitor.Connection;
 

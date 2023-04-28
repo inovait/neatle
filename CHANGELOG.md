@@ -1,3 +1,5 @@
+This changelog is for older versions. See [Github Releases](https://github.com/inovait/neatle/releases) for newer versions.
+
 ## Version 0.9.3
  - Fixed: #21 - BluetoothGattCharacteristic needed to extract value on subscription
 

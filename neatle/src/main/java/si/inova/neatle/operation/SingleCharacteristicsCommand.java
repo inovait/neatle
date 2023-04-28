@@ -23,7 +23,7 @@
  */
 package si.inova.neatle.operation;
 
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 
 import java.util.UUID;
 

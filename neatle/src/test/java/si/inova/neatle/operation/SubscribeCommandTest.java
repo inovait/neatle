@@ -53,7 +53,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.N_MR1)
+@Config(sdk = Build.VERSION_CODES.N_MR1)
 public class SubscribeCommandTest {
 
     private UUID serviceUUID = Neatle.createUUID(1);

@@ -24,7 +24,7 @@
 
 package si.inova.neatle.util;
 
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 import android.util.Log;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
