@@ -57,7 +57,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.N_MR1)
+@Config(sdk = Build.VERSION_CODES.N_MR1)
 public class CharacteristicSubscriptionTest {
 
     private static final UUID SERVICE_UUID = Neatle.createUUID(1);
@@ -128,12 +128,8 @@ public class CharacteristicSubscriptionTest {
 
         subscription.start();
 
-        Robolectric.getForegroundThreadScheduler().pause();
-
         subscription.stop();
         subscription.start();
-
-        Robolectric.getForegroundThreadScheduler().unPause();
 
         assertTrue(subscription.isStarted());
     }

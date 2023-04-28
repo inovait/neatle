@@ -40,7 +40,7 @@ import si.inova.neatle.BuildConfig;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.N_MR1)
+@Config(sdk = Build.VERSION_CODES.N_MR1)
 public class DeviceManagerTest {
 
     private DeviceManager deviceManager;

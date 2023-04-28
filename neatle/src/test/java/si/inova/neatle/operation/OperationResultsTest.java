@@ -42,7 +42,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.N_MR1)
+@Config(sdk = Build.VERSION_CODES.N_MR1)
 public class OperationResultsTest {
 
     private OperationResults operationResults;
