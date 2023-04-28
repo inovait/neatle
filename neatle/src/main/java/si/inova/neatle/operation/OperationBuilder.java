@@ -27,8 +27,8 @@ package si.inova.neatle.operation;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
-import android.support.annotation.CheckResult;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.CheckResult;
+import androidx.annotation.RestrictTo;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;

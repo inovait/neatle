@@ -26,7 +26,7 @@ package si.inova.neatle.operation;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 
 import java.nio.charset.Charset;
 import java.util.UUID;

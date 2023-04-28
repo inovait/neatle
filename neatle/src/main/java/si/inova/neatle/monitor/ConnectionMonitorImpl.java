@@ -31,7 +31,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 
 import si.inova.neatle.Neatle;
 import si.inova.neatle.ServicesDiscoveredListener;

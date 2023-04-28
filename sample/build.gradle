@@ -25,8 +25,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "si.inova.sample"
@@ -50,10 +49,10 @@ android {
 dependencies {
     compile project(':neatle')
 
-    compile 'com.jakewharton:butterknife:8.5.1'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:recyclerview-v7:25.3.1'    
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    compile 'com.jakewharton:butterknife:10.2.3'
+    compile 'androidx.appcompat:appcompat:1.0.0'
+    compile 'com.google.android.material:material:1.0.0'
+    compile 'androidx.legacy:legacy-support-v4:1.0.0'
+    compile 'androidx.recyclerview:recyclerview:1.0.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
 }
