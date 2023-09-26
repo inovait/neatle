@@ -58,6 +58,8 @@ public class ConnectionMonitorImpl implements ConnectionMonitor {
     private final ConnHandler connectionHandler = new ConnHandler();
     private final ReconnectRunnable reconnectRunnable = new ReconnectRunnable();
 
+    private int transport = 0;
+
     private final IntentFilter btFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
     private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
         @Override
@@ -105,6 +107,7 @@ public class ConnectionMonitorImpl implements ConnectionMonitor {
         connection.addConnectionHandler(connectionHandler);
         connection.addConnectionStateListener(connectionHandler);
         connection.addServicesDiscoveredListener(connectionHandler);
+        connection.setTransport(transport);
 
         if (keepAlive) {
             connection.connect();
@@ -135,6 +138,15 @@ public class ConnectionMonitorImpl implements ConnectionMonitor {
     @Override
     public Connection getConnection() {
         return connection;
+    }
+
+    @Override
+    public void setTransport(int transport) {
+        this.transport = transport;
+
+        if (this.connection != null) {
+            this.connection.setTransport(transport);
+        }
     }
 
     private void onBluetoothTurnedOn() {

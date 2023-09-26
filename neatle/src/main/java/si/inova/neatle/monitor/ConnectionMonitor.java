@@ -62,6 +62,18 @@ public interface ConnectionMonitor {
     void setOnServiceDiscoveredListener(ServicesDiscoveredListener serviceDiscoveredListener);
 
     /**
+     * Set which transport will be used to connect to the device under this monitor.
+     * Defaults to {@link BluetoothDevice#TRANSPORT_AUTO}.
+     *
+     * Only works on API Level 23 and higher.
+     *
+     * @param transport Either {@link BluetoothDevice#TRANSPORT_AUTO},
+     * {@link BluetoothDevice#TRANSPORT_BREDR} or
+     * {@link BluetoothDevice#TRANSPORT_LE}
+     */
+    public void setTransport(int transport);
+
+    /**
      * Starts this connection monitor, if it's not already running. If keepAlive is set this will
      * also initiate a connection request.
      */

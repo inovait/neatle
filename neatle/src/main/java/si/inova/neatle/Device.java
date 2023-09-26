@@ -71,6 +71,8 @@ public class Device implements Connection {
     private boolean serviceDiscovered;
     private BluetoothGatt gatt;
 
+    private int transport = 0;
+
     private final CopyOnWriteArrayList<ConnectionHandler> connectionHandlers = new CopyOnWriteArrayList<>();
     private final HashMap<UUID, CopyOnWriteArrayList<CharacteristicsChangedListener>> changeListeners = new HashMap<>();
     private final CopyOnWriteArrayList<ConnectionStateListener> connectionStateListeners = new CopyOnWriteArrayList<>();
@@ -431,7 +433,13 @@ public class Device implements Connection {
         }
 
         NeatleLogger.d("Connecting with " + device.getName() + "[" + device.getAddress() + "]");
-        BluetoothGatt gatt = device.connectGatt(context, false, callback);
+        BluetoothGatt gatt;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            gatt = device.connectGatt(context, false, callback, transport);
+        } else {
+            gatt = device.connectGatt(context, false, callback);
+        }
 
         synchronized (lock) {
             if (state == BluetoothGatt.STATE_DISCONNECTED) {
@@ -545,7 +553,12 @@ public class Device implements Connection {
         }
     }
 
-    /*public void yield(BluetoothGattCallback from, BluetoothGattCallback to) {
+    @Override
+    public void setTransport(int transport) {
+        this.transport = transport;
+    }
+
+/*public void yield(BluetoothGattCallback from, BluetoothGattCallback to) {
         synchronized (lock) {
             if (currentCallback == from) {
                 queue.add(0, currentCallback);

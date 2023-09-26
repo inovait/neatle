@@ -159,4 +159,16 @@ public interface Connection {
     void addServicesDiscoveredListener(ServicesDiscoveredListener listener);
 
     void removeServicesDiscoveredListener(ServicesDiscoveredListener listener);
+
+    /**
+     * Set which transport will be used to connect to this device.
+     * Defaults to {@link BluetoothDevice#TRANSPORT_AUTO}.
+     *
+     * Only works on API Level 23 and higher.
+     *
+     * @param transport Either {@link BluetoothDevice#TRANSPORT_AUTO},
+     * {@link BluetoothDevice#TRANSPORT_BREDR} or
+     * {@link BluetoothDevice#TRANSPORT_LE}
+     */
+    public void setTransport(int transport);
 }
