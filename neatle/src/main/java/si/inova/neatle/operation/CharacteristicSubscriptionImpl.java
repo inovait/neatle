@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo;
 import java.util.UUID;
 
 import si.inova.neatle.Neatle;
+import si.inova.neatle.ServicesDiscoveredListener;
 import si.inova.neatle.monitor.Connection;
 import si.inova.neatle.monitor.ConnectionStateListener;
 
@@ -67,6 +68,13 @@ public class CharacteristicSubscriptionImpl implements CharacteristicSubscriptio
         }
     };
 
+    private ServicesDiscoveredListener ServicesDiscoveredListener = new ServicesDiscoveredListener() {
+        @Override
+        public void onServicesDiscovered(Connection connection) {
+            subscribeOnDevice();
+        }
+    };
+
     public CharacteristicSubscriptionImpl(Context context, BluetoothDevice device, UUID serviceUUID, UUID characteristicsUUID) {
         this.context = context.getApplicationContext();
         this.device = device;
@@ -92,6 +100,7 @@ public class CharacteristicSubscriptionImpl implements CharacteristicSubscriptio
 
         connection.addConnectionStateListener(connectionStateHandler);
         connection.addCharacteristicsChangedListener(characteristicsUUID, changeHandler);
+        connection.addServicesDiscoveredListener(ServicesDiscoveredListener);
 
         if (connection.isConnected()) {
             subscribeOnDevice();
@@ -112,6 +121,7 @@ public class CharacteristicSubscriptionImpl implements CharacteristicSubscriptio
         Connection connection = Neatle.getConnection(context, device);
         connection.removeConnectionStateListener(connectionStateHandler);
         connection.removeCharacteristicsChangedListener(characteristicsUUID, changeHandler);
+        connection.removeServicesDiscoveredListener(ServicesDiscoveredListener);
 
         if (connection.isConnected()) {
             unsubscribeOnDevice();

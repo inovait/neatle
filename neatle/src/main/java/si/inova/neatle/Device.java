@@ -34,6 +34,8 @@ import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -685,6 +687,15 @@ public class Device implements Connection {
                 target = currentCallback;
             }
             target.onReadRemoteRssi(gatt, rssi, status);
+        }
+
+        @Override
+        public void onServiceChanged(@NonNull BluetoothGatt gatt) {
+            super.onServiceChanged(gatt);
+
+            final boolean rediscoverStatus = gatt.discoverServices();
+            NeatleLogger.d("onServiceChanged device=" + gatt.getDevice().getAddress() +
+                    ", rediscoverStatus=" + rediscoverStatus);
         }
     }
 
